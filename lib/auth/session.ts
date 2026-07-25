@@ -14,7 +14,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 const useSupabase = process.env.NEXT_PUBLIC_DATA_SOURCE === 'supabase'
 
-const SESSION_COOKIE = 'wego_session'
+const SESSION_COOKIE = 'togo_session'
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 30
 
 export async function createSession(userId: string): Promise<void> {

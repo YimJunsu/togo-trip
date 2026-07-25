@@ -18,7 +18,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             href="/"
             className="font-display shrink-0 text-lg font-semibold tracking-tight"
           >
-            위고트립
+            투고트립
           </Link>
           {/*
             좁은 화면에서 메뉴가 글자 단위로 줄바꿈되지 않게 한다.

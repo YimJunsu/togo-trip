@@ -11,6 +11,8 @@ import {
   StyleResultHero,
 } from '@/components/dashboard/StyleResultCard'
 import { travelStyleRepo } from '@/lib/data'
+import { JsonLd, breadcrumbGraph } from '@/lib/seo/JsonLd'
+import { pageMetadata } from '@/lib/seo/metadata'
 import { nearestCodes } from '@/lib/style/score'
 import type { PageProps } from '@/lib/types/page'
 
@@ -18,34 +20,35 @@ type Params = { code: string }
 
 const MATCH_COUNT = 3
 
+/**
+ * 16유형을 빌드 시 미리 만들어 둔다. 공유 링크가 처음 열릴 때 og:image가 비어 보이는
+ * 일이 없어야 하고, 크롤러도 정적 HTML을 바로 받는다.
+ */
+export async function generateStaticParams() {
+  const styles = await travelStyleRepo.list()
+  return styles.map((style) => ({ code: style.code }))
+}
+
 export async function generateMetadata({
   params,
 }: PageProps<Params>): Promise<Metadata> {
   const { code } = await params
   const style = await travelStyleRepo.get(code)
-  if (!style) return { title: '없는 결과 · 위고트립' }
-
-  const title = `나는 ${style.name} 여행이다 (${style.code})`
-  const description = `${style.tagline} · 위고트립 여행 성향 분석`
-  const image = `/images/style/${style.code}.webp`
+  if (!style) return { title: '없는 결과', robots: { index: false } }
 
   // 공유 링크를 카카오톡·메시지에 붙였을 때 카드가 뜨도록 og·twitter를 함께 채운다.
-  return {
-    title: `${title} · 위고트립`,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'article',
-      images: [{ url: image, width: 768, height: 768, alt: style.name }],
+  return pageMetadata({
+    title: `나는 ${style.name} 여행이다 (${style.code})`,
+    description: `${style.tagline} — 투고트립 여행 성향 분석 16유형 중 ${style.code}. 12문항이면 내 유형도 나옵니다.`,
+    path: `/style/${style.code}`,
+    type: 'article',
+    image: {
+      url: `/images/style/${style.code}.webp`,
+      width: 768,
+      height: 768,
+      alt: style.name,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [image],
-    },
-  }
+  })
 }
 
 export default async function StyleResultPage({ params }: PageProps<Params>) {
@@ -85,6 +88,14 @@ export default async function StyleResultPage({ params }: PageProps<Params>) {
       <StyleAxisGrid style={style} />
       <StyleNotes style={style} />
       <StyleMatchGrid styles={matches} />
+
+      <JsonLd
+        data={breadcrumbGraph([
+          { name: '홈', path: '/' },
+          { name: '여행 성향 분석', path: '/style' },
+          { name: style.name, path: `/style/${style.code}` },
+        ])}
+      />
     </div>
   )
 }

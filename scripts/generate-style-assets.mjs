@@ -113,7 +113,7 @@ function main() {
   }
 
   mkdirSync(OUT_DIR, { recursive: true })
-  const tmp = join(tmpdir(), 'wego-style-prompts')
+  const tmp = join(tmpdir(), 'togo-style-prompts')
   mkdirSync(tmp, { recursive: true })
 
   const maxRetry = Number(args.retry)

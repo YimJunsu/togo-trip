@@ -1,5 +1,18 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Outfit, Space_Mono } from 'next/font/google'
+import { JsonLd, siteGraph } from '@/lib/seo/JsonLd'
+import {
+  GOOGLE_SITE_VERIFICATION,
+  NAVER_SITE_VERIFICATION,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_LOCALE,
+  SITE_NAME,
+  SITE_NAME_EN,
+  SITE_TAGLINE,
+  SITE_URL,
+  TWITTER_CARD,
+} from '@/lib/seo/site'
 import './globals.css'
 
 const outfit = Outfit({
@@ -16,12 +29,59 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   // 공유 링크의 og:image가 절대 URL이어야 카카오톡·메시지에서 카드가 뜬다.
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
-  ),
-  title: '위고트립 — 친구들과 국내여행',
-  description:
-    '랜덤 여행지 추천, 초대코드 여행방, 엔빵 정산, 근처 맛집, 여행 성향 분석.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    // 하위 페이지는 title만 주면 뒤에 브랜드가 자동으로 붙는다.
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
+  applicationName: SITE_NAME,
+  category: 'travel',
+  alternates: { canonical: '/' },
+  // 날짜·금액이 전화번호로 오인돼 자동 링크가 걸리는 걸 막는다.
+  formatDetection: { telephone: false, address: false, email: false },
+  openGraph: {
+    type: 'website',
+    locale: SITE_LOCALE,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: TWITTER_CARD,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      // 큰 썸네일·긴 스니펫을 허용해야 AI 요약이 본문을 충분히 인용한다.
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  // 소유확인 토큰. 공개 값이라 lib/seo/site.ts에 상수로 둔다.
+  verification: {
+    google: GOOGLE_SITE_VERIFICATION,
+    other: { 'naver-site-verification': NAVER_SITE_VERIFICATION },
+  },
+  other: {
+    // 서비스 범위가 한국 국내여행이라는 걸 크롤러에 명시한다.
+    'geo.region': 'KR',
+    'geo.placename': 'South Korea',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#f4f4ef',
+  colorScheme: 'light',
 }
 
 export default function RootLayout({
@@ -34,7 +94,18 @@ export default function RootLayout({
       lang="ko"
       className={`${outfit.variable} ${spaceMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <head>
+        {/* 본문 폰트가 CDN에서 오므로 미리 연결해 첫 렌더의 폰트 지연을 줄인다. */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <JsonLd data={siteGraph} />
+      </head>
+      <body className="flex min-h-full flex-col">
+        {/* 크롤러가 로고 텍스트 대신 정식 명칭을 집도록 화면 밖에 한 번 더 둔다. */}
+        <span className="sr-only">
+          {SITE_NAME} ({SITE_NAME_EN})
+        </span>
+        {children}
+      </body>
     </html>
   )
 }

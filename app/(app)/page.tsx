@@ -8,8 +8,10 @@ import {
 import { actionButtonClass } from '@/components/dashboard/ActionButton'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { TripCard } from '@/components/dashboard/TripCard'
+import { FAQ_ITEMS, SiteFaq } from '@/components/seo/SiteFaq'
 import { getUser } from '@/lib/auth/session'
 import { tripRepo } from '@/lib/data'
+import { JsonLd, faqGraph } from '@/lib/seo/JsonLd'
 
 export default async function HomePage() {
   const user = await getUser()
@@ -140,6 +142,9 @@ export default async function HomePage() {
           </Link>
         </section>
       )}
+
+      <SiteFaq />
+      <JsonLd data={faqGraph([...FAQ_ITEMS])} />
     </div>
   )
 }

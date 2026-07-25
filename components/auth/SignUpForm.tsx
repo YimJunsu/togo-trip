@@ -61,7 +61,9 @@ export function SignUpForm() {
 
   const confirmError =
     errors.passwordConfirm ??
-    (confirm && password !== confirm ? '비밀번호가 일치하지 않습니다.' : undefined)
+    (confirm && password !== confirm
+      ? '비밀번호가 일치하지 않습니다.'
+      : undefined)
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,15 +76,19 @@ export function SignUpForm() {
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="wego@example.com"
+              placeholder="togo@example.com"
               required
               value={email}
               onChange={(e) => handleEmailChange(e.target.value)}
               error={emailError}
               hint={
-                emailCheck === 'available' ? '사용할 수 있는 이메일입니다.' : undefined
+                emailCheck === 'available'
+                  ? '사용할 수 있는 이메일입니다.'
+                  : undefined
               }
-              adornment={<EmailStatus state={emailCheck} hasError={!!errors.email} />}
+              adornment={
+                <EmailStatus state={emailCheck} hasError={!!errors.email} />
+              }
             />
           </div>
 
@@ -103,7 +109,9 @@ export function SignUpForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? '비밀번호 숨기기' : '비밀번호 표시'}
+                  aria-label={
+                    showPassword ? '비밀번호 숨기기' : '비밀번호 표시'
+                  }
                   className="text-muted hover:text-ink shrink-0 transition duration-200"
                 >
                   {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}

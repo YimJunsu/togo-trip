@@ -1,6 +1,14 @@
 import { redirect } from 'next/navigation'
 import { SignUpForm } from '@/components/auth/SignUpForm'
 import { getUser } from '@/lib/auth/session'
+import { pageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = pageMetadata({
+  title: '회원가입',
+  description:
+    '무료로 가입하고 여행방을 만들어 보세요. 초대코드로 친구를 부르고 엔빵 정산까지 한 번에 됩니다.',
+  path: '/signup',
+})
 
 export default async function SignUpPage() {
   if (await getUser()) redirect('/')

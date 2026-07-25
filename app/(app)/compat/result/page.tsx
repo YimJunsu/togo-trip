@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowClockwiseIcon } from '@phosphor-icons/react/dist/ssr'
 import { actionButtonClass } from '@/components/dashboard/ActionButton'
@@ -9,19 +8,25 @@ import {
 } from '@/components/dashboard/CompatResultCard'
 import { ShareButton } from '@/components/dashboard/ShareButton'
 import { compatRepo } from '@/lib/data'
+import { pageMetadata } from '@/lib/seo/metadata'
 
-export const metadata: Metadata = {
-  title: '여행 궁합 결과 · 위고트립',
+/**
+ * 결과는 사람마다 달라야 하는데 지금은 seed 하나뿐이라, 색인되면 얕은 중복 페이지가 된다.
+ * 공유 링크로는 계속 열리되(follow) 검색 결과에는 올리지 않는다.
+ */
+export const metadata = pageMetadata({
+  title: '여행 궁합 결과',
   description: '같이 갈 사람과 어디가 맞고 어디가 다른지 봅니다.',
-  openGraph: {
-    title: '우리 여행 궁합은?',
-    description: '위고트립 여행 궁합 결과',
-    type: 'article',
-    images: [
-      { url: '/images/mascot.webp', width: 256, height: 256, alt: '위고트립' },
-    ],
+  path: '/compat/result',
+  type: 'article',
+  noIndex: true,
+  image: {
+    url: '/images/mascot.webp',
+    width: 256,
+    height: 256,
+    alt: '투고트립',
   },
-}
+})
 
 export default async function CompatResultPage() {
   // 점수 산출 로직이 아직 없어 answers는 빈 배열이다. repo가 seed 결과를 돌려준다.

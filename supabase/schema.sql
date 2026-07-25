@@ -1,4 +1,4 @@
--- wego-trip 회원 도메인 스키마. Supabase 대시보드 > SQL Editor에 붙여 실행한다.
+-- togo-trip 회원 도메인 스키마. Supabase 대시보드 > SQL Editor에 붙여 실행한다.
 -- lib/data/types.ts 의 Profile 타입을 테이블로 승격한 것. id는 auth.users.id와 1:1.
 --
 -- 사전 조건: Auth > Providers > Email 에서 "Confirm email"을 끈다.

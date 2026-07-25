@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 투고트립 (togo-trip)
 
-## Getting Started
+친구들과 떠나는 국내여행을 한 곳에서. 여행지 뽑기 → 초대코드 여행방 → 엔빵 정산.
 
-First, run the development server:
+- 운영: https://togo-trip.com
+- 저장소: https://github.com/YimJunsu/togo-trip
+- 스택: Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · Supabase Auth
+
+## 실행
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+http://localhost:3000 에서 확인한다. 환경변수는 `.env.local.example`를 `.env.local`로
+복사해 채운다. `NEXT_PUBLIC_DATA_SOURCE`가 `supabase`가 아니면 모든 데이터는
+`mocks/`의 목 데이터로 흐른다(회원 도메인만 Supabase 전환 완료).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm typecheck   # tsc --noEmit
+pnpm lint
+pnpm test        # lib/**/*.test.ts
+pnpm format
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 구조
 
-## Learn More
+| 경로 | 역할 |
+| --- | --- |
+| `app/` | 라우트. 실제 화면은 `app/(app)/` 아래 |
+| `components/` | 화면 단위 컴포넌트 |
+| `lib/data/` | 저장소 인터페이스 + mock/supabase 구현. 화면은 `lib/data`만 import한다 |
+| `lib/seo/` | 사이트 상수·메타데이터 헬퍼·구조화 데이터 |
+| `mocks/` | 목 데이터 JSON |
+| `proxy.ts` | Supabase 세션 갱신 (Next.js 16의 middleware 후속 규약) |
 
-To learn more about Next.js, take a look at the following resources:
+## SEO
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+메타데이터·사이트맵·OG·구조화 데이터는 `lib/seo/site.ts` 한 곳을 원본으로 삼는다.
+서치콘솔 등록 절차와 토큰 넣는 위치는 [docs/SEO.md](docs/SEO.md)에 있다.

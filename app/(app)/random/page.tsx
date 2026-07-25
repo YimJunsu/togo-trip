@@ -3,6 +3,14 @@ import { RandomDrawer } from '@/components/dashboard/RandomDrawer'
 import { RandomModeTabs } from '@/components/dashboard/RandomModeTabs'
 import { destinationRepo } from '@/lib/data'
 import { rollWind } from '@/lib/geo/dart'
+import { pageMetadata } from '@/lib/seo/metadata'
+
+export const metadata = pageMetadata({
+  title: '여행지 뽑기',
+  description:
+    '어디 갈지 못 정했을 때. 지도에 다트를 던지거나 조건을 걸어 국내 여행지를 무작위로 정합니다. 로그인 없이 바로 됩니다.',
+  path: '/random',
+})
 
 export default async function RandomPage() {
   const candidates = await destinationRepo.list()
