@@ -10,7 +10,16 @@ type State = 'idle' | 'copied' | 'failed'
  * 결과 공유. 카카오톡·메시지로 바로 넘기는 건 브라우저의 공유 시트(Web Share)에 맡기고,
  * 그게 없는 데스크톱에서는 링크 복사로 떨어진다. 주소는 지금 보고 있는 페이지 그대로다.
  */
-export function ShareButton({ title, text }: { title: string; text: string }) {
+export function ShareButton({
+  title,
+  text,
+  /** 결과가 아니라 테스트 자체를 공유하는 자리도 있어 문구를 열어 둔다. */
+  label = '결과 공유하기',
+}: {
+  title: string
+  text: string
+  label?: string
+}) {
   const [state, setState] = useState<State>('idle')
 
   async function share() {
@@ -48,7 +57,7 @@ export function ShareButton({ title, text }: { title: string; text: string }) {
         ) : (
           <ShareNetworkIcon size={20} weight="bold" aria-hidden />
         )}
-        {state === 'copied' ? '링크 복사됨' : '결과 공유하기'}
+        {state === 'copied' ? '링크 복사됨' : label}
       </ActionButton>
       {state === 'failed' && (
         <p className="text-danger mt-2 text-center text-sm">

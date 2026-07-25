@@ -76,8 +76,9 @@ export default async function StyleResultPage({ params }: PageProps<Params>) {
           title={`나는 ${style.name} 여행이다`}
           text={`${style.tagline} · 내 여행 성향은 ${style.code}. 너도 해 봐.`}
         />
+        {/* 재시도이므로 소개 랜딩(/style)이 아니라 문항으로 바로 보낸다. */}
         <Link
-          href="/style"
+          href="/style/quiz"
           className={actionButtonClass({ tone: 'quiet', className: 'w-full' })}
         >
           <ArrowClockwiseIcon size={16} weight="bold" aria-hidden />

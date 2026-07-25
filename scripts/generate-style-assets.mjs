@@ -34,23 +34,28 @@ const COST_PER_IMAGE = 0.24 // gemini-3-pro-image-preview 상한
 // 16장이 한 세트로 보여야 하므로 연출 지시는 여기 한 곳에만 둔다.
 // 애니메이션 제작 방식 그대로 간다: 캐릭터는 평면 셀 애니(baseModel 마스코트와 동일한 결),
 // 배경만 페인팅. 캐릭터까지 페인터리로 칠하면 3D CG처럼 보여 마스코트와 따로 논다.
-const PREFIX = `A 2D anime / Korean webtoon style illustration. Flat cel-animation character drawn on top of a painted background, exactly how animation cels are composited over background art.
+const PREFIX = `A 2D anime/webtoon style illustration of a scene.
 
-THE CHARACTER (match the reference image as closely as possible):
-Draw the quokka in clean flat 2D cartoon style, identical in feel to the reference: bold clean dark outlines of even weight around the whole body, flat solid color fills, simple cel shading with hard-edged shadow shapes, big round glossy black eyes with clean white highlight dots, round rosy pink cheek blushes, warm light-brown fur drawn as simple flat shapes, cream colored belly patch, small rounded ears with pink inner ears, cheerful open smile.
-The character must read as hand-drawn 2D line art. Absolutely NO 3D rendering, NO CG, NO photorealistic or fluffy rendered fur, NO individual fur strands, NO airbrushed volume or soft gradient shading on the character. Same character design, proportions and colors in every image.
+[CHARACTER INSTRUCTION - CRITICAL]
+The character in this scene MUST be the exact same mascot character provided in the reference image.
+- DO NOT change the character's facial features, proportions, or art style.
+- KEEP the thick bold black outlines and simple cel-shaded flat colors exactly like the reference.
+- KEEP the huge head, small chubby body, short arms/legs, and NO long tail.
+- CHANGE the character's pose, expression, and clothing to fit the scene naturally.
 
-THE BACKGROUND:
-Soft painted anime background art, warm cinematic lighting, gentle depth of field with creamy bokeh highlights, in the spirit of a Studio Ghibli or Makoto Shinkai background plate. The background is painterly and atmospheric while the character stays crisp flat cel art on top of it.
+[COMPOSITION INSTRUCTION - CRITICAL]
+- Create a WIDE SHOT or LONG SHOT.
+- The character must be relatively SMALL in the frame (taking up less than 30% of the image area).
+- DO NOT draw a close-up. DO NOT make the character fill the frame.
+- The background environment should be expansive and beautiful, painted in a Studio Ghibli anime style.
+- The character must be placed naturally within this environment, blending into the scene.
 
 SCENE: {{scene}}
 
-Rules (identical across the whole set):
-- Warm, inviting, harmonious colors. Cozy golden or lamp-lit glow appropriate to the scene.
-- The quokka fills most of the frame, centered, upper body or full body. Clearly the focus and clearly separated from the background by its outline.
-- NO humans and no other characters. The quokka is alone.
-- ABSOLUTELY NO TEXT ANYWHERE. No letters, no words, no numbers, no signage text, no labels on packaging, no captions, no watermarks, no borders or frames.
-- ABSOLUTELY NO REAL BRANDS. No real company names, logos, trademarks, storefront brand signs or product packaging from any real business. Any sign, banner, cup, wrapper or shopfront in the scene must be blank or carry only abstract colored shapes and simple icons.`
+Rules:
+- NO humans and no other characters. The quokka mascot is alone.
+- NO text, no letters, no numbers, no words.
+- NO real brands or logos.`
 
 /** 동기 대기. 이 스크립트는 순차 실행이라 Atomics.wait 한 줄이면 충분하다. */
 function sleep(sec) {
