@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { SmileyMehIcon } from '@phosphor-icons/react/dist/ssr'
 import { EmptyState } from '@/components/dashboard/EmptyState'
+import { StyleDirectory } from '@/components/dashboard/StyleDirectory'
 import { StyleQuiz } from '@/components/dashboard/StyleQuiz'
 import { travelStyleRepo } from '@/lib/data'
 import { pageMetadata } from '@/lib/seo/metadata'
@@ -19,8 +20,9 @@ export default async function StylePage() {
   ])
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="flex items-center gap-4">
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-6">
+        <header className="flex items-center gap-4">
         <Image
           src="/images/mascot.webp"
           alt=""
@@ -40,15 +42,18 @@ export default async function StylePage() {
         </div>
       </header>
 
-      {questions.length === 0 ? (
-        <EmptyState
-          icon={SmileyMehIcon}
-          title="문항이 없습니다"
-          description="테스트를 불러오지 못했습니다. 잠시 후 다시 오세요."
-        />
-      ) : (
-        <StyleQuiz questions={questions} />
-      )}
+        {questions.length === 0 ? (
+          <EmptyState
+            icon={SmileyMehIcon}
+            title="문항이 없습니다"
+            description="테스트를 불러오지 못했습니다. 잠시 후 다시 오세요."
+          />
+        ) : (
+          <StyleQuiz questions={questions} />
+        )}
+      </div>
+
+      <StyleDirectory styles={styles} />
     </div>
   )
 }

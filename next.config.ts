@@ -25,6 +25,22 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
   },
+
+  /**
+   * www와 apex가 둘 다 200으로 열리면 검색엔진에는 같은 내용의 사이트가 두 개로
+   * 보인다. canonical로도 대개 정리되지만, 아예 한쪽으로 몰아주는 편이 확실하다.
+   * apex(togo-trip.com)를 정식 주소로 삼는다.
+   */
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.togo-trip.com' }],
+        destination: 'https://togo-trip.com/:path*',
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default nextConfig

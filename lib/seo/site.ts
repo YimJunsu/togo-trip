@@ -40,7 +40,7 @@ export const SITE_URL = resolveSiteUrl()
  * 서치콘솔에서 속성을 다시 만들면 값이 바뀌니 그때 여기를 고친다.
  */
 export const GOOGLE_SITE_VERIFICATION =
-  'lE-YtKcqPEyI3etWcYDM-P37DOUZ79YM_FU6XzejO5Y'
+  'MvOv5zLutYLTtmNR6tfflS0Cx9YgvL1CnnD2dMq9yqk'
 export const NAVER_SITE_VERIFICATION =
   '1a1d3ad10a8151f7e9dbdf764e642ffdfb33a8cc'
 
