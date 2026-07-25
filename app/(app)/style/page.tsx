@@ -95,14 +95,14 @@ export default async function StylePage() {
       </div>
 
       {/* 섹션 구분을 위한 은은한 가로선 */}
-      <hr className="border-gray-200 dark:border-gray-800" />
+      <hr className="border-line" />
 
       <div className="flex flex-col gap-10">
         <StyleAxisIntro />
         <StyleDirectory styles={styles} />
       </div>
 
-      <hr className="border-gray-200 dark:border-gray-800" />
+      <hr className="border-line" />
 
       {/* 공유하기 영역: 목적성을 부여하여 클릭률을 높이는 배치 */}
       <div className="flex flex-col gap-4 items-center justify-center pt-2">
@@ -114,7 +114,6 @@ export default async function StylePage() {
             title="투고트립 여행 성향 분석"
             text={`MBTI보다 중요한 게 바로 여행 궁합! ${questions.length}문제 풀고 나랑 찰떡인지 확인해 봐 ✈️`}
             label="친구의 성향 물어보기"
-            className="w-full"
           />
         </div>
         <p className="text-muted mt-1 text-center text-xs leading-relaxed">
