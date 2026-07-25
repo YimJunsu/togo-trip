@@ -13,8 +13,17 @@ create table if not exists public.profiles (
   birth_date           date,
   provider             text not null default 'email',
   completed_trip_count int  not null default 0,
+  -- 마케팅 수신 동의(선택). 필수 동의는 가입의 전제라 따로 남기지 않는다.
+  -- 기본값은 반드시 false다 — 동의하지 않은 사람에게 보내면 정보통신망법 위반이다.
+  marketing_opt_in     boolean not null default false,
   created_at           timestamptz not null default now()
 );
+
+-- 1-a) 기존 프로젝트용 마이그레이션 ------------------------------------------
+-- profiles를 이미 만들어 둔 프로젝트라면 위 create가 건너뛰어지므로 컬럼이 없다.
+-- 이 줄이 그 경우를 메운다. 이미 있으면 아무 일도 하지 않는다.
+alter table public.profiles
+  add column if not exists marketing_opt_in boolean not null default false;
 
 -- 2) RLS --------------------------------------------------------------------
 alter table public.profiles enable row level security;
@@ -38,14 +47,18 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, name, email, phone, birth_date, provider)
+  insert into public.profiles (
+    id, name, email, phone, birth_date, provider, marketing_opt_in
+  )
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'name', ''),
     new.email,
     coalesce(new.raw_user_meta_data->>'phone', ''),
     nullif(new.raw_user_meta_data->>'birthDate', '')::date,
-    coalesce(new.raw_app_meta_data->>'provider', 'email')
+    coalesce(new.raw_app_meta_data->>'provider', 'email'),
+    -- 값이 없거나 'true'가 아니면 미동의로 떨어뜨린다.
+    coalesce(new.raw_user_meta_data->>'marketingOptIn', 'false') = 'true'
   );
   return new;
 end;

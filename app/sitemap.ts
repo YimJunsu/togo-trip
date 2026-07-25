@@ -15,8 +15,13 @@ const STATIC_ROUTES: {
   { path: '/random', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/style', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/compat', priority: 0.8, changeFrequency: 'weekly' },
+  { path: '/about', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/login', priority: 0.3, changeFrequency: 'yearly' },
   { path: '/signup', priority: 0.3, changeFrequency: 'yearly' },
+  // 약관·방침은 검색 유입을 노리는 문서가 아니지만, 실재하고 공개돼 있다는 사실
+  // 자체가 신뢰 신호라 색인은 열어 둔다. 우선순위만 가장 낮게.
+  { path: '/terms', priority: 0.2, changeFrequency: 'yearly' },
+  { path: '/privacy', priority: 0.2, changeFrequency: 'yearly' },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

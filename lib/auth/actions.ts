@@ -21,6 +21,11 @@ function field(formData: FormData, key: string): string {
   return typeof value === 'string' ? value : ''
 }
 
+/** 체크박스는 켜졌을 때만 폼에 실린다. 값이 무엇이든 존재 자체가 동의다. */
+function checked(formData: FormData, key: string): boolean {
+  return formData.get(key) !== null
+}
+
 export async function signUpAction(
   _prev: AuthFormState,
   formData: FormData,
@@ -32,6 +37,8 @@ export async function signUpAction(
     passwordConfirm: field(formData, 'passwordConfirm'),
     phone: field(formData, 'phone'),
     birthDate: field(formData, 'birthDate'),
+    agreeTerms: checked(formData, 'agreeTerms'),
+    agreePrivacy: checked(formData, 'agreePrivacy'),
   }
 
   // 브라우저 검증은 우회 가능하므로 여기서 다시 본다.
@@ -40,11 +47,19 @@ export async function signUpAction(
 
   let userId: string
   try {
-    // passwordConfirm은 화면 전용 — 저장소로 넘기지 않는다.
-    const { passwordConfirm: _confirm, ...input } = fields
+    // 화면 전용 값과 동의 여부는 저장소로 넘기지 않는다.
+    // 필수 동의는 가입의 전제라 따로 기록할 것이 없고(가입했으면 동의한 것),
+    // 선택 항목인 마케팅 수신만 프로필에 남긴다.
+    const {
+      passwordConfirm: _confirm,
+      agreeTerms: _terms,
+      agreePrivacy: _privacy,
+      ...input
+    } = fields
     const profile = await authRepo.signUp({
       ...input,
       phone: normalizePhone(input.phone),
+      marketingOptIn: checked(formData, 'agreeMarketing'),
     })
     userId = profile.id
   } catch (error) {

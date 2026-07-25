@@ -12,6 +12,7 @@ import {
 import { ActionButton } from '@/components/dashboard/ActionButton'
 import { TextField } from '@/components/dashboard/TextField'
 import { BirthDateField } from '@/components/auth/BirthDateField'
+import { ConsentFields } from '@/components/auth/ConsentFields'
 import {
   checkEmailAction,
   signUpAction,
@@ -174,6 +175,13 @@ export function SignUpForm() {
             />
           </div>
         </div>
+
+        <ConsentFields
+          errors={{
+            agreeTerms: errors.agreeTerms,
+            agreePrivacy: errors.agreePrivacy,
+          }}
+        />
 
         <ActionButton
           type="submit"

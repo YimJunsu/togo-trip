@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { HeaderAuth } from '@/components/auth/HeaderAuth'
+import { SiteFooter } from '@/components/layout/SiteFooter'
 
 const NAV = [
   { href: '/', label: '홈' },
@@ -47,6 +48,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-8 pb-16">
         {children}
       </main>
+
+      <SiteFooter />
     </>
   )
 }

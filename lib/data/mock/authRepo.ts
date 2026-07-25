@@ -52,6 +52,7 @@ export const mockAuthRepo: AuthRepository = {
       provider: 'email',
       completedTripCount: 0,
       createdAt: new Date().toISOString(),
+      marketingOptIn: input.marketingOptIn,
       passwordHash: await hashPassword(input.password),
     }
     accounts.push(account)

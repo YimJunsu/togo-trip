@@ -11,11 +11,26 @@ export type SignUpFields = {
   passwordConfirm: string
   phone: string
   birthDate: string
+  /** 이용약관 동의 (필수). 체크 여부만 넘어오고 저장하지 않는다. */
+  agreeTerms: boolean
+  /** 개인정보 수집·이용 동의 (필수). */
+  agreePrivacy: boolean
 }
 
 export type FieldErrors = Partial<Record<keyof SignUpFields, string>>
 
 export const MIN_PASSWORD_LENGTH = 8
+
+/**
+ * 가입 하한 연령. 만 14세 미만은 법정대리인 동의가 있어야 개인정보를 수집할 수 있어,
+ * 그 절차를 갖출 때까지 가입 자체를 막는다.
+ *
+ * 성격상 lib/legal/policy.ts에 있어야 할 값이지만 여기 둔다 — 이 파일은 테스트가
+ * 노드에서 직접 불러오는데, 노드는 `@/` 별칭을 풀지 못해 값 import가 깨진다.
+ * (기존 import들이 멀쩡한 건 전부 타입 전용이라 컴파일 때 지워지기 때문이다.)
+ * 방침 쪽에서 이 값을 다시 export하므로 문서와 검증은 같은 숫자를 본다.
+ */
+export const MIN_SIGNUP_AGE = 14
 
 /** 공백 없는 로컬@도메인.최상위. 실제 도달 여부는 이메일 인증이 볼 일이다. */
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -39,6 +54,19 @@ function isRealDate(iso: string): boolean {
   const t = Date.parse(`${iso}T00:00:00Z`)
   if (Number.isNaN(t)) return false
   return new Date(t).toISOString().slice(0, 10) === iso
+}
+
+/**
+ * 생일이 지났는지까지 따진 만 나이.
+ * 연도만 빼면 생일 전인 사람을 한 살 많게 세어 만 14세 경계에서 틀린다.
+ */
+export function ageOn(birthDate: string, today: Date): number {
+  const [y, m, d] = birthDate.split('-').map(Number)
+  let age = today.getUTCFullYear() - y
+  const month = today.getUTCMonth() + 1
+  const day = today.getUTCDate()
+  if (month < m || (month === m && day < d)) age -= 1
+  return age
 }
 
 export function validateSignUp(
@@ -70,6 +98,18 @@ export function validateSignUp(
     errors.birthDate = '생년월일을 정확히 입력하세요.'
   } else if (fields.birthDate > today.toISOString().slice(0, 10)) {
     errors.birthDate = '생년월일이 오늘보다 뒤입니다.'
+  } else if (ageOn(fields.birthDate, today) < MIN_SIGNUP_AGE) {
+    // 만 14세 미만은 법정대리인 동의가 있어야 개인정보를 수집할 수 있다.
+    // 그 절차를 갖출 때까지는 가입 자체를 막는다.
+    errors.birthDate = `만 ${MIN_SIGNUP_AGE}세 미만은 가입할 수 없습니다.`
+  }
+
+  // 필수 동의는 화면에서 막지만, 그 검증은 우회할 수 있어 여기서 다시 본다.
+  if (!fields.agreeTerms) {
+    errors.agreeTerms = '이용약관에 동의해야 가입할 수 있습니다.'
+  }
+  if (!fields.agreePrivacy) {
+    errors.agreePrivacy = '개인정보 수집·이용에 동의해야 가입할 수 있습니다.'
   }
 
   return errors
