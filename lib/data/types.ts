@@ -23,11 +23,6 @@ export type Profile = {
   /** 정산 완료 시 +1. 증가 로직은 아직 없다. */
   completedTripCount: number
   createdAt: string
-  /**
-   * 마케팅 수신 동의. 목 seed에는 없어 선택 항목으로 둔다 — 값이 없으면 미동의다.
-   * 동의 없이 발송하면 정보통신망법 위반이므로 판단은 항상 `=== true`로 한다.
-   */
-  marketingOptIn?: boolean
   travelStyle?: QuizResult
 }
 

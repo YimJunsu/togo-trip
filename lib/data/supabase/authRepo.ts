@@ -25,7 +25,6 @@ type ProfileRow = {
   provider: string
   completed_trip_count: number
   created_at: string
-  marketing_opt_in: boolean
 }
 
 function toProfile(row: ProfileRow): Profile {
@@ -38,7 +37,6 @@ function toProfile(row: ProfileRow): Profile {
     provider: row.provider as AuthProvider,
     completedTripCount: row.completed_trip_count,
     createdAt: row.created_at,
-    marketingOptIn: row.marketing_opt_in,
   }
 }
 
@@ -65,7 +63,6 @@ export const supabaseAuthRepo: AuthRepository = {
           name: input.name.trim(),
           phone: input.phone,
           birthDate: input.birthDate,
-          marketingOptIn: input.marketingOptIn,
         },
       },
     })

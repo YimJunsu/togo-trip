@@ -13,17 +13,12 @@ create table if not exists public.profiles (
   birth_date           date,
   provider             text not null default 'email',
   completed_trip_count int  not null default 0,
-  -- 마케팅 수신 동의(선택). 필수 동의는 가입의 전제라 따로 남기지 않는다.
-  -- 기본값은 반드시 false다 — 동의하지 않은 사람에게 보내면 정보통신망법 위반이다.
-  marketing_opt_in     boolean not null default false,
   created_at           timestamptz not null default now()
 );
 
--- 1-a) 기존 프로젝트용 마이그레이션 ------------------------------------------
--- profiles를 이미 만들어 둔 프로젝트라면 위 create가 건너뛰어지므로 컬럼이 없다.
--- 이 줄이 그 경우를 메운다. 이미 있으면 아무 일도 하지 않는다.
-alter table public.profiles
-  add column if not exists marketing_opt_in boolean not null default false;
+-- 동의 항목은 저장하지 않는다. 이용약관·개인정보 동의는 가입의 전제라 행이 있다는 것
+-- 자체가 동의를 뜻하고, 마케팅 수신은 보낼 계획이 없어 받지 않기로 했다.
+-- 나중에 발송을 시작하려면 그때 컬럼과 동의 UI를 함께 되살린다.
 
 -- 2) RLS --------------------------------------------------------------------
 alter table public.profiles enable row level security;
@@ -47,18 +42,14 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.profiles (
-    id, name, email, phone, birth_date, provider, marketing_opt_in
-  )
+  insert into public.profiles (id, name, email, phone, birth_date, provider)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'name', ''),
     new.email,
     coalesce(new.raw_user_meta_data->>'phone', ''),
     nullif(new.raw_user_meta_data->>'birthDate', '')::date,
-    coalesce(new.raw_app_meta_data->>'provider', 'email'),
-    -- 값이 없거나 'true'가 아니면 미동의로 떨어뜨린다.
-    coalesce(new.raw_user_meta_data->>'marketingOptIn', 'false') = 'true'
+    coalesce(new.raw_app_meta_data->>'provider', 'email')
   );
   return new;
 end;

@@ -41,11 +41,6 @@ export type SignUpInput = {
   password: string
   phone: string
   birthDate: string
-  /**
-   * 마케팅 정보 수신 동의 (선택). 필수 동의와 달리 거절해도 가입되므로,
-   * 나중에 발송 대상을 고를 수 있게 값을 남긴다.
-   */
-  marketingOptIn: boolean
 }
 
 export class DuplicateEmailError extends Error {

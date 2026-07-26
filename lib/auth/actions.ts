@@ -48,8 +48,7 @@ export async function signUpAction(
   let userId: string
   try {
     // 화면 전용 값과 동의 여부는 저장소로 넘기지 않는다.
-    // 필수 동의는 가입의 전제라 따로 기록할 것이 없고(가입했으면 동의한 것),
-    // 선택 항목인 마케팅 수신만 프로필에 남긴다.
+    // 필수 동의는 가입의 전제라 따로 기록할 것이 없다 — 가입했으면 동의한 것이다.
     const {
       passwordConfirm: _confirm,
       agreeTerms: _terms,
@@ -59,7 +58,6 @@ export async function signUpAction(
     const profile = await authRepo.signUp({
       ...input,
       phone: normalizePhone(input.phone),
-      marketingOptIn: checked(formData, 'agreeMarketing'),
     })
     userId = profile.id
   } catch (error) {

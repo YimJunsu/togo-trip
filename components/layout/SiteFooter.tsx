@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { SITE_NAME } from '@/lib/seo/site'
+import { SITE_NAME_EN } from '@/lib/seo/site'
 
 /**
  * 모든 화면 아래에 붙는 푸터.
@@ -9,10 +9,10 @@ import { SITE_NAME } from '@/lib/seo/site'
  * 셋뿐이라 열을 나누면 오히려 비어 보인다.
  */
 const LINKS = [
+  // 방침을 맨 앞에 두고 강조한다. 셋 중 법적으로 가장 중요하고 자주 찾는 문서다.
+  { href: '/privacy', label: '개인정보처리방침', emphasized: true },
   { href: '/about', label: '서비스 소개' },
   { href: '/terms', label: '이용약관' },
-  // 방침은 강조해서 다른 둘보다 눈에 먼저 들어오게 한다.
-  { href: '/privacy', label: '개인정보처리방침', emphasized: true },
 ] as const
 
 export function SiteFooter() {
@@ -39,7 +39,7 @@ export function SiteFooter() {
         </nav>
 
         <p className="text-muted mt-6 text-center font-mono text-xs tracking-widest">
-          © {new Date().getFullYear()} {SITE_NAME}
+          © {new Date().getFullYear()} {SITE_NAME_EN}. ALL RIGHTS RESERVED.
         </p>
         <p className="text-muted mt-2 text-center text-xs leading-relaxed">
           국내여행 계획·정산 서비스. 여행 성향 분석과 궁합 결과는 재미를 위한
