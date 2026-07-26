@@ -95,8 +95,17 @@ export default function RootLayout({
       className={`${outfit.variable} ${spaceMono.variable} h-full antialiased`}
     >
       <head>
-        {/* 본문 폰트가 CDN에서 오므로 미리 연결해 첫 렌더의 폰트 지연을 줄인다. */}
+        {/*
+          본문 폰트(Pretendard). globals.css의 @import에서 여기로 옮겼다 —
+          CSS 안에 두면 우리 CSS를 다 받은 뒤에야 존재를 알게 되는 직렬 체인이 되고,
+          그동안 첫 글자가 그려지지 않는다. HTML에 두면 파싱 즉시 병렬로 받는다.
+          폰트 파일 자체는 Pretendard CSS가 font-display: swap을 쓰므로 렌더를 막지 않는다.
+        */}
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
         <JsonLd data={siteGraph} />
       </head>
       <body className="flex min-h-full flex-col">
