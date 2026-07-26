@@ -3,8 +3,14 @@ import { ArrowUpRightIcon } from '@phosphor-icons/react/dist/ssr'
 import { ThemeBadge } from '@/components/dashboard/ThemeBadge'
 import { AvatarStack } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
-import type { Member, Trip } from '@/lib/data/types'
+import type { Trip } from '@/lib/data/types'
 import { formatDateRange, formatDday, formatNights } from '@/lib/utils/format'
+
+/**
+ * 아바타를 그리는 데 필요한 것만. Member에는 role·isDriver도 있지만 이 카드가 쓰지
+ * 않으므로 받지 않는다 — 이 값은 API를 타고 브라우저까지 나가므로 좁을수록 좋다.
+ */
+export type TripCardMember = { userId: string; displayName: string }
 
 export function TripCard({
   trip,
@@ -13,7 +19,7 @@ export function TripCard({
   index = 0,
 }: {
   trip: Trip
-  members: Member[]
+  members: TripCardMember[]
   today: Date
   /** 목록이 순서대로 올라오게 하는 지연값. */
   index?: number

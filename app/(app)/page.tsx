@@ -1,35 +1,25 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import {
-  ArrowRightIcon,
-  ShuffleIcon,
-  SuitcaseRollingIcon,
-} from '@phosphor-icons/react/dist/ssr'
+import { ArrowRightIcon, ShuffleIcon } from '@phosphor-icons/react/dist/ssr'
+import { HomeGreeting } from '@/components/dashboard/HomeGreeting'
+import { HomeTrips } from '@/components/dashboard/HomeTrips'
 import { actionButtonClass } from '@/components/dashboard/ActionButton'
-import { EmptyState } from '@/components/dashboard/EmptyState'
-import { TripCard } from '@/components/dashboard/TripCard'
 import { FAQ_ITEMS, SiteFaq } from '@/components/seo/SiteFaq'
-import { getUser } from '@/lib/auth/session'
-import { tripRepo } from '@/lib/data'
 import { JsonLd, faqGraph } from '@/lib/seo/JsonLd'
 
-export default async function HomePage() {
-  const user = await getUser()
-
-  const trips = user ? await tripRepo.list(user.id) : []
-  const membersByTrip = await Promise.all(
-    trips.map((trip) => tripRepo.listMembers(trip.id)),
-  )
-  const today = new Date()
-
+/**
+ * 홈은 정적으로 만들어진다.
+ *
+ * 예전에는 여기서 getUser()로 내 여행방을 그렸는데, 그 cookies() 한 번 때문에 홈이
+ * 매 요청 서버 함수 실행으로 떨어졌다. 홈은 첫 진입 지점이라 무료 플랜의 콜드 스타트가
+ * 그대로 체감 지연이 됐다. 개인 데이터는 HomeGreeting·HomeTrips 안으로 몰아넣고,
+ * 본문은 전부 서버 렌더로 남겨 엣지 캐시에서 나가게 한다.
+ */
+export default function HomePage() {
   return (
     <div className="flex flex-col gap-8">
       <section>
-        {user && (
-          <p className="text-muted font-mono text-xs tracking-widest">
-            안녕 {user.name}
-          </p>
-        )}
+        <HomeGreeting />
         <h1 className="font-display mt-1 text-3xl font-semibold tracking-tight">
           어디 갈지 못 정했으면
         </h1>
@@ -90,58 +80,7 @@ export default async function HomePage() {
         </Link>
       </section>
 
-      {user ? (
-        <section>
-          <h2 className="font-display mb-3 text-lg font-semibold tracking-tight">
-            내 여행방
-          </h2>
-          {trips.length === 0 ? (
-            <EmptyState
-              icon={SuitcaseRollingIcon}
-              title="아직 여행방이 없습니다"
-              description="방을 만들어 친구를 부르거나, 받은 초대코드로 들어가세요."
-              action={
-                <Link
-                  href="/trips/new"
-                  className={actionButtonClass({ size: 'sm' })}
-                >
-                  여행방 만들기
-                </Link>
-              }
-            />
-          ) : (
-            <ul className="flex flex-col gap-4">
-              {trips.map((trip, i) => (
-                <TripCard
-                  key={trip.id}
-                  trip={trip}
-                  members={membersByTrip[i]}
-                  today={today}
-                  index={i}
-                />
-              ))}
-            </ul>
-          )}
-        </section>
-      ) : (
-        <section className="rounded-card border-line bg-surface shadow-soft border p-6">
-          <p className="font-display text-lg font-semibold tracking-tight">
-            여행방은 회원만 만들 수 있어요
-          </p>
-          <p className="text-muted mt-1 text-sm">
-            가입하면 초대코드로 친구를 부르고 정산까지 한 번에 됩니다.
-          </p>
-          <Link
-            href="/login"
-            className={actionButtonClass({
-              tone: 'ink',
-              className: 'mt-4 w-full',
-            })}
-          >
-            로그인하고 여행방 만들기
-          </Link>
-        </section>
-      )}
+      <HomeTrips />
 
       <SiteFaq />
       <JsonLd data={faqGraph([...FAQ_ITEMS])} />

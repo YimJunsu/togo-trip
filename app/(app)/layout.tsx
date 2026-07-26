@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { HeaderAuth } from '@/components/auth/HeaderAuth'
+import { SessionProvider } from '@/components/auth/SessionProvider'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 
 const NAV = [
@@ -12,7 +13,9 @@ const NAV = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    // 세션은 여기서 한 번만 조회해 헤더와 홈 인사말이 나눠 쓴다.
+    // children은 서버에서 렌더된 그대로 통과하므로 본문은 계속 정적이다.
+    <SessionProvider>
       <header className="border-line bg-paper/80 sticky top-0 z-30 border-b backdrop-blur-md">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-3 px-4 py-3">
           <Link
@@ -50,6 +53,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       <SiteFooter />
-    </>
+    </SessionProvider>
   )
 }
