@@ -6,21 +6,21 @@ import { ActionButton } from '@/components/dashboard/ActionButton'
 import { Avatar } from '@/components/ui/Avatar'
 import type { Member } from '@/lib/data/types'
 import type { SettleResult } from '@/lib/settle/settle'
-import {
-  previewSettlement,
-  startSettlement,
-} from '@/lib/settlements/actions'
+import { previewSettlement, startSettlement } from '@/lib/settlements/actions'
 import { formatWon } from '@/lib/utils/format'
 
 export function StartSettleDialog({
   tripId,
   members,
   isDisabled,
+  onPreviewOpenChange,
 }: {
   tripId: string
   members: Member[]
   /** 지출이 없으면 정산할 게 없다. */
   isDisabled: boolean
+  /** 미리보기가 열리고 닫힐 때 부모에 알린다. 부모가 이 동안 지출 편집 UI를 잠그기 위함이다. */
+  onPreviewOpenChange?: (isOpen: boolean) => void
 }) {
   const router = useRouter()
   const [preview, setPreview] = useState<SettleResult>()
@@ -35,6 +35,9 @@ export function StartSettleDialog({
       try {
         setPreview(await previewSettlement(tripId))
         setError(undefined)
+        // 미리보기가 보여준 숫자는 확정 버튼을 누를 때도 그대로여야 한다.
+        // 부모가 이 동안 지출 추가/삭제 UI를 잠그도록 알린다.
+        onPreviewOpenChange?.(true)
       } catch {
         setError('계산하지 못했습니다. 잠시 후 다시 시도해 주세요.')
       }
@@ -132,7 +135,10 @@ export function StartSettleDialog({
         </ActionButton>
         <ActionButton
           tone="quiet"
-          onClick={() => setPreview(undefined)}
+          onClick={() => {
+            setPreview(undefined)
+            onPreviewOpenChange?.(false)
+          }}
           disabled={isPending}
         >
           취소
