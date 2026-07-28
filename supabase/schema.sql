@@ -220,12 +220,20 @@ $$;
 
 -- CREATE FUNCTION은 PUBLIC에 EXECUTE를 준다. 정책 내부용 함수가 RPC 엔드포인트로
 -- 열려 트립 존재 여부를 알려주는 걸 막는다.
--- 이 함수들은 정책 안에서 호출되고 정책은 definer로 실행되므로, 직접 EXECUTE를
--- 거둬도 정책 동작에는 영향이 없다.
+--
+-- 단, SECURITY DEFINER는 함수가 무엇을 읽을 수 있는지를 정할 뿐 누가 부를 수 있는지는
+-- 정하지 않는다. 정책의 using 절은 질의하는 역할(authenticated)로 평가되므로 EXECUTE
+-- 권한이 필요하다. PUBLIC에서 걷어내되 authenticated에는 명시적으로 준다 — 안 주면
+-- 모든 정책이 permission denied로 무너지고, 원인이 이 파일 200줄 위의 문장으로 보이지 않는다.
 revoke execute on function public.is_trip_member(uuid)  from public;
 revoke execute on function public.is_trip_host(uuid)    from public;
 revoke execute on function public.is_trip_settled(uuid) from public;
 revoke execute on function public.is_trip_creator(uuid) from public;
+
+grant execute on function public.is_trip_member(uuid)  to authenticated;
+grant execute on function public.is_trip_host(uuid)    to authenticated;
+grant execute on function public.is_trip_settled(uuid) to authenticated;
+grant execute on function public.is_trip_creator(uuid) to authenticated;
 
 -- 11) RLS -------------------------------------------------------------------
 alter table public.trips                enable row level security;
@@ -243,13 +251,19 @@ create policy "멤버 또는 생성자만 여행방 읽기" on public.trips
 create policy "본인 명의로만 여행방 생성" on public.trips
   for insert with check (created_by = auth.uid());
 
+-- 확정된 방은 방장도 못 고친다. driver_discount_rate가 계산 입력이라서다 —
+-- 확정 화면은 부담 내역을 저장하지 않고 매번 다시 계산하므로(설계 §3), 확정 뒤에
+-- 할인율이 바뀌면 화면의 부담액과 그 아래 송금 리스트가 서로 어긋난다.
+-- settle_trip/unsettle_trip은 security definer라 RLS를 우회하므로 영향받지 않는다.
 create policy "방장만 여행방 수정" on public.trips
-  for update using (public.is_trip_host(id))
-  with check (public.is_trip_host(id));
+  for update using (public.is_trip_host(id) and not public.is_trip_settled(id))
+  with check (public.is_trip_host(id) and not public.is_trip_settled(id));
 
 -- settled_at과 invite_code는 RPC와 참여 흐름의 불변식이다. 방장이 직접 PATCH로
 -- 뒤집으면 unsettle_trip이 막으려던 어긋난 상태가 그대로 생긴다.
-revoke update on public.trips from authenticated;
+-- RLS는 어느 행인지만 제한할 뿐 어느 컬럼인지는 제한하지 못해 정책만으로는 부족하다.
+-- anon까지 거두는 건, 지금 정책이 auth.uid()로 걸러 준다는 사실에 기대지 않기 위해서다.
+revoke update on public.trips from authenticated, anon;
 grant  update (name, region, start_date, end_date, cover_theme, driver_discount_rate)
   on public.trips to authenticated;
 
@@ -264,9 +278,14 @@ create policy "생성자가 자기 host 행 추가" on public.trip_members
     user_id = auth.uid() and public.is_trip_creator(trip_id) and role = 'host'
   );
 
+-- is_driver도 계산 입력이다. 확정 뒤에 운전자를 바꾸면 위 trips와 같은 이유로
+-- 부담 내역과 송금 리스트가 어긋난다. mock의 setDriver도 같은 조건에서 거절한다.
 create policy "방장만 멤버 수정" on public.trip_members
-  for update using (public.is_trip_host(trip_id))
-  with check (public.is_trip_host(trip_id));
+  for update using (
+    public.is_trip_host(trip_id) and not public.is_trip_settled(trip_id)
+  ) with check (
+    public.is_trip_host(trip_id) and not public.is_trip_settled(trip_id)
+  );
 
 -- expenses ------------------------------------------------------------------
 -- 잠금이 여기서 완성된다. settled_at 이 채워지면 아래 세 정책이 전부 거짓이 되어
@@ -321,7 +340,7 @@ create policy "당사자만 보냄 표시" on public.settlements
 -- RLS는 어느 행인지만 제한할 뿐 어느 컬럼인지는 제한하지 못한다. 정책만 두면
 -- 당사자가 자기 amount를 고쳐 확정된 금액을 뒤집을 수 있다. 잠금의 핵심 보장이라
 -- 컬럼 권한으로 내린다.
-revoke update on public.settlements from authenticated;
+revoke update on public.settlements from authenticated, anon;
 grant  update (is_paid, paid_at) on public.settlements to authenticated;
 
 -- 12) RPC -------------------------------------------------------------------
