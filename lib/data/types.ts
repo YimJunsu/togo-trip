@@ -80,11 +80,19 @@ export type QuizResult = {
   scores: Record<QuizAxis, number>
 }
 
-/** 계산 결과. 저장하지 않는다. 지금은 mock seed에 미리 담긴 값을 그대로 쓴다. */
+/**
+ * 확정된 송금 리스트. 이것만 저장한다 — 각자의 부담액·할인액(SettleShare)은
+ * 저장하지 않고 lib/settle/로 매번 재계산한다. 확정 시 계산 입력이 전부 잠기므로
+ * 출력도 불변이고, 저장하면 같은 값을 두 곳에 두게 된다.
+ */
 export type Settlement = {
+  id: string
+  tripId: string
   from: string
   to: string
   amount: number
+  /** 실제로 송금했는지. 계산으로 알 수 없는 유일한 값이라 저장이 필요하다. */
+  isPaid: boolean
 }
 
 export type Destination = {
