@@ -159,12 +159,26 @@ create table if not exists public.settlements (
   to_user_id   uuid not null references public.profiles(id),
   amount       integer not null check (amount > 0),
   is_paid      boolean not null default false,
-  paid_at      timestamptz
+  paid_at      timestamptz,
+  -- from = to 인 이체는 의미가 없다. settle_trip이 앞단에서 걸러도, 잠금의 핵심
+  -- 불변식이라 DB 제약으로도 막아 둔다.
+  check (from_user_id <> to_user_id)
 );
 
 create index if not exists trip_members_user_idx on public.trip_members(user_id);
 create index if not exists expenses_trip_idx     on public.expenses(trip_id);
 create index if not exists settlements_trip_idx  on public.settlements(trip_id);
+
+-- expense_participants의 PK는 (expense_id, user_id)라 (trip_id, user_id) →
+-- trip_members FK를 못 커버한다. trip_members를 지울 때마다 이 표를 seq-scan하게 되어
+-- 인덱스를 따로 둔다.
+create index if not exists expense_participants_member_idx
+  on public.expense_participants(trip_id, user_id);
+
+-- 조회는 upper()로 하는데 unique는 대소문자를 구분한다. 그대로 두면 'k7x9q2'로
+-- 같은 코드를 하나 더 만들 수 있고, 조회가 둘 중 아무거나 집는다.
+create unique index if not exists trips_invite_code_upper_idx
+  on public.trips (upper(invite_code));
 
 -- 10) 멤버십 판정 함수 -------------------------------------------------------
 -- security definer 인 이유: 이 함수들은 RLS 정책 안에서 불린다. 정책이 다시
@@ -204,6 +218,15 @@ returns boolean language sql security definer set search_path = '' stable as $$
   );
 $$;
 
+-- CREATE FUNCTION은 PUBLIC에 EXECUTE를 준다. 정책 내부용 함수가 RPC 엔드포인트로
+-- 열려 트립 존재 여부를 알려주는 걸 막는다.
+-- 이 함수들은 정책 안에서 호출되고 정책은 definer로 실행되므로, 직접 EXECUTE를
+-- 거둬도 정책 동작에는 영향이 없다.
+revoke execute on function public.is_trip_member(uuid)  from public;
+revoke execute on function public.is_trip_host(uuid)    from public;
+revoke execute on function public.is_trip_settled(uuid) from public;
+revoke execute on function public.is_trip_creator(uuid) from public;
+
 -- 11) RLS -------------------------------------------------------------------
 alter table public.trips                enable row level security;
 alter table public.trip_members         enable row level security;
@@ -224,6 +247,12 @@ create policy "방장만 여행방 수정" on public.trips
   for update using (public.is_trip_host(id))
   with check (public.is_trip_host(id));
 
+-- settled_at과 invite_code는 RPC와 참여 흐름의 불변식이다. 방장이 직접 PATCH로
+-- 뒤집으면 unsettle_trip이 막으려던 어긋난 상태가 그대로 생긴다.
+revoke update on public.trips from authenticated;
+grant  update (name, region, start_date, end_date, cover_theme, driver_discount_rate)
+  on public.trips to authenticated;
+
 -- trip_members --------------------------------------------------------------
 create policy "같은 방 멤버만 멤버 목록 읽기" on public.trip_members
   for select using (public.is_trip_member(trip_id));
@@ -232,7 +261,7 @@ create policy "같은 방 멤버만 멤버 목록 읽기" on public.trip_members
 -- 자기 host 행을 만드는 경우 하나뿐이다.
 create policy "생성자가 자기 host 행 추가" on public.trip_members
   for insert with check (
-    user_id = auth.uid() and public.is_trip_creator(trip_id)
+    user_id = auth.uid() and public.is_trip_creator(trip_id) and role = 'host'
   );
 
 create policy "방장만 멤버 수정" on public.trip_members
@@ -289,6 +318,12 @@ create policy "당사자만 보냄 표시" on public.settlements
     from_user_id = auth.uid() or to_user_id = auth.uid()
   );
 
+-- RLS는 어느 행인지만 제한할 뿐 어느 컬럼인지는 제한하지 못한다. 정책만 두면
+-- 당사자가 자기 amount를 고쳐 확정된 금액을 뒤집을 수 있다. 잠금의 핵심 보장이라
+-- 컬럼 권한으로 내린다.
+revoke update on public.settlements from authenticated;
+grant  update (is_paid, paid_at) on public.settlements to authenticated;
+
 -- 12) RPC -------------------------------------------------------------------
 
 -- 초대코드로 참여. 비멤버는 RLS 때문에 trips 를 읽을 수 없어 코드 대조 자체가
@@ -308,8 +343,11 @@ begin
     raise exception 'NOT_AUTHENTICATED';
   end if;
 
+  -- unique 인덱스는 대소문자를 구분해 동일 코드가 두 벌 있을 수 있다. order by +
+  -- limit 1로 어느 쪽이든 결정적으로 하나만 고른다.
   select * into target from public.trips
-   where upper(invite_code) = upper(btrim(check_code));
+   where upper(invite_code) = upper(btrim(check_code))
+   order by created_at limit 1;
   if not found then
     return null;
   end if;
@@ -339,13 +377,28 @@ returns void
 language plpgsql security definer set search_path = ''
 as $$
 declare
-  item jsonb;
+  item              jsonb;
+  locked_settled_at timestamptz;
 begin
   if not public.is_trip_host(check_trip_id) then
     raise exception 'NOT_TRIP_HOST';
   end if;
-  if public.is_trip_settled(check_trip_id) then
+
+  -- for update로 행을 잠그고 그 행에서 상태를 읽는다. is_trip_settled는 stable이라
+  -- 스냅샷을 보고, 두 번 눌리면 둘 다 "미확정"으로 통과해 송금 리스트가 두 벌 생긴다.
+  select settled_at into locked_settled_at
+    from public.trips where id = check_trip_id for update;
+  if not found then
+    raise exception 'TRIP_NOT_FOUND';
+  end if;
+  if locked_settled_at is not null then
     raise exception 'TRIP_ALREADY_SETTLED';
+  end if;
+
+  -- transfers가 배열이 아니면(null 포함) jsonb_array_elements가 조용히 0행을
+  -- 돌려줘 송금 하나 없이 방이 잠긴다. 배열 형식을 명시적으로 검사한다.
+  if jsonb_typeof(transfers) <> 'array' then
+    raise exception 'INVALID_TRANSFERS';
   end if;
 
   for item in select * from jsonb_array_elements(transfers) loop
@@ -386,11 +439,21 @@ create or replace function public.unsettle_trip(check_trip_id uuid)
 returns void
 language plpgsql security definer set search_path = ''
 as $$
+declare
+  locked_settled_at timestamptz;
 begin
   if not public.is_trip_host(check_trip_id) then
     raise exception 'NOT_TRIP_HOST';
   end if;
-  if not public.is_trip_settled(check_trip_id) then
+
+  -- for update로 행을 잠그고 그 행에서 상태를 읽는다. is_trip_settled는 stable이라
+  -- 스냅샷을 보고, 두 번 눌리면 둘 다 "확정됨"으로 통과해 삭제·복원이 중복 실행된다.
+  select settled_at into locked_settled_at
+    from public.trips where id = check_trip_id for update;
+  if not found then
+    raise exception 'TRIP_NOT_FOUND';
+  end if;
+  if locked_settled_at is null then
     raise exception 'TRIP_NOT_SETTLED';
   end if;
 
