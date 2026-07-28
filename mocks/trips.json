@@ -7,7 +7,9 @@
     "endDate": "2026-08-16",
     "inviteCode": "K7X9Q2",
     "createdBy": "usr-1",
-    "coverTheme": "sea"
+    "coverTheme": "sea",
+    "driverDiscountRate": 0.2,
+    "settledAt": "2026-08-17T10:00:00+09:00"
   },
   {
     "id": "trp-jeju",
@@ -17,7 +19,9 @@
     "endDate": "2026-09-08",
     "inviteCode": "J3M8P1",
     "createdBy": "usr-2",
-    "coverTheme": "activity"
+    "coverTheme": "activity",
+    "driverDiscountRate": 0.2,
+    "settledAt": "2026-09-09T21:30:00+09:00"
   },
   {
     "id": "trp-gyeongju",
@@ -27,6 +31,8 @@
     "endDate": "2026-10-25",
     "inviteCode": "R5T2W8",
     "createdBy": "usr-1",
-    "coverTheme": "healing"
+    "coverTheme": "healing",
+    "driverDiscountRate": 0.2,
+    "settledAt": null
   }
 ]

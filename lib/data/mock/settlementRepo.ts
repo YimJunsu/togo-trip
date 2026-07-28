@@ -1,11 +1,8 @@
-import seed from '@/mocks/settlements.json'
 import type { SettlementRepository } from '../repositories'
-import type { Settlement } from '../types'
-
-const settlements = [...(seed as Settlement[])]
+import { store } from './store'
 
 export const mockSettlementRepo: SettlementRepository = {
   async listByTrip(tripId) {
-    return settlements.filter((s) => s.tripId === tripId)
+    return store.settlements.filter((s) => s.tripId === tripId)
   },
 }

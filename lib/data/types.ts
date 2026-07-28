@@ -42,6 +42,10 @@ export type Trip = {
   inviteCode: string
   createdBy: string
   coverTheme: DestinationTheme
+  /** 운전자 할인율. 0 ~ 0.5. 계산 입력이므로 확정 시 지출과 함께 잠긴다. */
+  driverDiscountRate: number
+  /** null이면 진행 중. 값이 있으면 잠겨서 지출을 고칠 수 없다. */
+  settledAt: string | null
 }
 
 export type Member = {

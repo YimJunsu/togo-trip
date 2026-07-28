@@ -1,10 +1,6 @@
-import seed from '@/mocks/trips.json'
-import memberSeed from '@/mocks/members.json'
 import { InvalidInviteCodeError, type TripRepository } from '../repositories'
-import type { Member, Trip } from '../types'
-
-const trips = [...(seed as Trip[])]
-const members = [...(memberSeed as Member[])]
+import type { Trip } from '../types'
+import { store } from './store'
 
 const INVITE_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 const INVITE_CODE_LENGTH = 6
@@ -22,12 +18,14 @@ function generateInviteCode(): string {
 
 export const mockTripRepo: TripRepository = {
   async list(userId) {
-    const mine = members.filter((m) => m.userId === userId).map((m) => m.tripId)
-    return trips.filter((t) => mine.includes(t.id))
+    const mine = store.members
+      .filter((m) => m.userId === userId)
+      .map((m) => m.tripId)
+    return store.trips.filter((t) => mine.includes(t.id))
   },
 
   async get(id) {
-    return trips.find((t) => t.id === id) ?? null
+    return store.trips.find((t) => t.id === id) ?? null
   },
 
   async create(userId, displayName, input) {
@@ -36,9 +34,11 @@ export const mockTripRepo: TripRepository = {
       id: `trp-${Date.now()}`,
       inviteCode: generateInviteCode(),
       createdBy: userId,
+      driverDiscountRate: 0.2,
+      settledAt: null,
     }
-    trips.push(trip)
-    members.push({
+    store.trips.push(trip)
+    store.members.push({
       tripId: trip.id,
       userId,
       displayName,
@@ -49,17 +49,17 @@ export const mockTripRepo: TripRepository = {
   },
 
   async joinByCode(userId, displayName, code) {
-    const trip = trips.find(
+    const trip = store.trips.find(
       (t) => t.inviteCode.toUpperCase() === code.trim().toUpperCase(),
     )
     if (!trip) throw new InvalidInviteCodeError()
 
     // 이미 들어와 있으면 다시 넣지 않는다. 두 번 눌러도 멤버가 겹치지 않는다.
-    const already = members.some(
+    const already = store.members.some(
       (m) => m.tripId === trip.id && m.userId === userId,
     )
     if (!already) {
-      members.push({
+      store.members.push({
         tripId: trip.id,
         userId,
         displayName,
@@ -71,6 +71,6 @@ export const mockTripRepo: TripRepository = {
   },
 
   async listMembers(tripId) {
-    return members.filter((m) => m.tripId === tripId)
+    return store.members.filter((m) => m.tripId === tripId)
   },
 }
