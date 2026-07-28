@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { SteeringWheelIcon } from '@phosphor-icons/react'
 import { Avatar } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
@@ -10,7 +11,7 @@ import { cn } from '@/lib/utils/cn'
 
 /** 카드 대신 구분선으로 묶는다. 한 줄에 한 사람이면 상자는 과하다. */
 export function MemberList({
-  members: initialMembers,
+  members,
   tripId,
   canEdit = false,
 }: {
@@ -19,7 +20,7 @@ export function MemberList({
   /** 방장이고 아직 정산 전일 때만 참. 운전자는 할인 계산의 입력이라 확정 후엔 못 바꾼다. */
   canEdit?: boolean
 }) {
-  const [members, setMembers] = useState(initialMembers)
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string>()
 
@@ -27,8 +28,11 @@ export function MemberList({
     if (!tripId) return
     startTransition(async () => {
       try {
-        setMembers(await setDriverAction(tripId, userId, next))
+        await setDriverAction(tripId, userId, next)
         setError(undefined)
+        // 로컬 상태를 두면 탭 전환으로 컴포넌트가 언마운트될 때 서버가 반영한 값과
+        // 어긋날 수 있다. 서버 컴포넌트를 다시 실행해 props를 최신 상태로 받는다.
+        router.refresh()
       } catch {
         // 서버 게이트(방장 여부·잠금)가 막았거나 알 수 없는 오류다.
         // 버튼이 조용히 반응 없는 상태로 남지 않게 한다.
@@ -79,7 +83,11 @@ export function MemberList({
         ))}
       </ul>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p role="alert" className="text-danger text-sm">
+          {error}
+        </p>
+      ) : null}
     </div>
   )
 }
