@@ -21,10 +21,12 @@ export function TripDetailTabs({
   trip,
   members,
   settlements,
+  canEditMembers,
 }: {
   trip: Trip
   members: Member[]
   settlements: Settlement[]
+  canEditMembers: boolean
 }) {
   const [tab, setTab] = useState<Tab>('members')
 
@@ -34,7 +36,11 @@ export function TripDetailTabs({
 
       <div role="tabpanel">
         {tab === 'members' ? (
-          <MemberList members={members} />
+          <MemberList
+            members={members}
+            tripId={trip.id}
+            canEdit={canEditMembers}
+          />
         ) : tab === 'plan' ? (
           <DayPlanList trip={trip} />
         ) : (

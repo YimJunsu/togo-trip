@@ -11,7 +11,7 @@ export default async function TripDetailPage({
   params,
 }: PageProps<{ tripId: string }>) {
   const { tripId } = await params
-  await requireMemberPage(tripId)
+  const me = await requireMemberPage(tripId)
 
   const trip = await tripRepo.get(tripId)
   if (!trip) notFound()
@@ -20,6 +20,11 @@ export default async function TripDetailPage({
     tripRepo.listMembers(tripId),
     settlementRepo.listByTrip(tripId),
   ])
+
+  // 방장이면서 아직 확정 전일 때만 참. 확정 후 운전자를 바꾸면 이미 확정된 금액의 전제가 깨진다.
+  const canEditMembers =
+    !trip.settledAt &&
+    members.some((m) => m.userId === me.id && m.role === 'host')
 
   return (
     <div className="flex flex-col gap-6">
@@ -53,7 +58,12 @@ export default async function TripDetailPage({
         </div>
       </header>
 
-      <TripDetailTabs trip={trip} members={members} settlements={settlements} />
+      <TripDetailTabs
+        trip={trip}
+        members={members}
+        settlements={settlements}
+        canEditMembers={canEditMembers}
+      />
     </div>
   )
 }
