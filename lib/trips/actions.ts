@@ -1,9 +1,13 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { requireUser } from '@/lib/auth/session'
-import { InvalidInviteCodeError, tripRepo } from '@/lib/data'
-import type { DestinationTheme, Trip } from '@/lib/data/types'
+import { requireHost, requireUser } from '@/lib/auth/session'
+import {
+  InvalidInviteCodeError,
+  TripAlreadySettledError,
+  tripRepo,
+} from '@/lib/data'
+import type { DestinationTheme, Member, Trip } from '@/lib/data/types'
 import { THEME_ORDER } from '@/lib/utils/labels'
 
 export type TripFormState = {
@@ -78,6 +82,28 @@ export async function joinTripAction(
     if (error instanceof InvalidInviteCodeError) {
       return { message: '그런 코드는 없습니다. 방장에게 다시 물어보세요.' }
     }
+    if (error instanceof TripAlreadySettledError) {
+      return { message: '이미 정산이 끝난 여행방입니다.' }
+    }
     throw error
   }
+}
+
+/** 운전자 지정. 방장만. 여러 명일 수 있다 — 장거리 여행은 교대 운전이 흔하다. */
+export async function setDriverAction(
+  tripId: string,
+  userId: string,
+  isDriver: boolean,
+): Promise<Member[]> {
+  await requireHost(tripId)
+  return tripRepo.setDriver(tripId, userId, isDriver)
+}
+
+/** 할인율 조정. 방장만. rate는 0 ~ 0.5. 검증은 repo가 한 번 더 한다. */
+export async function setDiscountRateAction(
+  tripId: string,
+  rate: number,
+): Promise<Trip> {
+  await requireHost(tripId)
+  return tripRepo.setDiscountRate(tripId, rate)
 }

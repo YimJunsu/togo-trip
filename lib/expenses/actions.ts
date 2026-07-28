@@ -36,3 +36,21 @@ export async function addExpense(input: AddExpenseInput): Promise<Expense> {
 
   return expenseRepo.add(input)
 }
+
+/**
+ * tripId를 따로 받는 이유는 멤버십을 먼저 확인하기 위해서다. expenseId만으로는
+ * 어느 방의 지출인지 알기 전에 게이트를 통과시킬 수 없다.
+ */
+export async function removeExpense(
+  tripId: string,
+  expenseId: string,
+): Promise<void> {
+  await requireMember(tripId)
+
+  const expenses = await expenseRepo.listByTrip(tripId)
+  if (!expenses.some((e) => e.id === expenseId)) {
+    throw new Error('이 여행방의 지출이 아닙니다.')
+  }
+
+  await expenseRepo.remove(expenseId)
+}
