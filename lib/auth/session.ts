@@ -96,3 +96,16 @@ export async function requireMemberPage(tripId: string): Promise<Profile> {
   if (!isMember) notFound()
   return user
 }
+
+/**
+ * 방장 전용 액션(운전자 지정·할인율·정산 확정·취소)의 첫 줄에 둔다.
+ * requireMember와 같은 이유다 — Server Action은 페이지 게이트를 거치지 않고
+ * 네트워크 레벨에서 직접 호출될 수 있다.
+ */
+export async function requireHost(tripId: string): Promise<Profile> {
+  const user = await requireUser()
+  const members = await tripRepo.listMembers(tripId)
+  const me = members.find((m) => m.userId === user.id)
+  if (me?.role !== 'host') throw new Error('방장만 할 수 있습니다.')
+  return user
+}

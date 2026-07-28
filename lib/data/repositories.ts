@@ -12,6 +12,7 @@ import type {
   TravelStyle,
   Trip,
 } from './types'
+import type { SettleTransfer } from '@/lib/settle/settle'
 
 /**
  * 데이터 접근 계약. UI는 이 인터페이스만 알고, mock인지 실서버인지 몰라야 한다.
@@ -70,6 +71,17 @@ export class InvalidInviteCodeError extends Error {
 }
 
 /**
+ * 확정된 여행방에 쓰기를 시도했다. 액션이 이 타입만 잡아야 다른 오류(repo 버그 등)가
+ * 묻히지 않는다. Supabase 쪽에서는 RLS 정책이 같은 상황을 막는다.
+ */
+export class TripAlreadySettledError extends Error {
+  constructor() {
+    super('이미 정산이 끝난 여행방입니다.')
+    this.name = 'TripAlreadySettledError'
+  }
+}
+
+/**
  * 인증. 자격증명(Account)은 이 인터페이스 밖으로 나가지 않는다 —
  * 모든 메서드가 Profile만 반환한다.
  */
@@ -97,18 +109,36 @@ export interface TripRepository {
     displayName: string,
     input: CreateTripInput,
   ): Promise<Trip>
+  /** 확정된 방이면 TripAlreadySettledError를 던진다. */
   joinByCode(userId: string, displayName: string, code: string): Promise<Trip>
   listMembers(tripId: string): Promise<Member[]>
+  /** 방장만. 운전자는 여러 명일 수 있다. 갱신된 멤버 목록을 돌려준다. */
+  setDriver(
+    tripId: string,
+    userId: string,
+    isDriver: boolean,
+  ): Promise<Member[]>
+  /** 방장만. rate는 0 ~ 0.5. 확정된 방이면 TripAlreadySettledError. */
+  setDiscountRate(tripId: string, rate: number): Promise<Trip>
 }
 
 export interface ExpenseRepository {
   listByTrip(tripId: string): Promise<Expense[]>
   add(input: AddExpenseInput): Promise<Expense>
+  /** 확정된 방의 지출이면 TripAlreadySettledError. */
+  remove(expenseId: string): Promise<void>
 }
 
 export interface SettlementRepository {
-  /** 지금은 계산하지 않는다. seed에 미리 담긴 송금 리스트를 반환한다. */
   listByTrip(tripId: string): Promise<Settlement[]>
+  /**
+   * 확정 + 잠금. 방장만. transfers는 settleTrip()의 출력을 그대로 받는다.
+   * 계산은 여기서 하지 않는다 — lib/settle/의 순수 함수가 이미 한 결과다.
+   */
+  settle(tripId: string, transfers: SettleTransfer[]): Promise<Settlement[]>
+  /** 정산 취소. 방장만. 송금 리스트를 지우고 잠금을 푼다. */
+  unsettle(tripId: string): Promise<void>
+  markPaid(settlementId: string, isPaid: boolean): Promise<Settlement>
 }
 
 export interface DestinationRepository {

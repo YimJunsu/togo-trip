@@ -44,4 +44,5 @@ export {
   DuplicateEmailError,
   InvalidCredentialsError,
   InvalidInviteCodeError,
+  TripAlreadySettledError,
 } from './repositories'

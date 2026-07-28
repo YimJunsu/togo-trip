@@ -1,6 +1,10 @@
-import { InvalidInviteCodeError, type TripRepository } from '../repositories'
+import {
+  InvalidInviteCodeError,
+  TripAlreadySettledError,
+  type TripRepository,
+} from '../repositories'
 import type { Trip } from '../types'
-import { store } from './store'
+import { findTrip, store } from './store'
 
 const INVITE_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 const INVITE_CODE_LENGTH = 6
@@ -53,6 +57,8 @@ export const mockTripRepo: TripRepository = {
       (t) => t.inviteCode.toUpperCase() === code.trim().toUpperCase(),
     )
     if (!trip) throw new InvalidInviteCodeError()
+    // 이미 정산이 끝난 방에 새 사람이 들어오면 확정된 금액의 전제가 깨진다.
+    if (trip.settledAt) throw new TripAlreadySettledError()
 
     // 이미 들어와 있으면 다시 넣지 않는다. 두 번 눌러도 멤버가 겹치지 않는다.
     const already = store.members.some(
@@ -72,5 +78,30 @@ export const mockTripRepo: TripRepository = {
 
   async listMembers(tripId) {
     return store.members.filter((m) => m.tripId === tripId)
+  },
+
+  async setDriver(tripId, userId, isDriver) {
+    const trip = findTrip(tripId)
+    if (!trip) throw new InvalidInviteCodeError()
+    if (trip.settledAt) throw new TripAlreadySettledError()
+
+    const member = store.members.find(
+      (m) => m.tripId === tripId && m.userId === userId,
+    )
+    if (!member) throw new Error('이 여행방의 멤버가 아닙니다.')
+    member.isDriver = isDriver
+
+    return store.members.filter((m) => m.tripId === tripId)
+  },
+
+  async setDiscountRate(tripId, rate) {
+    const trip = findTrip(tripId)
+    if (!trip) throw new InvalidInviteCodeError()
+    if (trip.settledAt) throw new TripAlreadySettledError()
+    if (!Number.isFinite(rate) || rate < 0 || rate > 0.5) {
+      throw new Error('할인율은 0% ~ 50% 사이여야 합니다.')
+    }
+    trip.driverDiscountRate = rate
+    return trip
   },
 }
