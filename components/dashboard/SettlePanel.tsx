@@ -1,41 +1,77 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { PlusIcon } from '@phosphor-icons/react'
 import { ActionButton } from '@/components/dashboard/ActionButton'
 import { AddExpenseForm } from '@/components/dashboard/AddExpenseForm'
+import { DiscountRateField } from '@/components/dashboard/DiscountRateField'
 import { ExpenseList } from '@/components/dashboard/ExpenseList'
-import { SettlementList } from '@/components/dashboard/SettlementList'
+import { SettledResult } from '@/components/dashboard/SettledResult'
+import { StartSettleDialog } from '@/components/dashboard/StartSettleDialog'
 import { AvatarStack } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
-import type { Expense, Member, Settlement } from '@/lib/data/types'
+import type { Expense, Member, Settlement, Trip } from '@/lib/data/types'
+import type { SettleShare } from '@/lib/settle/settle'
+import { removeExpense } from '@/lib/expenses/actions'
 import { formatWon } from '@/lib/utils/format'
 
 export function SettlePanel({
-  tripId,
+  trip,
   members,
   initialExpenses,
   settlements,
-  driverName,
+  shares,
+  currentUserId,
+  isHost,
 }: {
-  tripId: string
+  trip: Trip
   members: Member[]
   initialExpenses: Expense[]
+  /** 확정된 방에서만 채워진다. */
   settlements: Settlement[]
-  driverName?: string
+  /** 확정된 방에서만 채워진다. 저장하지 않고 서버가 매번 계산한 값이다. */
+  shares: SettleShare[]
+  currentUserId: string
+  isHost: boolean
 }) {
   const [expenses, setExpenses] = useState(initialExpenses)
   const [isAdding, setIsAdding] = useState(false)
+  const [, startTransition] = useTransition()
+
+  if (trip.settledAt) {
+    return (
+      <SettledResult
+        tripId={trip.id}
+        settledAt={trip.settledAt}
+        shares={shares}
+        members={members}
+        initialSettlements={settlements}
+        currentUserId={currentUserId}
+        isHost={isHost}
+      />
+    )
+  }
 
   const total = expenses.reduce((sum, e) => sum + e.amount, 0)
+  const driverNames = members.filter((m) => m.isDriver).map((m) => m.displayName)
+
+  function remove(expenseId: string) {
+    const previous = expenses
+    setExpenses((prev) => prev.filter((e) => e.id !== expenseId))
+    startTransition(async () => {
+      try {
+        await removeExpense(trip.id, expenseId)
+      } catch {
+        setExpenses(previous)
+      }
+    })
+  }
 
   return (
     <div className="flex flex-col gap-8">
       <section className="rounded-card bg-lime shadow-soft p-7">
         <div className="flex items-start justify-between gap-4">
-          <p className="font-mono text-xs tracking-widest opacity-60">
-            총 지출
-          </p>
+          <p className="font-mono text-xs tracking-widest opacity-60">총 지출</p>
           <AvatarStack
             people={members.map((m) => ({ id: m.userId, name: m.displayName }))}
             label="함께 쓴 사람"
@@ -47,9 +83,10 @@ export function SettlePanel({
         <div className="mt-4 flex flex-wrap gap-1.5">
           <Badge className="bg-ink/8 text-ink">{expenses.length}건</Badge>
           <Badge className="bg-ink/8 text-ink">{members.length}명</Badge>
-          {driverName ? (
+          {driverNames.length > 0 ? (
             <Badge className="bg-ink text-paper">
-              운전자 {driverName} 20% 할인
+              운전자 {driverNames.join('·')}{' '}
+              {Math.round(trip.driverDiscountRate * 100)}% 할인
             </Badge>
           ) : null}
         </div>
@@ -71,7 +108,7 @@ export function SettlePanel({
         {isAdding ? (
           <div className="mb-4">
             <AddExpenseForm
-              tripId={tripId}
+              tripId={trip.id}
               members={members}
               onCancel={() => setIsAdding(false)}
               onAdded={(expense) => {
@@ -82,15 +119,30 @@ export function SettlePanel({
           </div>
         ) : null}
 
-        <ExpenseList expenses={expenses} members={members} />
+        <ExpenseList
+          expenses={expenses}
+          members={members}
+          onRemove={remove}
+        />
       </section>
 
-      <section>
-        <h2 className="font-display mb-3 text-lg font-semibold tracking-tight">
-          누가 누구에게
-        </h2>
-        <SettlementList settlements={settlements} members={members} />
-      </section>
+      {isHost ? (
+        <section className="flex flex-col gap-6">
+          <DiscountRateField
+            tripId={trip.id}
+            initialRate={trip.driverDiscountRate}
+          />
+          <StartSettleDialog
+            tripId={trip.id}
+            members={members}
+            isDisabled={expenses.length === 0}
+          />
+        </section>
+      ) : (
+        <p className="text-muted text-sm">
+          정산은 방장이 시작합니다.
+        </p>
+      )}
     </div>
   )
 }

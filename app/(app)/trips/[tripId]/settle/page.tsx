@@ -4,13 +4,15 @@ import { CaretLeftIcon } from '@phosphor-icons/react/dist/ssr'
 import { SettlePanel } from '@/components/dashboard/SettlePanel'
 import { expenseRepo, settlementRepo, tripRepo } from '@/lib/data'
 import { requireMemberPage } from '@/lib/auth/session'
+import { previewSettlement } from '@/lib/settlements/actions'
+import type { SettleShare } from '@/lib/settle/settle'
 import type { PageProps } from '@/lib/types/page'
 
 export default async function SettlePage({
   params,
 }: PageProps<{ tripId: string }>) {
   const { tripId } = await params
-  await requireMemberPage(tripId)
+  const me = await requireMemberPage(tripId)
 
   const trip = await tripRepo.get(tripId)
   if (!trip) notFound()
@@ -21,7 +23,12 @@ export default async function SettlePage({
     tripRepo.listMembers(tripId),
   ])
 
-  const driverName = members.find((m) => m.isDriver)?.displayName
+  // 부담 내역은 저장하지 않는다. 확정된 방은 입력이 잠겨 있어 매번 같은 값이 나온다.
+  const shares: SettleShare[] = trip.settledAt
+    ? (await previewSettlement(tripId)).shares
+    : []
+
+  const isHost = members.some((m) => m.userId === me.id && m.role === 'host')
 
   return (
     <div className="flex flex-col gap-6">
@@ -39,11 +46,13 @@ export default async function SettlePage({
       </header>
 
       <SettlePanel
-        tripId={tripId}
+        trip={trip}
         members={members}
         initialExpenses={expenses}
         settlements={settlements}
-        driverName={driverName}
+        shares={shares}
+        currentUserId={me.id}
+        isHost={isHost}
       />
     </div>
   )

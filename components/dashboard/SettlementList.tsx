@@ -1,17 +1,32 @@
-import { ArrowRightIcon, CalculatorIcon } from '@phosphor-icons/react/dist/ssr'
+'use client'
+
+import { useTransition } from 'react'
+import { ArrowRightIcon, CalculatorIcon, CheckIcon } from '@phosphor-icons/react'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { Avatar } from '@/components/ui/Avatar'
 import type { Member, Settlement } from '@/lib/data/types'
+import { toggleSettlementPaid } from '@/lib/settlements/actions'
+import { cn } from '@/lib/utils/cn'
 import { formatWon } from '@/lib/utils/format'
 
-/** "누가 누구에게 얼마". 계산은 여기서 하지 않는다 — 이미 계산된 목록을 받아 그리기만 한다. */
+/** "누가 누구에게 얼마". 계산은 여기서 하지 않는다 — 이미 계산된 목록을 받아 그린다. */
 export function SettlementList({
   settlements,
   members,
+  tripId,
+  currentUserId,
+  onToggled,
 }: {
   settlements: Settlement[]
   members: Member[]
+  /** 셋이 다 있을 때만 보냄 체크박스가 뜬다. 요약 자리(TripDetailTabs)는 넘기지 않는다. */
+  tripId?: string
+  currentUserId?: string
+  onToggled?: (updated: Settlement) => void
 }) {
+  const [isPending, startTransition] = useTransition()
+  const canToggle = Boolean(tripId && currentUserId && onToggled)
+
   if (settlements.length === 0) {
     return (
       <EmptyState
@@ -23,30 +38,79 @@ export function SettlementList({
   }
 
   const nameOf = (id: string) =>
-    members.find((m) => m.userId === id)?.displayName
+    members.find((m) => m.userId === id)?.displayName ?? '알 수 없음'
+
+  function toggle(settlement: Settlement) {
+    if (!tripId || !onToggled) return
+    startTransition(async () => {
+      try {
+        onToggled(
+          await toggleSettlementPaid(
+            tripId,
+            settlement.id,
+            !settlement.isPaid,
+          ),
+        )
+      } catch {
+        // 당사자가 아니거나 알 수 없는 오류. 값이 안 바뀐 채로 남는다.
+      }
+    })
+  }
 
   return (
     <ul className="flex flex-col gap-3">
       {settlements.map((s, i) => {
-        const fromName = nameOf(s.from)
-        const toName = nameOf(s.to)
+        // 남의 송금을 "보냈다"고 표시할 수 없다. 서버도 같은 검사를 한다.
+        const isParty = s.from === currentUserId || s.to === currentUserId
         return (
           <li
-            key={`${s.from}-${s.to}-${i}`}
+            key={s.id}
             style={{ animationDelay: `${i * 70}ms` }}
-            className="rounded-card border-line bg-surface animate-rise flex items-center gap-3 border p-4"
+            className={cn(
+              'rounded-card border-line bg-surface animate-rise flex items-center gap-3 border p-4',
+              s.isPaid && 'opacity-60',
+            )}
           >
-            <Person name={fromName ?? '알 수 없음'} />
+            <Person name={nameOf(s.from)} />
             <ArrowRightIcon
               size={16}
               weight="bold"
               className="text-muted shrink-0"
               aria-label="에게 보냄"
             />
-            <Person name={toName ?? '알 수 없음'} />
-            <span className="ml-auto font-mono font-semibold">
+            <Person name={nameOf(s.to)} />
+            <span
+              className={cn(
+                'ml-auto font-mono font-semibold',
+                s.isPaid && 'line-through',
+              )}
+            >
               {formatWon(s.amount)}
             </span>
+            {canToggle ? (
+              <button
+                type="button"
+                disabled={!isParty || isPending}
+                onClick={() => toggle(s)}
+                aria-pressed={s.isPaid}
+                aria-label={`${nameOf(s.from)}이 ${nameOf(s.to)}에게 보냄`}
+                title={
+                  isParty
+                    ? undefined
+                    : '본인이 주고받는 송금만 표시할 수 있습니다'
+                }
+                className={cn(
+                  'inline-flex size-7 shrink-0 items-center justify-center rounded-full',
+                  'transition duration-200 ease-out active:scale-[0.98]',
+                  'disabled:cursor-not-allowed disabled:opacity-40',
+                  s.isPaid
+                    ? 'bg-lime text-ink'
+                    : 'border-line text-muted border',
+                )}
+              >
+                <CheckIcon size={14} weight="bold" aria-hidden />
+              </button>
+            ) : null}
           </li>
         )
       })}
