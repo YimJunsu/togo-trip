@@ -93,7 +93,11 @@ create table if not exists public.trips (
   start_date           date not null,
   end_date             date not null,
   invite_code          text not null unique,
-  created_by           uuid not null references public.profiles(id) on delete cascade,
+  -- cascade였다면 생성자가 계정을 지울 때 이 방 전체(멤버·지출·참여자·정산)가
+  -- 같이 사라진다 — 다른 멤버들의 여행 기록까지 함께 날아가는 셈이다. restrict로
+  -- 막아 "방이 남아있는 동안은 생성자 계정을 지울 수 없다"로 실패하게 한다.
+  -- 계정 삭제 기능은 지금 없어 당장 영향은 없다.
+  created_by           uuid not null references public.profiles(id) on delete restrict,
   cover_theme          text not null default 'sea',
   -- 계산 입력이므로 확정 시 지출과 함께 잠긴다. 저장하지 않으면 기본값이 바뀔 때
   -- 과거 정산 금액이 소급해서 달라진다.
@@ -108,7 +112,12 @@ create table if not exists public.trips (
 -- 6) trip_members -----------------------------------------------------------
 create table if not exists public.trip_members (
   trip_id      uuid not null references public.trips(id) on delete cascade,
-  user_id      uuid not null references public.profiles(id) on delete cascade,
+  -- cascade였다면 계정을 지울 때 이 trip_members 행이 사라지고, 그 연쇄로
+  -- expenses(trip_id,payer_id)→trip_members cascade(아래 7번)가 이 사람이 결제한
+  -- 지출까지 지운다. 그러면 남은 멤버들의 정산 총액이 조용히 바뀐다. restrict로
+  -- 막아 "이 방의 멤버인 동안은 계정을 지울 수 없다"로 실패하게 한다.
+  -- 계정 삭제 기능은 지금 없어 당장 영향은 없다.
+  user_id      uuid not null references public.profiles(id) on delete restrict,
   display_name text not null,
   role         text not null default 'member' check (role in ('host','member')),
   is_driver    boolean not null default false,
@@ -155,8 +164,13 @@ create table if not exists public.expense_participants (
 create table if not exists public.settlements (
   id           uuid primary key default gen_random_uuid(),
   trip_id      uuid not null references public.trips(id) on delete cascade,
-  from_user_id uuid not null references public.profiles(id),
-  to_user_id   uuid not null references public.profiles(id),
+  -- 다른 profiles FK와 달리 원래 on delete 지정이 아예 없었다 — 남은 정산 행이
+  -- 있는지 없는지에 따라 계정 삭제가 조용히 성공(파괴적)하거나 FK 위반으로
+  -- 실패하거나가 갈렸다. restrict를 명시해 "정산 기록이 있는 동안은 계정을
+  -- 지울 수 없다"로 항상 안전하게 실패하도록 통일한다.
+  -- 계정 삭제 기능은 지금 없어 당장 영향은 없다.
+  from_user_id uuid not null references public.profiles(id) on delete restrict,
+  to_user_id   uuid not null references public.profiles(id) on delete restrict,
   amount       integer not null check (amount > 0),
   is_paid      boolean not null default false,
   paid_at      timestamptz,
@@ -288,15 +302,17 @@ create policy "방장만 멤버 수정" on public.trip_members
   );
 
 -- expenses ------------------------------------------------------------------
--- 잠금이 여기서 완성된다. settled_at 이 채워지면 아래 세 정책이 전부 거짓이 되어
--- 서버 액션을 우회해도 지출을 건드릴 수 없다.
+-- INSERT 정책은 없다 = add_expense RPC(12번 섹션, security definer)로만 쓸 수 있다.
+-- 지출과 expense_participants가 같은 트랜잭션으로 함께 생겨야 한다 — 둘을
+-- 나눠서 클라이언트가 두 번 왕복하면(또는 REST로 expenses만 직접 찔러 넣으면)
+-- 참여자가 하나도 없는 지출이 생긴다. 나눌 사람이 없으니 정산 계산이 그 지출을
+-- 처리할 수 없고, 방이 잠긴 뒤라면(expenses DELETE는 not is_trip_settled 요구)
+-- 그 유령 지출은 영영 지울 수도 없다. settlements에 INSERT 정책이 없는 것과
+-- 같은 이유다.
+-- 잠금은 아래 두 정책(수정·삭제)이 맡는다. settled_at 이 채워지면 둘 다 거짓이
+-- 되어 서버 액션을 우회해도 지출을 건드릴 수 없다.
 create policy "멤버만 지출 읽기" on public.expenses
   for select using (public.is_trip_member(trip_id));
-
-create policy "미확정 방에만 지출 추가" on public.expenses
-  for insert with check (
-    public.is_trip_member(trip_id) and not public.is_trip_settled(trip_id)
-  );
 
 create policy "미확정 방 지출만 수정" on public.expenses
   for update using (
@@ -311,13 +327,9 @@ create policy "미확정 방 지출만 삭제" on public.expenses
   );
 
 -- expense_participants ------------------------------------------------------
+-- INSERT 정책은 없다 = expenses와 같은 이유로 add_expense RPC로만 쓸 수 있다.
 create policy "멤버만 참여자 읽기" on public.expense_participants
   for select using (public.is_trip_member(trip_id));
-
-create policy "미확정 방에만 참여자 추가" on public.expense_participants
-  for insert with check (
-    public.is_trip_member(trip_id) and not public.is_trip_settled(trip_id)
-  );
 
 create policy "미확정 방 참여자만 삭제" on public.expense_participants
   for delete using (
@@ -382,6 +394,56 @@ begin
   on conflict (trip_id, user_id) do nothing;
 
   return target.id;
+end;
+$$;
+
+-- 지출 생성 + 참여자 등록을 한 트랜잭션으로 묶는다. expenses INSERT 정책을 없앤
+-- 이유가 이 함수다 — 지출 따로, expense_participants 따로 두 번 왕복하면 그 사이
+-- 연결이 끊기거나 REST로 expenses만 직접 찔러도 참여자 없는 유령 지출이 생긴다.
+-- security definer라 RLS를 타지 않으므로, 정책이 하던 검사를 여기서 전부 다시 한다.
+create or replace function public.add_expense(
+  check_trip_id     uuid,
+  check_payer_id    uuid,
+  check_amount      integer,
+  check_description text,
+  check_category    text,
+  participant_ids   uuid[]
+)
+returns uuid
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  new_expense_id uuid;
+  participant_id uuid;
+begin
+  if not public.is_trip_member(check_trip_id) then
+    raise exception 'NOT_TRIP_MEMBER';
+  end if;
+
+  if public.is_trip_settled(check_trip_id) then
+    raise exception 'TRIP_ALREADY_SETTLED';
+  end if;
+
+  -- 빈 배열의 array_length는 null이다(차원 정보가 없어서) — null 배열과 빈 배열을
+  -- 한 조건으로 같이 잡는다.
+  if participant_ids is null or array_length(participant_ids, 1) is null then
+    raise exception 'NO_PARTICIPANTS';
+  end if;
+
+  insert into public.expenses (trip_id, payer_id, amount, description, category)
+  values (check_trip_id, check_payer_id, check_amount, check_description, check_category)
+  returning id into new_expense_id;
+
+  -- 결제자·참여자가 이 방의 멤버인지는 위/아래 INSERT의 복합 FK
+  -- (expenses: trip_id+payer_id → trip_members, expense_participants: trip_id+user_id
+  -- → trip_members, 각각 7·8번 섹션)가 이미 보장한다. 여기서 다시 검사하면 같은
+  -- 규칙을 두 곳에 두게 된다 — 위반 시 FK 오류로 트랜잭션 전체가 롤백된다.
+  foreach participant_id in array participant_ids loop
+    insert into public.expense_participants (expense_id, trip_id, user_id)
+    values (new_expense_id, check_trip_id, participant_id);
+  end loop;
+
+  return new_expense_id;
 end;
 $$;
 
@@ -487,5 +549,7 @@ end;
 $$;
 
 grant execute on function public.join_trip_by_code(text, text) to authenticated;
+grant execute on function public.add_expense(uuid, uuid, integer, text, text, uuid[])
+  to authenticated;
 grant execute on function public.settle_trip(uuid, jsonb)     to authenticated;
 grant execute on function public.unsettle_trip(uuid)          to authenticated;
