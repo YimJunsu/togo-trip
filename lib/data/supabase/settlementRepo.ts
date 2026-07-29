@@ -59,8 +59,6 @@ export const supabaseSettlementRepo: SettlementRepository = {
       }
       throw error
     }
-
-    return this.listByTrip(tripId)
   },
 
   async unsettle(tripId) {

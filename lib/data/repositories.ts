@@ -134,10 +134,14 @@ export interface SettlementRepository {
   /**
    * 확정 + 잠금. 방장만. transfers는 settleTrip()의 출력을 그대로 받는다.
    * 계산은 여기서 하지 않는다 — lib/settle/의 순수 함수가 이미 한 결과다.
+   * 반환값은 없다 — 두 구현이 서로 다른 순서(삽입 순 vs amount desc)를 돌려주고
+   * 호출부(startSettlement)도 결과를 쓰지 않아, 반환값이 있으면 구현이 갈리는데
+   * 아무도 알아채지 못하는 채로 남는다.
    */
-  settle(tripId: string, transfers: SettleTransfer[]): Promise<Settlement[]>
+  settle(tripId: string, transfers: SettleTransfer[]): Promise<void>
   /** 정산 취소. 방장만. 송금 리스트를 지우고 잠금을 푼다. */
   unsettle(tripId: string): Promise<void>
+  /** 확정 잠금의 예외다 — 송금을 보냈다는 표시는 확정 "이후"에 일어나야 하는 유일한 쓰기라 잠그지 않는다. */
   markPaid(settlementId: string, isPaid: boolean): Promise<Settlement>
 }
 

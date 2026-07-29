@@ -33,11 +33,20 @@ export function SettlementList({
   const canToggle = Boolean(tripId && currentUserId && onToggled)
 
   if (settlements.length === 0) {
+    // 확정된 방(tripId·currentUserId가 있는 자리)에서 송금이 0건인 건 지출을 안
+    // 넣어서가 아니라, 다 같이 정확히 엔빵이 맞아 주고받을 게 없는 경우다.
+    // "지출을 넣으라"는 안내는 이미 지출도 있고 확정도 끝난 사람에게는 실행할
+    // 수 없는 조언이라 잠긴 방에는 다른 문구를 쓴다.
+    const isSettled = canToggle
     return (
       <EmptyState
         icon={CalculatorIcon}
         title="정산할 게 없습니다"
-        description="지출을 넣으면 누가 누구에게 얼마를 보낼지 여기 나옵니다."
+        description={
+          isSettled
+            ? '다 같이 정확히 나눠 냈습니다. 주고받을 돈이 없습니다.'
+            : '지출을 넣으면 누가 누구에게 얼마를 보낼지 여기 나옵니다.'
+        }
       />
     )
   }

@@ -36,11 +36,20 @@ export function SettlePanel({
 }) {
   const [expenses, setExpenses] = useState(initialExpenses)
   const [isAdding, setIsAdding] = useState(false)
-  // 미리보기가 열려 있는 동안 지출을 고치면, 확정할 때 서버가 다시 계산한 값이
-  // 방금 본 미리보기와 달라질 수 있다. 미리보기의 숫자가 확정 시점까지 그대로
-  // 유지되도록 이 동안은 지출 편집 UI 전체(추가/삭제)를 잠근다.
+  // 미리보기가 열려 있는 동안 지출·할인율을 고치면, 확정할 때 서버가 다시 계산한
+  // 값이 방금 본 미리보기와 달라질 수 있다. 미리보기의 숫자가 확정 시점까지 그대로
+  // 유지되도록 이 동안은 지출 편집 UI 전체(추가/삭제)와 할인율 컨트롤을 잠근다.
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [, startTransition] = useTransition()
+  const [removeError, setRemoveError] = useState<string>()
+
+  // 미리보기가 열리는 순간, 이미 열려 있던 추가 폼은 더 이상 조작할 수 없어야 한다
+  // (위 잠금과 같은 이유). 닫아 두지 않으면 미리보기 취소 후 사용자가 연 적 없는
+  // 빈 추가 폼이 그대로 남아 있는 것처럼 보인다.
+  function handlePreviewOpenChange(open: boolean) {
+    setIsPreviewOpen(open)
+    if (open) setIsAdding(false)
+  }
 
   if (trip.settledAt) {
     return (
@@ -67,8 +76,10 @@ export function SettlePanel({
     startTransition(async () => {
       try {
         await removeExpense(trip.id, expenseId)
+        setRemoveError(undefined)
       } catch {
         setExpenses(previous)
+        setRemoveError('지출을 지우지 못했습니다. 잠시 후 다시 시도해 주세요.')
       }
     })
   }
@@ -132,6 +143,11 @@ export function SettlePanel({
           members={members}
           onRemove={isPreviewOpen ? undefined : remove}
         />
+        {removeError ? (
+          <p role="alert" className="text-danger mt-2 text-sm">
+            {removeError}
+          </p>
+        ) : null}
       </section>
 
       {isHost ? (
@@ -139,12 +155,13 @@ export function SettlePanel({
           <DiscountRateField
             tripId={trip.id}
             initialRate={trip.driverDiscountRate}
+            disabled={isPreviewOpen}
           />
           <StartSettleDialog
             tripId={trip.id}
             members={members}
             isDisabled={expenses.length === 0}
-            onPreviewOpenChange={setIsPreviewOpen}
+            onPreviewOpenChange={handlePreviewOpenChange}
           />
         </section>
       ) : (

@@ -20,7 +20,12 @@ export type Profile = {
   phone: string
   birthDate: string
   provider: AuthProvider
-  /** 정산 완료 시 +1. 증가 로직은 아직 없다. */
+  /**
+   * 정산 완료 시 +1, 취소 시 -1(0 미만으로는 내려가지 않는다). Supabase에서는
+   * settle_trip/unsettle_trip(schema.sql)이 트랜잭션 안에서 증감시킨다.
+   * mock(lib/data/mock)은 이 값을 건드리지 않는다 — 아직 어느 화면도 렌더링하지
+   * 않는 값이라 지금은 두 구현이 갈려도 눈에 띄지 않는다는 걸 알려 둔다.
+   */
   completedTripCount: number
   createdAt: string
   travelStyle?: QuizResult

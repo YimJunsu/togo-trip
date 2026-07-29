@@ -222,3 +222,25 @@ test('모든 케이스에서 돈이 새지 않는다', () => {
     }),
   )
 })
+
+// ── 12. payerId가 members에 없으면 던진다 ────────────────────────────────────
+test('payerId가 members에 없으면 던진다 — paid만 늘고 나눠 부담할 사람이 없다', () => {
+  assert.throws(() =>
+    settleTrip({
+      members: [m('A'), m('B')],
+      expenses: [e('ghost', 10_000, ['A', 'B'])],
+      driverDiscountRate: 0.2,
+    }),
+  )
+})
+
+// ── 13. 참여자 없는 지출은 던진다 ─────────────────────────────────────────────
+test('participantIds가 빈 지출은 던진다 — paid만 늘고 owed로 갈 곳이 없다', () => {
+  assert.throws(() =>
+    settleTrip({
+      members: [m('A'), m('B')],
+      expenses: [e('A', 10_000, [])],
+      driverDiscountRate: 0.2,
+    }),
+  )
+})

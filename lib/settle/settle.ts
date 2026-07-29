@@ -57,9 +57,23 @@ export function settleTrip({
   }
 
   // 1) 균등 분배
+  //
+  // 아래 두 경우를 조용히 넘기지 않고 던진다. payerId가 members에 없으면 paid만
+  // 늘고 그 몫을 나눠 가질 사람(owed)이 아예 없어 Σnet ≠ 0이 되고, 결과적으로
+  // 누군가는 실제보다 적게 받는다. 참여자 없는 지출도 (paid는 늘고 owed는 그대로라)
+  // 같은 방식으로 돈이 샌다. 지금은 lib/expenses/actions.ts와 add_expense RPC가
+  // 둘 다 이 상황을 막고 있지만, 그 가드 중 하나가 회귀하면 여기서 조용히
+  // 잘못 나뉜 정산이 아니라 시끄러운 오류로 드러나야 한다.
   for (const expense of expenses) {
+    if (!members.some((member) => member.userId === expense.payerId)) {
+      throw new Error(
+        `payerId(${expense.payerId})가 members에 없습니다 — 이 지출의 paid를 아무도 나눠 부담하지 못합니다.`,
+      )
+    }
+    if (expense.participantIds.length === 0) {
+      throw new Error('participantIds가 빈 지출입니다 — paid만 늘고 나눠 낼 사람이 없습니다.')
+    }
     paid.set(expense.payerId, (paid.get(expense.payerId) ?? 0) + expense.amount)
-    if (expense.participantIds.length === 0) continue
     const each = expense.amount / expense.participantIds.length
     for (const id of expense.participantIds) {
       rawOwed.set(id, (rawOwed.get(id) ?? 0) + each)

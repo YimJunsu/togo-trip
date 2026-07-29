@@ -11,9 +11,12 @@ const RATES = [0, 0.1, 0.2, 0.3, 0.5] as const
 export function DiscountRateField({
   tripId,
   initialRate,
+  disabled,
 }: {
   tripId: string
   initialRate: number
+  /** 정산 미리보기가 열려 있는 동안 잠근다 — 확정은 서버가 이 값을 다시 읽어 계산한다. */
+  disabled?: boolean
 }) {
   const [rate, setRate] = useState(initialRate)
   const [isPending, startTransition] = useTransition()
@@ -34,7 +37,7 @@ export function DiscountRateField({
   }
 
   return (
-    <fieldset disabled={isPending}>
+    <fieldset disabled={isPending || disabled}>
       <legend className="text-muted mb-2 flex items-center gap-1.5 text-sm font-medium">
         <SteeringWheelIcon size={15} weight="bold" aria-hidden />
         운전자 할인

@@ -6,6 +6,7 @@ import { requireHost, requireMember } from '@/lib/auth/session'
 import { expenseRepo, settlementRepo, tripRepo } from '@/lib/data'
 import type { Settlement } from '@/lib/data/types'
 import { settleTrip, type SettleResult } from '@/lib/settle/settle'
+import { isSettlementParty } from '@/lib/settlements/party'
 
 /** 계산에 필요한 입력을 모아 순수 함수에 넘긴다. 저장은 하지 않는다. */
 async function calculate(tripId: string): Promise<SettleResult> {
@@ -59,7 +60,7 @@ export async function toggleSettlementPaid(
   const settlements = await settlementRepo.listByTrip(tripId)
   const target = settlements.find((s) => s.id === settlementId)
   if (!target) throw new Error('송금 항목을 찾을 수 없습니다.')
-  if (target.from !== user.id && target.to !== user.id) {
+  if (!isSettlementParty(target, user.id)) {
     throw new Error('본인이 주고받는 송금만 표시할 수 있습니다.')
   }
 

@@ -88,7 +88,7 @@ export const mockTripRepo: TripRepository = {
 
   async setDriver(tripId, userId, isDriver) {
     const trip = findTrip(tripId)
-    if (!trip) throw new InvalidInviteCodeError()
+    if (!trip) throw new Error('여행방을 찾을 수 없습니다.')
     if (trip.settledAt) throw new TripAlreadySettledError()
 
     const member = store.members.find(
@@ -102,7 +102,7 @@ export const mockTripRepo: TripRepository = {
 
   async setDiscountRate(tripId, rate) {
     const trip = findTrip(tripId)
-    if (!trip) throw new InvalidInviteCodeError()
+    if (!trip) throw new Error('여행방을 찾을 수 없습니다.')
     if (trip.settledAt) throw new TripAlreadySettledError()
     if (!Number.isFinite(rate) || rate < 0 || rate > 0.5) {
       throw new Error('할인율은 0% ~ 50% 사이여야 합니다.')

@@ -36,7 +36,6 @@ export const mockSettlementRepo: SettlementRepository = {
     }))
     store.settlements.push(...created)
     trip.settledAt = new Date().toISOString()
-    return created
   },
 
   async unsettle(tripId) {

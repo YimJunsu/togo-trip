@@ -188,7 +188,7 @@ export const supabaseTripRepo: TripRepository = {
     if (error) throw error
     if (data.length === 0) {
       const trip = await this.get(tripId)
-      if (!trip) throw new InvalidInviteCodeError()
+      if (!trip) throw new Error('여행방을 찾을 수 없습니다.')
       if (trip.settledAt) throw new TripAlreadySettledError()
       throw new Error('이 여행방의 멤버가 아닙니다.')
     }
@@ -213,7 +213,7 @@ export const supabaseTripRepo: TripRepository = {
     if (error) throw error
     if (data.length === 0) {
       const trip = await this.get(tripId)
-      if (!trip) throw new InvalidInviteCodeError()
+      if (!trip) throw new Error('여행방을 찾을 수 없습니다.')
       if (trip.settledAt) throw new TripAlreadySettledError()
       // requireHost가 이미 방장인지 확인한 뒤라 여기 도달할 일은 정상 흐름에는 없다.
       throw new Error('여행방을 수정할 권한이 없습니다.')

@@ -226,8 +226,11 @@ returns boolean language sql security definer set search_path = '' stable as $$
   );
 $$;
 
--- 방을 막 만든 사람은 아직 멤버 행이 없다. host 행을 스스로 넣을 수 있어야 하는데
--- trips의 select 정책에 막혀 trips를 읽지 못하므로 이 함수가 필요하다.
+-- create_trip이 trips insert와 host 멤버 insert를 클라이언트 두 왕복으로 나눠 하던
+-- 시절에 쓰던 함수다. 지금은 create_trip이 security definer RPC 하나로 두 insert를
+-- 한 트랜잭션에 묶어 RLS를 우회하므로 이 함수를 거칠 일이 없다. 그 시절 의존하던
+-- "생성자가 자기 host 행 추가" 정책과 trips SELECT 정책의 or 절이 아직 이 함수를
+-- 참조하고 있어 지우면 정책이 깨진다 — 무해하므로 남겨 둔다.
 create or replace function public.is_trip_creator(check_trip_id uuid)
 returns boolean language sql security definer set search_path = '' stable as $$
   select exists (
@@ -271,8 +274,11 @@ alter table public.expense_participants enable row level security;
 alter table public.settlements          enable row level security;
 
 -- trips ---------------------------------------------------------------------
--- created_by 를 함께 보는 이유: 방을 만든 직후엔 아직 멤버 행이 없어서
--- is_trip_member 만으로는 자기가 만든 방을 되읽지 못한다.
+-- created_by 를 함께 보는 조건은 create_trip이 trips insert와 host 멤버 insert를
+-- 따로 왕복하던 시절, "방을 만든 직후엔 아직 멤버 행이 없어 is_trip_member만으로는
+-- 자기가 만든 방을 되읽지 못하는" 순간을 메우려던 것이다. 지금은 create_trip이
+-- 한 트랜잭션의 security definer RPC라 그 순간 자체가 없다 — 이 or 절이 없어도
+-- 되읽기는 항상 성공한다. 그래도 무해하고 지우는 게 더 위험해 보여 남겨 둔다.
 create policy "멤버 또는 생성자만 여행방 읽기" on public.trips
   for select using (public.is_trip_member(id) or created_by = auth.uid());
 
@@ -299,8 +305,10 @@ grant  update (name, region, start_date, end_date, cover_theme, driver_discount_
 create policy "같은 방 멤버만 멤버 목록 읽기" on public.trip_members
   for select using (public.is_trip_member(trip_id));
 
--- 참여(join)는 join_trip_by_code RPC가 맡는다. 여기서 여는 건 방 생성자가
--- 자기 host 행을 만드는 경우 하나뿐이다.
+-- 참여(join)는 join_trip_by_code RPC가 맡는다. 이 정책은 create_trip이 trips
+-- insert와 host 멤버 insert를 클라이언트 두 왕복으로 나눠 하던 시절, 방 생성자가
+-- 자기 host 행을 직접 넣던 경로다. 지금은 create_trip 하나가 security definer로
+-- 두 insert를 다 하므로 이 정책을 타는 실제 호출은 없다 — 무해해 남겨 둔다.
 create policy "생성자가 자기 host 행 추가" on public.trip_members
   for insert with check (
     user_id = auth.uid() and public.is_trip_creator(trip_id) and role = 'host'
@@ -433,14 +441,25 @@ returns uuid
 language plpgsql security definer set search_path = ''
 as $$
 declare
-  new_expense_id uuid;
-  participant_id uuid;
+  new_expense_id     uuid;
+  participant_id     uuid;
+  locked_settled_at  timestamptz;
 begin
   if not public.is_trip_member(check_trip_id) then
     raise exception 'NOT_TRIP_MEMBER';
   end if;
 
-  if public.is_trip_settled(check_trip_id) then
+  -- is_trip_settled는 stable이라 스냅샷을 본다. READ COMMITTED에서는 settle_trip의
+  -- `for update` 커밋 이후에도 이 지출이 뒤이어 끼어들 수 있다 — 그러면 지출은
+  -- 존재하는데 이미 저장된 송금 리스트엔 그 몫이 반영되지 않고, 확정 화면은
+  -- shares를 매번 재계산하므로 화면과 송금 리스트가 영구히 어긋난다. 게다가 삭제
+  -- 정책은 `not is_trip_settled`를 요구해 이 지출은 지울 수도 없다 — 정산을
+  -- 취소하고 다시 확정하는 것 말고는 빠져나올 길이 없다. `for share`로 trips 행을
+  -- 잠가 settle_trip의 `for update`와 순서를 강제한다 — 다른 지출 삽입끼리는
+  -- 잠그지 않으므로 동시 삽입은 그대로 허용된다.
+  select settled_at into locked_settled_at
+    from public.trips where id = check_trip_id for share;
+  if locked_settled_at is not null then
     raise exception 'TRIP_ALREADY_SETTLED';
   end if;
 

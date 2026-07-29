@@ -10,7 +10,17 @@ import { Badge } from '@/components/ui/Badge'
 import type { Member, Settlement } from '@/lib/data/types'
 import type { SettleShare } from '@/lib/settle/settle'
 import { cancelSettlement } from '@/lib/settlements/actions'
-import { formatWon } from '@/lib/utils/format'
+import { formatDate, formatWon } from '@/lib/utils/format'
+
+/** 한국만 쓰는 서비스라 고정 +09:00로 KST 날짜를 뽑는다 (CLAUDE.md 국내 한정). */
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000
+
+/** settledAt은 UTC ISO 타임스탬프다. slice(0, 10)으로 그냥 자르면 자정 근처
+ * 확정 건이 KST로는 다음 날인데 전날로 보인다 — KST로 옮긴 뒤 날짜만 뽑는다. */
+function formatSettledDate(settledAt: string): string {
+  const kst = new Date(new Date(settledAt).getTime() + KST_OFFSET_MS)
+  return formatDate(kst.toISOString().slice(0, 10))
+}
 
 export function SettledResult({
   tripId,
@@ -69,7 +79,7 @@ export function SettledResult({
           ) : null}
         </div>
         <p className="font-display mt-2 text-2xl font-semibold tracking-tight">
-          {settledAt.slice(0, 10).replace(/-/g, '.')}
+          {formatSettledDate(settledAt)}
         </p>
         <p className="mt-1 text-sm opacity-70">
           지출은 더 고칠 수 없습니다. 고치려면 방장이 정산을 취소해야 합니다.
