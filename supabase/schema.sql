@@ -96,7 +96,11 @@ create table if not exists public.trips (
   -- cascade였다면 생성자가 계정을 지울 때 이 방 전체(멤버·지출·참여자·정산)가
   -- 같이 사라진다 — 다른 멤버들의 여행 기록까지 함께 날아가는 셈이다. restrict로
   -- 막아 "방이 남아있는 동안은 생성자 계정을 지울 수 없다"로 실패하게 한다.
-  -- 계정 삭제 기능은 지금 없어 당장 영향은 없다.
+  -- 이 사람이 속한 방이 하나라도 있으면 auth.users 삭제는 "Database error
+  -- deleting user"로 실패하고, trips·trip_members엔 DELETE 정책이 없어 앱 안에서
+  -- 방을 나가거나 지울 방법도 없다 — 지금은 DB에서 직접 방을 지우는 것 말고는
+  -- 막힘을 풀 방법이 없다. 계정 삭제 기능 자체가 아직 없어 당장 영향은 없지만,
+  -- 그 기능을 만들 때는 이 막힘부터 먼저 풀어야 한다.
   created_by           uuid not null references public.profiles(id) on delete restrict,
   cover_theme          text not null default 'sea',
   -- 계산 입력이므로 확정 시 지출과 함께 잠긴다. 저장하지 않으면 기본값이 바뀔 때
@@ -244,6 +248,16 @@ revoke execute on function public.is_trip_host(uuid)    from public;
 revoke execute on function public.is_trip_settled(uuid) from public;
 revoke execute on function public.is_trip_creator(uuid) from public;
 
+-- Supabase 기본 권한은 PUBLIC뿐 아니라 anon에도 직접 EXECUTE를 준다 — 위의
+-- "from public" revoke로는 안 걷힌다. anon에서 따로 걷지 않으면, auth.uid()로
+-- 걸러지지 않는 유일한 함수인 is_trip_settled를 로그인 없이 그대로 호출해
+-- 존재하는 trip id인지 아닌지 알아내는 오라클로 쓸 수 있다. 나머지 세 함수는
+-- auth.uid()가 걸러 anon 호출이 늘 false지만, 관례를 맞추고 방어를 겹쳐 둔다.
+revoke execute on function public.is_trip_member(uuid)  from anon;
+revoke execute on function public.is_trip_host(uuid)    from anon;
+revoke execute on function public.is_trip_settled(uuid) from anon;
+revoke execute on function public.is_trip_creator(uuid) from anon;
+
 grant execute on function public.is_trip_member(uuid)  to authenticated;
 grant execute on function public.is_trip_host(uuid)    to authenticated;
 grant execute on function public.is_trip_settled(uuid) to authenticated;
@@ -301,6 +315,14 @@ create policy "방장만 멤버 수정" on public.trip_members
     public.is_trip_host(trip_id) and not public.is_trip_settled(trip_id)
   );
 
+-- RLS는 어느 행인지만 제한할 뿐 어느 컬럼인지는 제한하지 못한다. 위 정책만 두면
+-- 방장이 멤버의 user_id나 role을 바꿔치기할 수 있다 — user_id를 바꾸면 방에
+-- 들어온 적 없는 사람에게 몰래 빚을 지우는 셈이고, role을 host로 바꾸면 권한을
+-- 스스로 넘겨줄 수 있다. 앱(TripRepository.setDriver)이 실제로 고치는 컬럼은
+-- is_driver 하나뿐이라, 쓰기 권한도 거기에 맞춘다.
+revoke update on public.trip_members from authenticated, anon;
+grant  update (is_driver) on public.trip_members to authenticated;
+
 -- expenses ------------------------------------------------------------------
 -- INSERT 정책은 없다 = add_expense RPC(12번 섹션, security definer)로만 쓸 수 있다.
 -- 지출과 expense_participants가 같은 트랜잭션으로 함께 생겨야 한다 — 둘을
@@ -309,17 +331,12 @@ create policy "방장만 멤버 수정" on public.trip_members
 -- 처리할 수 없고, 방이 잠긴 뒤라면(expenses DELETE는 not is_trip_settled 요구)
 -- 그 유령 지출은 영영 지울 수도 없다. settlements에 INSERT 정책이 없는 것과
 -- 같은 이유다.
--- 잠금은 아래 두 정책(수정·삭제)이 맡는다. settled_at 이 채워지면 둘 다 거짓이
--- 되어 서버 액션을 우회해도 지출을 건드릴 수 없다.
+-- UPDATE 정책도 없다. ExpenseRepository(lib/data/repositories.ts)에는 지출을
+-- 고치는 메서드가 아예 없다 — 잘못 넣은 지출은 지우고 다시 넣는다(add_expense도
+-- 트랜잭션 하나로 새로 만들 뿐 기존 행을 고치지 않는다). 만들어 둬 봐야 UI도
+-- 서버 액션도 쓰지 않는 구멍만 남는다. 잠금은 아래 삭제 정책이 맡는다.
 create policy "멤버만 지출 읽기" on public.expenses
   for select using (public.is_trip_member(trip_id));
-
-create policy "미확정 방 지출만 수정" on public.expenses
-  for update using (
-    public.is_trip_member(trip_id) and not public.is_trip_settled(trip_id)
-  ) with check (
-    public.is_trip_member(trip_id) and not public.is_trip_settled(trip_id)
-  );
 
 create policy "미확정 방 지출만 삭제" on public.expenses
   for delete using (
@@ -328,13 +345,16 @@ create policy "미확정 방 지출만 삭제" on public.expenses
 
 -- expense_participants ------------------------------------------------------
 -- INSERT 정책은 없다 = expenses와 같은 이유로 add_expense RPC로만 쓸 수 있다.
+-- DELETE 정책도 없다. 참여자 행은 expenses(id, trip_id)를 가리키는 복합 FK에
+-- on delete cascade가 걸려 있어(8번 섹션) 지출을 지우면(ExpenseRepository.remove)
+-- 참여자도 함께 사라진다 — cascade는 RLS를 타지 않는다. 만약 이 표에만 DELETE
+-- 정책을 열면, 지출은 남기고 참여자만 전부 지울 수 있게 된다. 그런데 이 표에
+-- INSERT 정책이 없으니 add_expense를 다시 부르지 않는 한 아무도 되돌릴 수 없고,
+-- 결과는 참여자 0명짜리 유령 지출이다 — add_expense가 막으려던 바로 그 상태다.
+-- lib/settle/settle.ts도 참여자가 없는 지출은 rawOwed 분배를 건너뛰면서 결제자의
+-- paid는 그대로 인정해, 정산 총액이 조용히 안 맞게 된다.
 create policy "멤버만 참여자 읽기" on public.expense_participants
   for select using (public.is_trip_member(trip_id));
-
-create policy "미확정 방 참여자만 삭제" on public.expense_participants
-  for delete using (
-    public.is_trip_member(trip_id) and not public.is_trip_settled(trip_id)
-  );
 
 -- settlements ---------------------------------------------------------------
 -- insert/delete 정책이 없다 = 아래 RPC(security definer)로만 가능하다.
@@ -438,7 +458,13 @@ begin
   -- (expenses: trip_id+payer_id → trip_members, expense_participants: trip_id+user_id
   -- → trip_members, 각각 7·8번 섹션)가 이미 보장한다. 여기서 다시 검사하면 같은
   -- 규칙을 두 곳에 두게 된다 — 위반 시 FK 오류로 트랜잭션 전체가 롤백된다.
-  foreach participant_id in array participant_ids loop
+  --
+  -- participant_ids에 같은 uuid가 두 번 들어오면 expense_participants_pkey
+  -- (expense_id, user_id)가 23505로 트랜잭션 전체를 롤백시킨다. mock 구현
+  -- (lib/data/mock/expenseRepo.ts)은 중복을 그냥 받아들이므로, 두 구현이 같게
+  -- 동작하도록(NEXT_PUBLIC_DATA_SOURCE 스위치가 의미를 유지하도록) distinct로
+  -- 조용히 걸러낸다.
+  for participant_id in select distinct unnest(participant_ids) loop
     insert into public.expense_participants (expense_id, trip_id, user_id)
     values (new_expense_id, check_trip_id, participant_id);
   end loop;
@@ -547,6 +573,14 @@ begin
    );
 end;
 $$;
+
+-- 네 RPC 모두 auth.uid()로 이미 걸러지지만(NOT_AUTHENTICATED 예외, is_trip_host
+-- 등), 위 helper 함수들과 같은 이유로 anon의 기본 직접 EXECUTE 권한도 걷어
+-- 관례를 맞추고 방어를 겹쳐 둔다.
+revoke execute on function public.join_trip_by_code(text, text)                    from anon;
+revoke execute on function public.add_expense(uuid, uuid, integer, text, text, uuid[]) from anon;
+revoke execute on function public.settle_trip(uuid, jsonb)                         from anon;
+revoke execute on function public.unsettle_trip(uuid)                              from anon;
 
 grant execute on function public.join_trip_by_code(text, text) to authenticated;
 grant execute on function public.add_expense(uuid, uuid, integer, text, text, uuid[])
