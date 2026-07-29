@@ -4,7 +4,14 @@ import { findTrip, store } from './store'
 
 export const mockSettlementRepo: SettlementRepository = {
   async listByTrip(tripId) {
-    return store.settlements.filter((s) => s.tripId === tripId)
+    // supabaseSettlementRepo.listByTrip()이 amount desc로 정렬한다(schema.sql 밖,
+    // 쿼리 자체의 .order) — 두 구현이 같은 순서를 내야 NEXT_PUBLIC_DATA_SOURCE
+    // 스위치가 화면을 바꾸지 않는다. store를 직접 정렬하면 다른 mock repo가 보는
+    // 순서까지 흔들리므로 복사본을 정렬한다.
+    return store.settlements
+      .filter((s) => s.tripId === tripId)
+      .slice()
+      .sort((a, b) => b.amount - a.amount)
   },
 
   async settle(tripId, transfers) {

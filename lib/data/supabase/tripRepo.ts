@@ -99,49 +99,40 @@ export const supabaseTripRepo: TripRepository = {
   async create(userId, displayName, input) {
     const supabase = await createSupabaseServerClient()
 
+    // trips insert와 host 멤버 insert를 따로 왕복하면, 두 번째가 실패했을 때
+    // 멤버 없는 trip 행이 남는다 — list()는 trip_members로 join해서 이 방을 보여주지
+    // 못하고, trips엔 DELETE 정책이 없어 앱 안에서 지울 수도 없다. add_expense와
+    // 같은 이유로 create_trip RPC(schema.sql) 하나로 묶는다.
+    //
     // invite_code는 upper() 유니크 인덱스가 걸려 있다(schema.sql). 충돌은 흔치 않지만
     // 6자리 32진수라 방 수가 늘수록 실제로 일어난다 — 실패로 끝내지 않고 새 코드로 다시 쓴다.
-    let tripRow: TripRow | null = null
+    let tripId: string | null = null
     let lastError: { code?: string; message: string } | null = null
     for (let attempt = 0; attempt < CREATE_MAX_ATTEMPTS; attempt++) {
-      const { data, error } = await supabase
-        .from('trips')
-        .insert({
-          name: input.name,
-          region: input.region,
-          start_date: input.startDate,
-          end_date: input.endDate,
-          cover_theme: input.coverTheme,
-          invite_code: generateInviteCode(),
-          created_by: userId,
-        })
-        .select('*')
-        .single<TripRow>()
+      const { data, error } = await supabase.rpc('create_trip', {
+        check_name: input.name,
+        check_region: input.region,
+        check_start_date: input.startDate,
+        check_end_date: input.endDate,
+        check_cover_theme: input.coverTheme,
+        check_invite_code: generateInviteCode(),
+        check_display_name: displayName,
+      })
       if (!error) {
-        tripRow = data
+        tripId = data as string
         break
       }
       lastError = error
       // 초대코드 충돌이 아닌 오류(권한, 필수값 등)는 재시도해도 똑같이 실패하니 즉시 던진다.
       if (error.code !== UNIQUE_VIOLATION) throw error
     }
-    if (!tripRow) {
+    if (!tripId) {
       throw (lastError ?? new Error('여행방 생성에 실패했습니다.'))
     }
 
-    // host 행은 별도 insert다. trips의 select 정책이 created_by도 보게 되어 있어
-    // 멤버 행이 아직 없는 이 시점에도 위 select가 통과한다. (supabase/schema.sql)
-    // role은 반드시 'host'를 명시한다 — 컬럼 기본값은 'member'이고, insert 정책은
-    // role = 'host'인 행만 허용해 기본값에 맡기면 정책 위반으로 거절당한다.
-    const { error: memberError } = await supabase.from('trip_members').insert({
-      trip_id: tripRow.id,
-      user_id: userId,
-      display_name: displayName,
-      role: 'host',
-    })
-    if (memberError) throw memberError
-
-    return toTrip(tripRow)
+    const trip = await this.get(tripId)
+    if (!trip) throw new Error('여행방 생성에 실패했습니다.')
+    return trip
   },
 
   async joinByCode(_userId, displayName, code) {
@@ -183,6 +174,10 @@ export const supabaseTripRepo: TripRepository = {
     // update 정책은 "방장 + 미확정"만 통과시킨다(schema.sql). RLS는 조건에 안 맞는
     // 행을 걸러낼 뿐 오류를 던지지 않으므로, select로 실제 갱신된 행을 돌려받아
     // 0행이면 원인을 직접 되짚는다 — 그래야 mock처럼 TripAlreadySettledError를 던질 수 있다.
+    // 전제: 0행 = 항상 확정 잠금. 정책은 "방장 AND 미확정"을 함께 보므로, 멤버십
+    // 상실(방장이 아니게 됨)로도 0행이 될 수 있다 — 지금은 requireHost가 호출 전에
+    // 이미 방장인지 확인해 여기 도달할 때 항상 참이지만, 나중에 나가기/멤버 해제
+    // 기능이 생기면 이 가정이 깨져 "정산 끝난 방"이라는 오진이 날 수 있다.
     const { data, error } = await supabase
       .from('trip_members')
       .update({ is_driver: isDriver })
@@ -206,6 +201,9 @@ export const supabaseTripRepo: TripRepository = {
     }
     const supabase = await createSupabaseServerClient()
     // setDriver와 같은 이유로 select해서 실제 갱신 행 수를 직접 확인한다.
+    // 전제: 0행 = 항상 확정 잠금. 정책은 "방장 AND 미확정"을 함께 보므로, 멤버십
+    // 상실(방장이 아니게 됨)로도 0행이 될 수 있다 — setDriver와 같은 가정이고
+    // 같은 이유로 지금은 안전하다. 나가기/멤버 해제 기능이 생기면 재검토가 필요하다.
     const { data, error } = await supabase
       .from('trips')
       .update({ driver_discount_rate: rate })

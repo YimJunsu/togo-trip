@@ -92,6 +92,10 @@ export const supabaseExpenseRepo: ExpenseRepository = {
     // delete 정책은 "멤버 + 미확정"만 통과시킨다(schema.sql). RLS는 조건에 안 맞는
     // 행을 걸러낼 뿐 오류를 던지지 않으므로(테이블 권한 자체가 없을 때만 나는 42501과
     // 다르다), select로 실제 지워진 행을 돌려받아 0행일 때 원인을 직접 되짚는다.
+    // 전제: 0행이고 행이 여전히 있으면 = 항상 확정 잠금. 정책은 "멤버 AND 미확정"을
+    // 함께 보므로, 멤버십 상실로도 같은 0행이 나올 수 있다 — 지금은 removeExpense가
+    // 호출 전에 멤버인지 이미 확인해 여기 도달할 때 항상 참이지만, 나가기/멤버 해제
+    // 기능이 생기면 이 가정이 깨진다.
     const { data, error } = await supabase
       .from('expenses')
       .delete()

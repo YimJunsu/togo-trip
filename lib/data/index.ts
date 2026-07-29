@@ -24,7 +24,7 @@ import type {
 /**
  * 데이터 소스 스위치. 화면은 여기서 export한 repo만 import한다. (CONVENTIONS.md §4)
  *
- * 지금은 mock 구현만 있다. Supabase를 붙일 땐 lib/data/supabase/를 같은 인터페이스로
+ * 도메인을 새로 Supabase로 옮길 땐 lib/data/supabase/를 같은 인터페이스로
  * 채우고 이 파일에서만 갈아끼운다. 화면은 건드리지 않는다:
  *
  *   export const tripRepo: TripRepository =

@@ -473,6 +473,50 @@ begin
 end;
 $$;
 
+-- 여행방 생성 + host 멤버 등록을 한 트랜잭션으로 묶는다. 이전엔 trips insert와
+-- trip_members insert가 따로 두 번 왕복해서, 두 번째가 실패하면(네트워크 끊김 등)
+-- 멤버 없는 trip 행이 남았다 — list()는 trip_members로 join해서 이 방을 보여주지
+-- 못하고, trips엔 DELETE 정책이 없어 앱 안에서 지울 수도 없었다. add_expense와
+-- 같은 이유로 RPC 하나로 묶는다.
+create or replace function public.create_trip(
+  check_name         text,
+  check_region       text,
+  check_start_date   date,
+  check_end_date     date,
+  check_cover_theme  text,
+  check_invite_code  text,
+  check_display_name text
+)
+returns uuid
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  new_trip_id uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'NOT_AUTHENTICATED';
+  end if;
+
+  -- trips_date_order 체크와 upper(invite_code) 유니크 인덱스는 표 자체의 제약이라
+  -- 여기서 다시 검사하지 않는다. invite_code 충돌은 23505로 그대로 올라가야
+  -- 호출부(supabaseTripRepo.create)의 재시도 루프가 계속 동작한다 — 여기서
+  -- 잡아버리면 호출부가 재시도할 신호를 잃는다.
+  insert into public.trips (
+    name, region, start_date, end_date, cover_theme, invite_code, created_by
+  )
+  values (
+    check_name, check_region, check_start_date, check_end_date,
+    check_cover_theme, check_invite_code, auth.uid()
+  )
+  returning id into new_trip_id;
+
+  insert into public.trip_members (trip_id, user_id, display_name, role, is_driver)
+  values (new_trip_id, auth.uid(), check_display_name, 'host', false);
+
+  return new_trip_id;
+end;
+$$;
+
 -- 정산 확정. 계산은 앱의 순수 함수(lib/settle/settle.ts)가 이미 했고,
 -- 이 함수는 결과를 받아 트랜잭션으로 쓰기만 한다.
 -- transfers 형식: [{"from":"<uuid>","to":"<uuid>","amount":12345}, ...]
@@ -574,16 +618,19 @@ begin
 end;
 $$;
 
--- 네 RPC 모두 auth.uid()로 이미 걸러지지만(NOT_AUTHENTICATED 예외, is_trip_host
+-- 다섯 RPC 모두 auth.uid()로 이미 걸러지지만(NOT_AUTHENTICATED 예외, is_trip_host
 -- 등), 위 helper 함수들과 같은 이유로 anon의 기본 직접 EXECUTE 권한도 걷어
 -- 관례를 맞추고 방어를 겹쳐 둔다.
 revoke execute on function public.join_trip_by_code(text, text)                    from anon;
 revoke execute on function public.add_expense(uuid, uuid, integer, text, text, uuid[]) from anon;
+revoke execute on function public.create_trip(text, text, date, date, text, text, text) from anon;
 revoke execute on function public.settle_trip(uuid, jsonb)                         from anon;
 revoke execute on function public.unsettle_trip(uuid)                              from anon;
 
 grant execute on function public.join_trip_by_code(text, text) to authenticated;
 grant execute on function public.add_expense(uuid, uuid, integer, text, text, uuid[])
+  to authenticated;
+grant execute on function public.create_trip(text, text, date, date, text, text, text)
   to authenticated;
 grant execute on function public.settle_trip(uuid, jsonb)     to authenticated;
 grant execute on function public.unsettle_trip(uuid)          to authenticated;

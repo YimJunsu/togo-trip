@@ -25,7 +25,13 @@ export const mockTripRepo: TripRepository = {
     const mine = store.members
       .filter((m) => m.userId === userId)
       .map((m) => m.tripId)
-    return store.trips.filter((t) => mine.includes(t.id))
+    // supabaseTripRepo.list()가 start_date desc로 정렬한다(schema.sql) — 두 구현이
+    // 같은 순서를 내야 NEXT_PUBLIC_DATA_SOURCE 스위치가 화면을 바꾸지 않는다.
+    // store를 직접 정렬하면 다른 mock repo가 보는 순서까지 흔들리므로 복사본을 정렬한다.
+    return store.trips
+      .filter((t) => mine.includes(t.id))
+      .slice()
+      .sort((a, b) => b.startDate.localeCompare(a.startDate))
   },
 
   async get(id) {
