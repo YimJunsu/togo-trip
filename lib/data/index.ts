@@ -3,10 +3,13 @@ import { supabaseAuthRepo } from './supabase/authRepo'
 import { mockCompatRepo } from './mock/compatRepo'
 import { mockDestinationRepo } from './mock/destinationRepo'
 import { mockExpenseRepo } from './mock/expenseRepo'
+import { supabaseExpenseRepo } from './supabase/expenseRepo'
 import { mockPlaceRepo } from './mock/placeRepo'
 import { mockSettlementRepo } from './mock/settlementRepo'
+import { supabaseSettlementRepo } from './supabase/settlementRepo'
 import { mockTravelStyleRepo } from './mock/travelStyleRepo'
 import { mockTripRepo } from './mock/tripRepo'
+import { supabaseTripRepo } from './supabase/tripRepo'
 import type {
   AuthRepository,
   CompatRepository,
@@ -27,14 +30,19 @@ import type {
  *   export const tripRepo: TripRepository =
  *     process.env.NEXT_PUBLIC_DATA_SOURCE === 'supabase' ? supabaseTripRepo : mockTripRepo
  *
- * 회원 도메인만 먼저 전환했다. 나머지는 각자 supabase 구현이 생길 때 같은 방식으로 켠다.
+ * 회원·여행방·지출·정산 도메인이 실서버로 올라갔다. place·compat·destination은
+ * 아직 mock이다. 각자 supabase 구현이 생길 때 같은 방식으로 켠다.
  */
 const useSupabase = process.env.NEXT_PUBLIC_DATA_SOURCE === 'supabase'
 
 export const authRepo: AuthRepository = useSupabase ? supabaseAuthRepo : mockAuthRepo
-export const tripRepo: TripRepository = mockTripRepo
-export const expenseRepo: ExpenseRepository = mockExpenseRepo
-export const settlementRepo: SettlementRepository = mockSettlementRepo
+export const tripRepo: TripRepository = useSupabase ? supabaseTripRepo : mockTripRepo
+export const expenseRepo: ExpenseRepository = useSupabase
+  ? supabaseExpenseRepo
+  : mockExpenseRepo
+export const settlementRepo: SettlementRepository = useSupabase
+  ? supabaseSettlementRepo
+  : mockSettlementRepo
 export const destinationRepo: DestinationRepository = mockDestinationRepo
 export const placeRepo: PlaceRepository = mockPlaceRepo
 export const compatRepo: CompatRepository = mockCompatRepo
