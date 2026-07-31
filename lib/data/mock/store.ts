@@ -2,7 +2,13 @@ import expenseSeed from '@/mocks/expenses.json'
 import memberSeed from '@/mocks/members.json'
 import settlementSeed from '@/mocks/settlements.json'
 import tripSeed from '@/mocks/trips.json'
-import type { Expense, Member, Settlement, Trip } from '../types'
+import type {
+  Expense,
+  ItineraryItem,
+  Member,
+  Settlement,
+  Trip,
+} from '../types'
 
 /**
  * mock repo들이 공유하는 메모리 상태.
@@ -19,6 +25,8 @@ export const store = {
   members: [...(memberSeed as Member[])],
   expenses: [...(expenseSeed as Expense[])],
   settlements: [...(settlementSeed as Settlement[])],
+  // seed가 없다. 일정은 방마다 다르고 빈 상태가 기본이라, 채워 둘 그럴듯한 값이 없다.
+  itineraryItems: [] as ItineraryItem[],
 }
 
 export function findTrip(tripId: string): Trip | undefined {

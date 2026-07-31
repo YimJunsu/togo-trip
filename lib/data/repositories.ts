@@ -3,6 +3,7 @@ import type {
   Destination,
   DestinationFilter,
   Expense,
+  ItineraryItem,
   Member,
   Profile,
   Place,
@@ -137,6 +138,27 @@ export interface ExpenseRepository {
   add(input: AddExpenseInput): Promise<Expense>
   /** 확정된 방의 지출이면 TripAlreadySettledError. */
   remove(expenseId: string): Promise<void>
+}
+
+export type AddItineraryItemInput = {
+  tripId: string
+  /** YYYY-MM-DD. 여행 기간 안인지는 호출부(lib/itinerary/actions.ts)가 본다. */
+  day: string
+  /** HH:MM. 시간을 안 정했으면 null. */
+  at: string | null
+  title: string
+  memo: string
+}
+
+/**
+ * 날짜별 일정. 정산 확정과 무관하다 — 돈 계산의 입력이 아니라서 확정된 방에서도
+ * 계속 넣고 지울 수 있다. 그래서 다른 repo에 있는 TripAlreadySettledError가 없다.
+ */
+export interface ItineraryRepository {
+  /** 날짜 오름차순, 같은 날은 시간 오름차순. 시간을 안 정한 일정은 그날 맨 뒤로 간다. */
+  listByTrip(tripId: string): Promise<ItineraryItem[]>
+  add(input: AddItineraryItemInput): Promise<ItineraryItem>
+  remove(itemId: string): Promise<void>
 }
 
 export interface SettlementRepository {

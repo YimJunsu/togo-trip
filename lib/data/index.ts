@@ -4,6 +4,8 @@ import { mockCompatRepo } from './mock/compatRepo'
 import { mockDestinationRepo } from './mock/destinationRepo'
 import { mockExpenseRepo } from './mock/expenseRepo'
 import { supabaseExpenseRepo } from './supabase/expenseRepo'
+import { mockItineraryRepo } from './mock/itineraryRepo'
+import { supabaseItineraryRepo } from './supabase/itineraryRepo'
 import { mockPlaceRepo } from './mock/placeRepo'
 import { mockSettlementRepo } from './mock/settlementRepo'
 import { supabaseSettlementRepo } from './supabase/settlementRepo'
@@ -15,6 +17,7 @@ import type {
   CompatRepository,
   DestinationRepository,
   ExpenseRepository,
+  ItineraryRepository,
   PlaceRepository,
   SettlementRepository,
   TravelStyleRepository,
@@ -43,6 +46,9 @@ export const expenseRepo: ExpenseRepository = useSupabase
 export const settlementRepo: SettlementRepository = useSupabase
   ? supabaseSettlementRepo
   : mockSettlementRepo
+export const itineraryRepo: ItineraryRepository = useSupabase
+  ? supabaseItineraryRepo
+  : mockItineraryRepo
 export const destinationRepo: DestinationRepository = mockDestinationRepo
 export const placeRepo: PlaceRepository = mockPlaceRepo
 export const compatRepo: CompatRepository = mockCompatRepo

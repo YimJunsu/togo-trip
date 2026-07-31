@@ -1,8 +1,18 @@
--- togo-trip 회원 도메인 스키마. Supabase 대시보드 > SQL Editor에 붙여 실행한다.
--- lib/data/types.ts 의 Profile 타입을 테이블로 승격한 것. id는 auth.users.id와 1:1.
+-- togo-trip 전체 스키마. Supabase 대시보드 > SQL Editor에 통째로 붙여 실행한다.
+-- 회원(profiles) · 여행방 · 멤버 · 지출 · 정산 전부가 이 파일 하나에 들어 있다.
+-- lib/data/types.ts 의 타입들을 테이블로 승격한 것.
 --
 -- 사전 조건: Auth > Providers > Email 에서 "Confirm email"을 끈다.
 --   (지금은 이메일 인증 플로우가 없어, 켜져 있으면 가입 직후 세션이 생기지 않는다.)
+--
+-- 몇 번을 실행해도 안전하다. 표는 if not exists, 함수는 create or replace,
+-- 정책·트리거는 drop if exists를 앞세워 다시 만든다. 이미 들어 있는 데이터는
+-- 지워지지 않는다 — drop 되는 건 정책과 트리거 정의뿐이다.
+--   (drop 없이 create policy만 두면 두 번째 실행이 42710 "already exists"로 죽는다.
+--    한 번 겪으면 "어디까지 들어갔지?"를 손으로 되짚어야 해서, 재실행 가능하게 둔다.)
+--
+-- 이미 운영 중인 DB에 변경분만 얹은 기록은 supabase/migrations/ 에 있다.
+-- 두 곳의 내용이 어긋나면 이 파일이 원본이다.
 
 -- 1) profiles ---------------------------------------------------------------
 create table if not exists public.profiles (
@@ -26,9 +36,11 @@ alter table public.profiles enable row level security;
 -- 본인 프로필만 읽고 고칠 수 있다. insert는 아래 트리거(security definer)가 맡는다.
 -- ponytail: 궁합 기능이 동행자의 프로필을 교차 조회해야 하나, 그건 trip이 실서버로
 --   올라올 때 "같은 여행방 멤버면 읽기" 정책으로 추가한다. 지금은 본인만.
+drop   policy if exists "본인 프로필 읽기" on public.profiles;
 create policy "본인 프로필 읽기" on public.profiles
   for select using (auth.uid() = id);
 
+drop   policy if exists "본인 프로필 수정" on public.profiles;
 create policy "본인 프로필 수정" on public.profiles
   for update using (auth.uid() = id) with check (auth.uid() = id);
 
@@ -183,9 +195,35 @@ create table if not exists public.settlements (
   check (from_user_id <> to_user_id)
 );
 
+-- 9-1) itinerary_items -------------------------------------------------------
+-- 날짜별 일정. 돈 계산에 들어가지 않으므로 expenses처럼 무거운 제약이 없다 —
+-- 잘못 넣어도 지우고 다시 넣으면 그만이고, 정산 확정과도 무관하다(확정된 방에서도
+-- 일정은 계속 고칠 수 있다. 잠기는 건 계산 입력뿐이다).
+--
+-- 누가 넣었는지는 저장하지 않는다. 화면에 쓰지 않고, profiles를 가리키는 FK가
+-- 하나 더 생기면 계정 삭제를 막는 on delete restrict가 또 하나 늘어난다.
+--
+-- day가 여행 기간 안인지는 여기서 못 막는다 — check 제약은 다른 표(trips)를
+-- 참조할 수 없다. lib/itinerary/actions.ts가 그 검사를 한다.
+create table if not exists public.itinerary_items (
+  id         uuid primary key default gen_random_uuid(),
+  trip_id    uuid not null references public.trips(id) on delete cascade,
+  day        date not null,
+  -- 시간을 안 정한 일정("첫날 저녁 어디든")도 담아야 해서 null을 받는다.
+  -- 정렬은 null을 뒤로 보낸다 (ItineraryRepository).
+  at         time,
+  title      text not null check (char_length(btrim(title)) between 1 and 60),
+  memo       text not null default '' check (char_length(memo) <= 500),
+  created_at timestamptz not null default now()
+);
+
 create index if not exists trip_members_user_idx on public.trip_members(user_id);
 create index if not exists expenses_trip_idx     on public.expenses(trip_id);
 create index if not exists settlements_trip_idx  on public.settlements(trip_id);
+
+-- 목록은 항상 한 여행방의 것을 날짜순으로 읽는다.
+create index if not exists itinerary_items_trip_day_idx
+  on public.itinerary_items(trip_id, day);
 
 -- expense_participants의 PK는 (expense_id, user_id)라 (trip_id, user_id) →
 -- trip_members FK를 못 커버한다. trip_members를 지울 때마다 이 표를 seq-scan하게 되어
@@ -272,6 +310,7 @@ alter table public.trip_members         enable row level security;
 alter table public.expenses             enable row level security;
 alter table public.expense_participants enable row level security;
 alter table public.settlements          enable row level security;
+alter table public.itinerary_items      enable row level security;
 
 -- trips ---------------------------------------------------------------------
 -- created_by 를 함께 보는 조건은 create_trip이 trips insert와 host 멤버 insert를
@@ -279,9 +318,11 @@ alter table public.settlements          enable row level security;
 -- 자기가 만든 방을 되읽지 못하는" 순간을 메우려던 것이다. 지금은 create_trip이
 -- 한 트랜잭션의 security definer RPC라 그 순간 자체가 없다 — 이 or 절이 없어도
 -- 되읽기는 항상 성공한다. 그래도 무해하고 지우는 게 더 위험해 보여 남겨 둔다.
+drop   policy if exists "멤버 또는 생성자만 여행방 읽기" on public.trips;
 create policy "멤버 또는 생성자만 여행방 읽기" on public.trips
   for select using (public.is_trip_member(id) or created_by = auth.uid());
 
+drop   policy if exists "본인 명의로만 여행방 생성" on public.trips;
 create policy "본인 명의로만 여행방 생성" on public.trips
   for insert with check (created_by = auth.uid());
 
@@ -289,6 +330,7 @@ create policy "본인 명의로만 여행방 생성" on public.trips
 -- 확정 화면은 부담 내역을 저장하지 않고 매번 다시 계산하므로(설계 §3), 확정 뒤에
 -- 할인율이 바뀌면 화면의 부담액과 그 아래 송금 리스트가 서로 어긋난다.
 -- settle_trip/unsettle_trip은 security definer라 RLS를 우회하므로 영향받지 않는다.
+drop   policy if exists "방장만 여행방 수정" on public.trips;
 create policy "방장만 여행방 수정" on public.trips
   for update using (public.is_trip_host(id) and not public.is_trip_settled(id))
   with check (public.is_trip_host(id) and not public.is_trip_settled(id));
@@ -302,6 +344,7 @@ grant  update (name, region, start_date, end_date, cover_theme, driver_discount_
   on public.trips to authenticated;
 
 -- trip_members --------------------------------------------------------------
+drop   policy if exists "같은 방 멤버만 멤버 목록 읽기" on public.trip_members;
 create policy "같은 방 멤버만 멤버 목록 읽기" on public.trip_members
   for select using (public.is_trip_member(trip_id));
 
@@ -309,6 +352,7 @@ create policy "같은 방 멤버만 멤버 목록 읽기" on public.trip_members
 -- insert와 host 멤버 insert를 클라이언트 두 왕복으로 나눠 하던 시절, 방 생성자가
 -- 자기 host 행을 직접 넣던 경로다. 지금은 create_trip 하나가 security definer로
 -- 두 insert를 다 하므로 이 정책을 타는 실제 호출은 없다 — 무해해 남겨 둔다.
+drop   policy if exists "생성자가 자기 host 행 추가" on public.trip_members;
 create policy "생성자가 자기 host 행 추가" on public.trip_members
   for insert with check (
     user_id = auth.uid() and public.is_trip_creator(trip_id) and role = 'host'
@@ -316,6 +360,7 @@ create policy "생성자가 자기 host 행 추가" on public.trip_members
 
 -- is_driver도 계산 입력이다. 확정 뒤에 운전자를 바꾸면 위 trips와 같은 이유로
 -- 부담 내역과 송금 리스트가 어긋난다. mock의 setDriver도 같은 조건에서 거절한다.
+drop   policy if exists "방장만 멤버 수정" on public.trip_members;
 create policy "방장만 멤버 수정" on public.trip_members
   for update using (
     public.is_trip_host(trip_id) and not public.is_trip_settled(trip_id)
@@ -336,20 +381,27 @@ grant  update (is_driver) on public.trip_members to authenticated;
 -- 지출과 expense_participants가 같은 트랜잭션으로 함께 생겨야 한다 — 둘을
 -- 나눠서 클라이언트가 두 번 왕복하면(또는 REST로 expenses만 직접 찔러 넣으면)
 -- 참여자가 하나도 없는 지출이 생긴다. 나눌 사람이 없으니 정산 계산이 그 지출을
--- 처리할 수 없고, 방이 잠긴 뒤라면(expenses DELETE는 not is_trip_settled 요구)
--- 그 유령 지출은 영영 지울 수도 없다. settlements에 INSERT 정책이 없는 것과
--- 같은 이유다.
+-- 처리할 수 없고, 방이 잠긴 뒤라면(remove_expense도 미확정만 허용) 그 유령 지출은
+-- 영영 지울 수도 없다. settlements에 INSERT 정책이 없는 것과 같은 이유다.
 -- UPDATE 정책도 없다. ExpenseRepository(lib/data/repositories.ts)에는 지출을
 -- 고치는 메서드가 아예 없다 — 잘못 넣은 지출은 지우고 다시 넣는다(add_expense도
 -- 트랜잭션 하나로 새로 만들 뿐 기존 행을 고치지 않는다). 만들어 둬 봐야 UI도
--- 서버 액션도 쓰지 않는 구멍만 남는다. 잠금은 아래 삭제 정책이 맡는다.
+-- 서버 액션도 쓰지 않는 구멍만 남는다. 잠금은 remove_expense RPC가 맡는다.
+--
+-- DELETE 정책도 없다 = remove_expense RPC(12번 섹션, security definer)로만 지운다.
+-- 한때 "멤버 且 미확정" 정책으로 열려 있었으나, 정책이 부르는 is_trip_settled가
+-- stable이라 스냅샷을 본다 — READ COMMITTED에서 settle_trip의 `for update` 커밋과
+-- 겹치면 삭제가 "미확정"으로 통과해, 이미 저장된 송금 리스트에 몫이 반영된 지출이
+-- 사라진다. 확정된 방엔 INSERT 경로가 없어(add_expense가 TRIP_ALREADY_SETTLED로
+-- 거절) 그 지출을 되살릴 수도 없고, 정산을 취소하고 다시 확정하는 것 말고는
+-- 빠져나올 길이 없다. add_expense가 `for share`로 막은 실패의 대칭형이라 해법도
+-- 같다 — 정책을 걷고 trips 행을 잠그는 RPC로 옮긴다.
+-- 걷어낸 "미확정 방 지출만 삭제" 정책도 함께 지운다. 이 파일을 이미 옛 버전으로
+-- 실행한 DB에 다시 부어도 정책이 남지 않게 하려는 것이다(재실행 안전성).
+drop   policy if exists "미확정 방 지출만 삭제" on public.expenses;
+drop   policy if exists "멤버만 지출 읽기" on public.expenses;
 create policy "멤버만 지출 읽기" on public.expenses
   for select using (public.is_trip_member(trip_id));
-
-create policy "미확정 방 지출만 삭제" on public.expenses
-  for delete using (
-    public.is_trip_member(trip_id) and not public.is_trip_settled(trip_id)
-  );
 
 -- expense_participants ------------------------------------------------------
 -- INSERT 정책은 없다 = expenses와 같은 이유로 add_expense RPC로만 쓸 수 있다.
@@ -361,15 +413,18 @@ create policy "미확정 방 지출만 삭제" on public.expenses
 -- 결과는 참여자 0명짜리 유령 지출이다 — add_expense가 막으려던 바로 그 상태다.
 -- lib/settle/settle.ts도 참여자가 없는 지출은 rawOwed 분배를 건너뛰면서 결제자의
 -- paid는 그대로 인정해, 정산 총액이 조용히 안 맞게 된다.
+drop   policy if exists "멤버만 참여자 읽기" on public.expense_participants;
 create policy "멤버만 참여자 읽기" on public.expense_participants
   for select using (public.is_trip_member(trip_id));
 
 -- settlements ---------------------------------------------------------------
 -- insert/delete 정책이 없다 = 아래 RPC(security definer)로만 가능하다.
 -- 확정·취소는 여러 문장이 한 트랜잭션이어야 해서 정책으로는 안 된다.
+drop   policy if exists "멤버만 정산 읽기" on public.settlements;
 create policy "멤버만 정산 읽기" on public.settlements
   for select using (public.is_trip_member(trip_id));
 
+drop   policy if exists "당사자만 보냄 표시" on public.settlements;
 create policy "당사자만 보냄 표시" on public.settlements
   for update using (
     from_user_id = auth.uid() or to_user_id = auth.uid()
@@ -382,6 +437,27 @@ create policy "당사자만 보냄 표시" on public.settlements
 -- 컬럼 권한으로 내린다.
 revoke update on public.settlements from authenticated, anon;
 grant  update (is_paid, paid_at) on public.settlements to authenticated;
+
+-- itinerary_items -----------------------------------------------------------
+-- 지출·정산과 달리 RPC를 거치지 않고 정책만으로 연다. 한 행이 곧 한 일정이라
+-- 함께 만들어져야 할 짝이 없고(expenses↔expense_participants 같은 관계가 없다),
+-- 돈이 걸리지 않아 확정 잠금과 얽히지도 않는다. RPC로 감쌀 이유가 없다.
+--
+-- UPDATE 정책은 없다. 지금 화면은 추가·삭제만 한다 — 고칠 일이 생기면 지우고
+-- 다시 넣는다(expenses와 같은 판단). 쓰지 않는 구멍을 미리 뚫지 않는다.
+drop   policy if exists "멤버만 일정 읽기" on public.itinerary_items;
+create policy "멤버만 일정 읽기" on public.itinerary_items
+  for select using (public.is_trip_member(trip_id));
+
+drop   policy if exists "멤버만 일정 추가" on public.itinerary_items;
+create policy "멤버만 일정 추가" on public.itinerary_items
+  for insert with check (public.is_trip_member(trip_id));
+
+-- 넣은 사람만이 아니라 멤버면 지울 수 있다. 일정은 같이 짜는 것이고, 넣은 사람이
+-- 자리에 없다고 잘못 들어간 줄을 아무도 못 지우면 그게 더 불편하다.
+drop   policy if exists "멤버만 일정 삭제" on public.itinerary_items;
+create policy "멤버만 일정 삭제" on public.itinerary_items
+  for delete using (public.is_trip_member(trip_id));
 
 -- 12) RPC -------------------------------------------------------------------
 
@@ -452,8 +528,8 @@ begin
   -- is_trip_settled는 stable이라 스냅샷을 본다. READ COMMITTED에서는 settle_trip의
   -- `for update` 커밋 이후에도 이 지출이 뒤이어 끼어들 수 있다 — 그러면 지출은
   -- 존재하는데 이미 저장된 송금 리스트엔 그 몫이 반영되지 않고, 확정 화면은
-  -- shares를 매번 재계산하므로 화면과 송금 리스트가 영구히 어긋난다. 게다가 삭제
-  -- 정책은 `not is_trip_settled`를 요구해 이 지출은 지울 수도 없다 — 정산을
+  -- shares를 매번 재계산하므로 화면과 송금 리스트가 영구히 어긋난다. 게다가
+  -- remove_expense도 미확정만 허용해 이 지출은 지울 수도 없다 — 정산을
   -- 취소하고 다시 확정하는 것 말고는 빠져나올 길이 없다. `for share`로 trips 행을
   -- 잠가 settle_trip의 `for update`와 순서를 강제한다 — 다른 지출 삽입끼리는
   -- 잠그지 않으므로 동시 삽입은 그대로 허용된다.
@@ -489,6 +565,50 @@ begin
   end loop;
 
   return new_expense_id;
+end;
+$$;
+
+-- 지출 삭제. expenses DELETE 정책을 걷은 이유가 이 함수다(11번 섹션 주석) —
+-- 정책의 `not is_trip_settled`는 stable 스냅샷이라 settle_trip 커밋과 겹치면
+-- 확정된 송금 리스트에 반영된 지출이 사라지고, 되살릴 경로가 없다.
+-- security definer라 RLS를 타지 않으므로, 정책이 하던 검사를 여기서 전부 다시 한다.
+-- expense_participants는 복합 FK의 on delete cascade(8번 섹션)가 함께 지운다.
+create or replace function public.remove_expense(check_expense_id uuid)
+returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  target_trip_id    uuid;
+  locked_settled_at timestamptz;
+begin
+  select trip_id into target_trip_id
+    from public.expenses where id = check_expense_id;
+  -- 없는 지출은 조용히 넘어간다. mock(lib/data/mock/expenseRepo.ts)의 remove가
+  -- 같은 입력에 같게 동작해야 NEXT_PUBLIC_DATA_SOURCE 스위치가 의미를 유지한다.
+  -- 걷어낸 DELETE 정책도 결과적으로 이랬다 — RLS는 안 맞는 행을 조용히 걸러낸다.
+  if not found then
+    return;
+  end if;
+
+  -- add_expense와 같이 named 예외로 시끄럽게 실패한다. 정책 시절엔 비멤버의 삭제가
+  -- 0행으로 조용히 통과했는데, 그건 앱(lib/expenses/actions.ts:removeExpense)의
+  -- 멤버 검사가 회귀해도 아무 소리가 안 난다는 뜻이었다. 이 예외는 "그 uuid가 내가
+  -- 속하지 않은 방의 지출"이라는 사실을 알려주지만, uuid를 이미 알고 있는 호출자에게
+  -- add_expense의 NOT_TRIP_MEMBER가 이미 같은 것을 알려주므로 새로 생기는 노출은 없다.
+  if not public.is_trip_member(target_trip_id) then
+    raise exception 'NOT_TRIP_MEMBER';
+  end if;
+
+  -- `for share`로 trips 행을 잠가 settle_trip의 `for update`와 순서를 강제한다.
+  -- 확정이 먼저 커밋됐다면 여기서 잠금을 기다린 뒤 settled_at을 보고 거절한다.
+  -- 다른 삭제·삽입끼리는 잠그지 않으므로 동시 편집은 그대로 허용된다.
+  select settled_at into locked_settled_at
+    from public.trips where id = target_trip_id for share;
+  if locked_settled_at is not null then
+    raise exception 'TRIP_ALREADY_SETTLED';
+  end if;
+
+  delete from public.expenses where id = check_expense_id;
 end;
 $$;
 
@@ -637,11 +757,12 @@ begin
 end;
 $$;
 
--- 다섯 RPC 모두 auth.uid()로 이미 걸러지지만(NOT_AUTHENTICATED 예외, is_trip_host
+-- 여섯 RPC 모두 auth.uid()로 이미 걸러지지만(NOT_AUTHENTICATED 예외, is_trip_host
 -- 등), 위 helper 함수들과 같은 이유로 anon의 기본 직접 EXECUTE 권한도 걷어
 -- 관례를 맞추고 방어를 겹쳐 둔다.
 revoke execute on function public.join_trip_by_code(text, text)                    from anon;
 revoke execute on function public.add_expense(uuid, uuid, integer, text, text, uuid[]) from anon;
+revoke execute on function public.remove_expense(uuid)                             from anon;
 revoke execute on function public.create_trip(text, text, date, date, text, text, text) from anon;
 revoke execute on function public.settle_trip(uuid, jsonb)                         from anon;
 revoke execute on function public.unsettle_trip(uuid)                              from anon;
@@ -649,6 +770,7 @@ revoke execute on function public.unsettle_trip(uuid)                           
 grant execute on function public.join_trip_by_code(text, text) to authenticated;
 grant execute on function public.add_expense(uuid, uuid, integer, text, text, uuid[])
   to authenticated;
+grant execute on function public.remove_expense(uuid)         to authenticated;
 grant execute on function public.create_trip(text, text, date, date, text, text, text)
   to authenticated;
 grant execute on function public.settle_trip(uuid, jsonb)     to authenticated;

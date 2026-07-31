@@ -4,7 +4,7 @@ import { ShareButton } from '@/components/dashboard/ShareButton'
 import { ThemeBadge } from '@/components/dashboard/ThemeBadge'
 import { TripDetailTabs } from '@/components/dashboard/TripDetailTabs'
 import { Badge } from '@/components/ui/Badge'
-import { settlementRepo, tripRepo } from '@/lib/data'
+import { itineraryRepo, settlementRepo, tripRepo } from '@/lib/data'
 import { requireMemberPage } from '@/lib/auth/session'
 import { previewSettlement } from '@/lib/settlements/actions'
 import type { PageProps } from '@/lib/types/page'
@@ -19,8 +19,9 @@ export default async function TripDetailPage({
   const trip = await tripRepo.get(tripId)
   if (!trip) notFound()
 
-  const [members, settlements] = await Promise.all([
+  const [members, itineraryItems, settlements] = await Promise.all([
     tripRepo.listMembers(tripId),
+    itineraryRepo.listByTrip(tripId),
     // 송금은 확정할 때 저장된다. 확정 전에 저장된 걸 물으면 늘 빈 목록이라, 지출을
     // 넣어 둔 방에서도 정산 탭이 "정산할 게 없습니다"만 보여 줬다. 확정 전에는 같은
     // 자리에 지금 지출 기준 예상 송금을 계산해 넣는다 (저장하지 않는다).
@@ -94,6 +95,7 @@ export default async function TripDetailPage({
       <TripDetailTabs
         trip={trip}
         members={members}
+        itineraryItems={itineraryItems}
         settlements={settlements}
         canEditMembers={canEditMembers}
       />

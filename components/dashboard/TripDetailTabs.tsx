@@ -10,7 +10,7 @@ import {
   type SettlementRow,
 } from '@/components/dashboard/SettlementList'
 import { TabBar } from '@/components/dashboard/TabBar'
-import type { Member, Trip } from '@/lib/data/types'
+import type { ItineraryItem, Member, Trip } from '@/lib/data/types'
 
 type Tab = 'members' | 'plan' | 'settle'
 
@@ -23,11 +23,13 @@ const TABS = [
 export function TripDetailTabs({
   trip,
   members,
+  itineraryItems,
   settlements,
   canEditMembers,
 }: {
   trip: Trip
   members: Member[]
+  itineraryItems: ItineraryItem[]
   /** 확정 후엔 저장된 송금, 확정 전엔 지금 지출 기준으로 계산한 예상 송금. */
   settlements: SettlementRow[]
   canEditMembers: boolean
@@ -46,7 +48,7 @@ export function TripDetailTabs({
             canEdit={canEditMembers}
           />
         ) : tab === 'plan' ? (
-          <DayPlanList trip={trip} />
+          <DayPlanList trip={trip} items={itineraryItems} />
         ) : (
           <div className="flex flex-col gap-4">
             {/*

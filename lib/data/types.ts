@@ -73,6 +73,22 @@ export type Expense = {
   createdAt: string
 }
 
+/**
+ * 날짜별 일정 한 줄. 돈 계산에 들어가지 않아 정산 확정과 무관하다 —
+ * 확정된 방에서도 계속 넣고 지울 수 있다.
+ */
+export type ItineraryItem = {
+  id: string
+  tripId: string
+  /** YYYY-MM-DD. 여행 기간 안이어야 한다 (lib/itinerary/actions.ts가 본다). */
+  day: string
+  /** HH:MM. 시간을 안 정한 일정도 있어 비어 있을 수 있다. */
+  at: string | null
+  title: string
+  memo: string
+  createdAt: string
+}
+
 export type Place = {
   id: string
   name: string
