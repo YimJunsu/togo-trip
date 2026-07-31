@@ -8,10 +8,24 @@ import {
 } from '@phosphor-icons/react'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { Avatar } from '@/components/ui/Avatar'
-import type { Member, Settlement } from '@/lib/data/types'
+import type { Member } from '@/lib/data/types'
 import { toggleSettlementPaid } from '@/lib/settlements/actions'
 import { cn } from '@/lib/utils/cn'
 import { formatWon } from '@/lib/utils/format'
+
+/**
+ * 이 목록이 실제로 그리는 것. 확정된 송금(Settlement)은 이 모양을 만족한다.
+ * 확정 **전** 미리보기(SettleTransfer)는 아직 저장된 적이 없어 id·isPaid가 없다 —
+ * 그래서 둘 다 여기로 들어올 수 있게 두 필드를 선택으로 둔다. id가 없는 행은
+ * 보냄 체크를 걸 대상 자체가 없으므로 토글도 자연히 잠긴다.
+ */
+export type SettlementRow = {
+  id?: string
+  from: string
+  to: string
+  amount: number
+  isPaid?: boolean
+}
 
 /** "누가 누구에게 얼마". 계산은 여기서 하지 않는다 — 이미 계산된 목록을 받아 그린다. */
 export function SettlementList({
@@ -21,12 +35,13 @@ export function SettlementList({
   currentUserId,
   onToggled,
 }: {
-  settlements: Settlement[]
+  settlements: SettlementRow[]
   members: Member[]
   /** 셋이 다 있을 때만 보냄 체크박스가 뜬다. 요약 자리(TripDetailTabs)는 넘기지 않는다. */
   tripId?: string
   currentUserId?: string
-  onToggled?: (updated: Settlement) => void
+  /** 바뀐 행을 넘기지 않는다. 목록은 부모가 서버에서 다시 받는다. */
+  onToggled?: () => void
 }) {
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<string>()
@@ -54,13 +69,14 @@ export function SettlementList({
   const nameOf = (id: string) =>
     members.find((m) => m.userId === id)?.displayName ?? '알 수 없음'
 
-  function toggle(settlement: Settlement) {
-    if (!tripId || !onToggled) return
+  function toggle(settlement: SettlementRow) {
+    // id가 없으면 아직 저장되지 않은 미리보기 행이다. 서버에 바꿀 대상이 없다.
+    if (!tripId || !onToggled || !settlement.id) return
+    const settlementId = settlement.id
     startTransition(async () => {
       try {
-        onToggled(
-          await toggleSettlementPaid(tripId, settlement.id, !settlement.isPaid),
-        )
+        await toggleSettlementPaid(tripId, settlementId, !settlement.isPaid)
+        onToggled()
         setMessage(undefined)
       } catch {
         // 당사자가 아니거나, 일시적 오류거나, 그 사이 행이 사라졌을 수도 있다.
@@ -78,7 +94,9 @@ export function SettlementList({
           const isParty = s.from === currentUserId || s.to === currentUserId
           return (
             <li
-              key={s.id}
+              // 미리보기 행에는 id가 없다. 한 사람이 같은 사람에게 두 번 보내는 일은
+              // 송금 최소화(minimizeTransfers)가 만들지 않으므로 from→to로 충분하다.
+              key={s.id ?? `${s.from}-${s.to}`}
               style={{ animationDelay: `${i * 70}ms` }}
               className={cn(
                 'rounded-card border-line bg-surface animate-rise flex items-center gap-3 border p-4',
@@ -101,7 +119,7 @@ export function SettlementList({
               >
                 {formatWon(s.amount)}
               </span>
-              {canToggle ? (
+              {canToggle && s.id ? (
                 <button
                   type="button"
                   disabled={!isParty || isPending}

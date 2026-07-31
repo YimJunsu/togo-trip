@@ -40,15 +40,21 @@ export function TripCard({
             </h3>
             <p className="text-muted mt-1 text-sm">{trip.region}</p>
           </div>
-          <Badge
-            className={
-              isPast
-                ? 'bg-ink/5 text-muted font-mono'
-                : 'bg-lime text-ink font-mono'
-            }
-          >
-            {dday}
-          </Badge>
+          <span className="flex shrink-0 items-center gap-1.5">
+            {/* 정산이 끝난 방인지는 목록에서 바로 보여야 한다 — 들어가 봐야 아는 값이었다. */}
+            {trip.settledAt ? (
+              <Badge className="bg-ink text-paper font-mono">정산 완료</Badge>
+            ) : null}
+            <Badge
+              className={
+                isPast
+                  ? 'bg-ink/5 text-muted font-mono'
+                  : 'bg-lime text-ink font-mono'
+              }
+            >
+              {dday}
+            </Badge>
+          </span>
         </div>
 
         <p className="text-muted mt-5 font-mono text-sm">

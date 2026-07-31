@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   InviteCodeInput,
   INVITE_CODE_LENGTH,
+  normalizeInviteCode,
 } from '@/components/boarding-pass/InviteCodeInput'
 import { PassButton } from '@/components/boarding-pass/PassButton'
 import { TripPass } from '@/components/boarding-pass/TripPass'
@@ -12,9 +13,14 @@ import { joinTripAction, type JoinFormState } from '@/lib/trips/actions'
 
 const EMPTY: JoinFormState = {}
 
-export function JoinForm() {
+export function JoinForm({
+  /** 초대 링크(/join?code=)로 들어온 값. 손으로 친 값과 같은 규칙으로 다듬어 채운다. */
+  initialCode = '',
+}: {
+  initialCode?: string
+}) {
   const [state, formAction, isPending] = useActionState(joinTripAction, EMPTY)
-  const [code, setCode] = useState('')
+  const [code, setCode] = useState(() => normalizeInviteCode(initialCode))
 
   if (state.trip) {
     return (

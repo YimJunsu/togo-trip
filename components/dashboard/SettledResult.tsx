@@ -27,7 +27,7 @@ export function SettledResult({
   settledAt,
   shares,
   members,
-  initialSettlements,
+  settlements,
   currentUserId,
   isHost,
 }: {
@@ -36,12 +36,15 @@ export function SettledResult({
   /** 저장하지 않고 매번 계산한 값. 서버 컴포넌트가 넘긴다. */
   shares: SettleShare[]
   members: Member[]
-  initialSettlements: Settlement[]
+  /**
+   * 서버가 준 값을 그대로 그린다. useState로 복사해 두면 서버 컴포넌트가 다시 돌아도
+   * 로컬 state가 이겨, 상대가 "보냄"을 체크해도 내 화면엔 영영 반영되지 않는다.
+   */
+  settlements: Settlement[]
   currentUserId: string
   isHost: boolean
 }) {
   const router = useRouter()
-  const [settlements, setSettlements] = useState(initialSettlements)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string>()
 
@@ -140,11 +143,7 @@ export function SettledResult({
           settlements={settlements}
           members={members}
           currentUserId={currentUserId}
-          onToggled={(updated) =>
-            setSettlements((prev) =>
-              prev.map((s) => (s.id === updated.id ? updated : s)),
-            )
-          }
+          onToggled={() => router.refresh()}
           tripId={tripId}
         />
       </section>

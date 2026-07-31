@@ -97,6 +97,16 @@ export interface AuthRepository {
    * 제출 시 DuplicateEmailError가 이미 같은 사실을 노출하므로 새로 생기는 노출은 없다.
    */
   isEmailTaken(email: string): Promise<boolean>
+  /**
+   * 현재 비밀번호가 맞을 때만 바꾼다. 틀리면 InvalidCredentialsError를 던진다.
+   * 세션만으로 바꾸게 두면 자리를 비운 사이 남이 비밀번호를 갈아 계정을 통째로
+   * 가져갈 수 있다 — 로그인 상태여도 본인 확인을 다시 받는다.
+   */
+  changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void>
 }
 
 export interface TripRepository {

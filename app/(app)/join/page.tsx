@@ -1,6 +1,7 @@
 import { JoinForm } from '@/components/boarding-pass/JoinForm'
 import { requireUser } from '@/lib/auth/session'
 import { pageMetadata } from '@/lib/seo/metadata'
+import type { PageProps } from '@/lib/types/page'
 
 // 로그인해야 열리는 화면이라 크롤러에겐 로그인 리다이렉트만 보인다. 색인에서 뺀다.
 export const metadata = pageMetadata({
@@ -10,8 +11,11 @@ export const metadata = pageMetadata({
   noIndex: true,
 })
 
-export default async function JoinPage() {
+export default async function JoinPage({ searchParams }: PageProps) {
   await requireUser()
+
+  // 초대 링크로 들어오면 코드가 주소에 실려 있다. 손으로 옮겨 적지 않게 미리 채운다.
+  const { code } = await searchParams
 
   return (
     <div className="flex flex-col gap-6">
@@ -27,7 +31,7 @@ export default async function JoinPage() {
         </p>
       </header>
 
-      <JoinForm />
+      <JoinForm initialCode={typeof code === 'string' ? code : ''} />
     </div>
   )
 }

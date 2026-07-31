@@ -1,46 +1,50 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { PlusIcon } from '@phosphor-icons/react'
 import { ActionButton } from '@/components/dashboard/ActionButton'
 import { AddExpenseForm } from '@/components/dashboard/AddExpenseForm'
 import { DiscountRateField } from '@/components/dashboard/DiscountRateField'
 import { ExpenseList } from '@/components/dashboard/ExpenseList'
-import { SettledResult } from '@/components/dashboard/SettledResult'
 import { StartSettleDialog } from '@/components/dashboard/StartSettleDialog'
 import { AvatarStack } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
-import type { Expense, Member, Settlement, Trip } from '@/lib/data/types'
-import type { SettleShare } from '@/lib/settle/settle'
+import type { Expense, Member, Trip } from '@/lib/data/types'
 import { removeExpense } from '@/lib/expenses/actions'
 import { formatWon } from '@/lib/utils/format'
 
+/**
+ * 아직 확정 전인 방의 정산 화면. 확정된 방은 SettledResult가 맡는다 —
+ * 예전엔 이 컴포넌트가 확정 여부를 보고 SettledResult를 대신 반환했는데, 그러면
+ * 확정해도 이 컴포넌트가 살아남아 isPreviewOpen 같은 로컬 state가 그대로 남았다.
+ * 실제로 확정 뒤 취소하면 미리보기 잠금이 풀리지 않아 "지출 넣기"가 사라진 채였다.
+ * 둘을 페이지에서 갈라 두면 확정할 때 이 컴포넌트가 언마운트되며 상태도 함께 사라진다.
+ */
 export function SettlePanel({
   trip,
   members,
-  initialExpenses,
-  settlements,
-  shares,
-  currentUserId,
+  expenses,
   isHost,
 }: {
   trip: Trip
   members: Member[]
-  initialExpenses: Expense[]
-  /** 확정된 방에서만 채워진다. */
-  settlements: Settlement[]
-  /** 확정된 방에서만 채워진다. 저장하지 않고 서버가 매번 계산한 값이다. */
-  shares: SettleShare[]
-  currentUserId: string
+  /**
+   * 서버가 준 값을 그대로 그린다. 예전엔 useState 초기값으로 복사해 뒀는데, 그러면
+   * 서버 컴포넌트가 다시 돌아 새 목록을 내려줘도 로컬 state가 이겨 화면이 안 바뀌었다 —
+   * 같이 쓰는 방에서 남이 넣은 지출이 끝내 보이지 않는 원인이었다.
+   * 내 조작 결과는 router.refresh()로 서버에서 다시 받는다 (MemberList와 같은 방식).
+   */
+  expenses: Expense[]
   isHost: boolean
 }) {
-  const [expenses, setExpenses] = useState(initialExpenses)
+  const router = useRouter()
   const [isAdding, setIsAdding] = useState(false)
   // 미리보기가 열려 있는 동안 지출·할인율을 고치면, 확정할 때 서버가 다시 계산한
   // 값이 방금 본 미리보기와 달라질 수 있다. 미리보기의 숫자가 확정 시점까지 그대로
   // 유지되도록 이 동안은 지출 편집 UI 전체(추가/삭제)와 할인율 컨트롤을 잠근다.
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
-  const [, startTransition] = useTransition()
+  const [isPending, startTransition] = useTransition()
   const [removeError, setRemoveError] = useState<string>()
 
   // 미리보기가 열리는 순간, 이미 열려 있던 추가 폼은 더 이상 조작할 수 없어야 한다
@@ -51,34 +55,21 @@ export function SettlePanel({
     if (open) setIsAdding(false)
   }
 
-  if (trip.settledAt) {
-    return (
-      <SettledResult
-        tripId={trip.id}
-        settledAt={trip.settledAt}
-        shares={shares}
-        members={members}
-        initialSettlements={settlements}
-        currentUserId={currentUserId}
-        isHost={isHost}
-      />
-    )
-  }
-
   const total = expenses.reduce((sum, e) => sum + e.amount, 0)
   const driverNames = members
     .filter((m) => m.isDriver)
     .map((m) => m.displayName)
 
   function remove(expenseId: string) {
-    const previous = expenses
-    setExpenses((prev) => prev.filter((e) => e.id !== expenseId))
+    // 지우는 동안에도 행이 그대로 보인다(서버 응답을 기다리므로). 같은 행을 두 번
+    // 눌러 이미 사라진 지출을 다시 지우려다 실패로 끝나지 않게 막는다.
+    if (isPending) return
     startTransition(async () => {
       try {
         await removeExpense(trip.id, expenseId)
         setRemoveError(undefined)
+        router.refresh()
       } catch {
-        setExpenses(previous)
         setRemoveError('지출을 지우지 못했습니다. 잠시 후 다시 시도해 주세요.')
       }
     })
@@ -130,9 +121,9 @@ export function SettlePanel({
               tripId={trip.id}
               members={members}
               onCancel={() => setIsAdding(false)}
-              onAdded={(expense) => {
-                setExpenses((prev) => [...prev, expense])
+              onAdded={() => {
                 setIsAdding(false)
+                router.refresh()
               }}
             />
           </div>

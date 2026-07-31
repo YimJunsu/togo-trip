@@ -13,17 +13,24 @@ type State = 'idle' | 'copied' | 'failed'
 export function ShareButton({
   title,
   text,
+  path,
   /** 결과가 아니라 테스트 자체를 공유하는 자리도 있어 문구를 열어 둔다. */
   label = '결과 공유하기',
 }: {
   title: string
   text: string
+  /**
+   * 공유할 주소. 상대 경로면 지금 origin 기준으로 푼다. 없으면 보고 있는 주소 그대로.
+   * 여행방 초대처럼 "지금 화면"이 아니라 다른 곳(/join)으로 보내야 하는 자리가 있다 —
+   * 여행방 주소는 멤버가 아니면 404라 그대로 넘겨 봐야 상대가 열 수 없다.
+   */
+  path?: string
   label?: string
 }) {
   const [state, setState] = useState<State>('idle')
 
   async function share() {
-    const url = window.location.href
+    const url = new URL(path ?? window.location.href, window.location.href).href
 
     if (navigator.share) {
       try {

@@ -5,7 +5,7 @@ import { ActionButton } from '@/components/dashboard/ActionButton'
 import { FilterChip } from '@/components/dashboard/FilterChip'
 import { TextField } from '@/components/dashboard/TextField'
 import { addExpense } from '@/lib/expenses/actions'
-import type { Expense, Member } from '@/lib/data/types'
+import type { Member } from '@/lib/data/types'
 
 const CATEGORIES = ['교통', '숙박', '식비', '카페', '간식', '기타'] as const
 
@@ -17,7 +17,8 @@ export function AddExpenseForm({
 }: {
   tripId: string
   members: Member[]
-  onAdded: (expense: Expense) => void
+  /** 추가된 지출은 넘기지 않는다. 목록은 부모가 서버에서 다시 받는다. */
+  onAdded: () => void
   onCancel: () => void
 }) {
   const [description, setDescription] = useState('')
@@ -45,16 +46,15 @@ export function AddExpenseForm({
 
     setError(undefined)
     try {
-      onAdded(
-        await addExpense({
-          tripId,
-          payerId,
-          amount: Math.round(won),
-          description,
-          category,
-          participantIds,
-        }),
-      )
+      await addExpense({
+        tripId,
+        payerId,
+        amount: Math.round(won),
+        description,
+        category,
+        participantIds,
+      })
+      onAdded()
     } catch {
       // 서버 액션의 가드(멤버십·검증)가 막았거나 알 수 없는 오류다. 버튼이 조용히
       // 아무 반응 없는 상태로 남지 않도록 기존 에러 표시 자리에 띄운다.

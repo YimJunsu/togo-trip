@@ -115,4 +115,23 @@ export const supabaseAuthRepo: AuthRepository = {
     if (error) throw error
     return data === true
   },
+
+  async changePassword(userId, currentPassword, newPassword) {
+    const supabase = await createSupabaseServerClient()
+
+    // Supabase는 updateUser에 현재 비밀번호를 받지 않는다 — 세션만 있으면 바꿔 준다.
+    // 그래서 본인 확인을 직접 한다: 지금 로그인된 사람의 이메일로 다시 로그인해 본다.
+    // 성공하면 같은 사용자의 세션이 새로 심길 뿐이라 화면에서 달라지는 건 없다.
+    const profile = await fetchProfile(supabase, userId)
+    if (!profile) throw new InvalidCredentialsError()
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: profile.email,
+      password: currentPassword,
+    })
+    if (signInError) throw new InvalidCredentialsError()
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) throw error
+  },
 }

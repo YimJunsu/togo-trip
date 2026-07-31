@@ -19,7 +19,7 @@ const LINK_CLASS =
  * 비로그인이라 눈에 띄는 변화가 없다. 로그인한 사람만 이름이 한 박자 늦게 붙는다.
  */
 export function HeaderAuth() {
-  const { name } = useSession()
+  const { name, clear } = useSession()
 
   if (!name) {
     return (
@@ -29,14 +29,22 @@ export function HeaderAuth() {
     )
   }
 
+  // 이름은 내 정보로 들어가는 문이다. 로그아웃은 거기 한 번 더 있고, 헤더에도 남긴다 —
+  // 자주 쓰는 동작을 한 단계 안으로 숨기지 않는다.
   return (
-    <form action={signOutAction} className="flex shrink-0 items-center gap-1">
-      <span className="text-muted hidden px-2 text-sm font-medium sm:block">
+    <span className="flex shrink-0 items-center gap-1">
+      <Link href="/settings" className={LINK_CLASS}>
         {name}
-      </span>
-      <button type="submit" className={LINK_CLASS}>
-        로그아웃
-      </button>
-    </form>
+      </Link>
+      {/*
+        로그아웃 후 redirect 목적지가 지금 경로와 같으면 세션 재조회가 돌지 않는다.
+        누른 즉시 비로그인으로 바꿔 버튼이 그대로 남아 있는 것처럼 보이지 않게 한다.
+      */}
+      <form action={signOutAction} onSubmit={clear}>
+        <button type="submit" className={LINK_CLASS}>
+          로그아웃
+        </button>
+      </form>
+    </span>
   )
 }
