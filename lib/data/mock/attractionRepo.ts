@@ -9,7 +9,8 @@ export const mockAttractionRepo: AttractionRepository = {
     const rows = data.attractions.filter(
       (a) => a.regionCode === code && (!opts?.type || a.contentTypeId === opts.type),
     )
-    return opts?.limit ? rows.slice(0, opts.limit) : rows
+    // limit이 0일 수도 있다. falsy 검사로 쓰면 0이 "제한 없음"이 돼 전부 돌려준다.
+    return typeof opts?.limit === 'number' ? rows.slice(0, opts.limit) : rows
   },
 
   async getRegion(code) {
