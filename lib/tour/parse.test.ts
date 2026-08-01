@@ -2,6 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { TourApiError, readOverview, readTourBody, toAttraction } from './parse.ts'
 
+// TourAPI는 결과를 response.body.items.item에 담아 보낸다. 이 helper는 items.item이 받는 값이다.
 const ok = (items: unknown) =>
   JSON.stringify({
     response: {
@@ -25,14 +26,14 @@ const ITEM = {
 }
 
 test('정상 응답에서 item 배열을 꺼낸다', () => {
-  const items = readTourBody(ok([ITEM]))
+  const items = readTourBody(ok({ item: [ITEM] }))
   assert.equal(items.length, 1)
   assert.equal(items[0].contentid, '126508')
 })
 
 test('item이 1건일 때 객체로 오는 경우도 배열로 만든다', () => {
   // TourAPI는 결과가 하나면 배열이 아니라 객체를 준다. 그대로 두면 목록 순회가 깨진다.
-  const items = readTourBody(ok(ITEM))
+  const items = readTourBody(ok({ item: ITEM }))
   assert.equal(items.length, 1)
 })
 
@@ -133,15 +134,15 @@ test('contentid나 title이 없으면 null이다 — 기본키가 없으면 담�
 })
 
 test('overview를 꺼낸다', () => {
-  assert.equal(readOverview(ok([{ ...ITEM, overview: '조선 왕조 제일의 법궁.' }])), '조선 왕조 제일의 법궁.')
+  assert.equal(readOverview(ok({ item: [{ ...ITEM, overview: '조선 왕조 제일의 법궁.' }] })), '조선 왕조 제일의 법궁.')
 })
 
 test('overview가 없으면 null이다', () => {
-  assert.equal(readOverview(ok([ITEM])), null)
+  assert.equal(readOverview(ok({ item: [ITEM] })), null)
   assert.equal(readOverview(ok('')), null)
 })
 
 test('overview의 HTML 태그와 개행을 지운다 — 본문에 그대로 나가는 값이다', () => {
-  const raw = ok([{ ...ITEM, overview: '앞<br>뒤<br />\n  아래' }])
+  const raw = ok({ item: [{ ...ITEM, overview: '앞<br>뒤<br />\n  아래' }] })
   assert.equal(readOverview(raw), '앞 뒤 아래')
 })

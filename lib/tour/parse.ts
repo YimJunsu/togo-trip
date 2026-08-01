@@ -55,18 +55,8 @@ function parseBody(raw: string): TourResponse {
 export function readTourBody(raw: string): TourItem[] {
   const items = parseBody(raw).response?.body?.items
   if (!items || typeof items !== 'object') return []
-
-  // items는 보통 { item: ... } 형태로 온다. items 자체가 item(들)인 경우까지 방어한다.
-  let item: TourItem | TourItem[] | undefined
-  if (Array.isArray(items)) {
-    item = items
-  } else if ('item' in items) {
-    item = items.item
-  } else {
-    // 위 두 분기에서 배열과 { item } 래핑을 걸렀으니 남은 건 item 자체다.
-    item = items as TourItem
-  }
-
+  if (!('item' in items)) return []
+  const item = items.item
   if (!item) return []
   // 결과가 1건이면 배열이 아니라 객체로 온다.
   return Array.isArray(item) ? item : [item]
