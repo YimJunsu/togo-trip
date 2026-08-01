@@ -1,3 +1,4 @@
+import { mockAttractionRepo } from './mock/attractionRepo'
 import { mockAuthRepo } from './mock/authRepo'
 import { supabaseAuthRepo } from './supabase/authRepo'
 import { mockCompatRepo } from './mock/compatRepo'
@@ -8,6 +9,7 @@ import { mockSettlementRepo } from './mock/settlementRepo'
 import { mockTravelStyleRepo } from './mock/travelStyleRepo'
 import { mockTripRepo } from './mock/tripRepo'
 import type {
+  AttractionRepository,
   AuthRepository,
   CompatRepository,
   DestinationRepository,
@@ -39,6 +41,7 @@ export const destinationRepo: DestinationRepository = mockDestinationRepo
 export const placeRepo: PlaceRepository = mockPlaceRepo
 export const compatRepo: CompatRepository = mockCompatRepo
 export const travelStyleRepo: TravelStyleRepository = mockTravelStyleRepo
+export const attractionRepo: AttractionRepository = mockAttractionRepo
 
 export {
   DuplicateEmailError,
