@@ -25,11 +25,7 @@ export type TourResponse = {
   response?: {
     header?: { resultCode?: string; resultMsg?: string }
     body?: {
-      /**
-       * 실제 TourAPI는 items.item에 담아 보낸다. items 자체가 item(들)인 경우는
-       * 없지만, 방어적으로 같이 받아 둔다 — parse.ts의 readTourBody 주석 참고.
-       */
-      items?: { item?: TourItem | TourItem[] } | TourItem | TourItem[] | ''
+      items?: { item?: TourItem | TourItem[] } | ''
       totalCount?: number
     }
   }
