@@ -36,9 +36,18 @@ export type IngestDeps = {
   budgetMs?: number
 }
 
+/** 예외로 실패한 시군구. 예산이 모자라 건너뛴 지역은 여기 들어가지 않는다. */
+export type IngestFailure = { code: string; message: string }
+
 export type IngestResult = {
   processed: string[]
+  /** 미처리 지역 전부 — 예외로 실패한 것과 예산이 모자라 건너뛴 것을 함께 담는다. */
   skipped: string[]
+  /**
+   * 실패 사유. 이게 없으면 upsert 컬럼 오타 같은 구조적 버그가 "전 지역 skipped"로만
+   * 보여서, 일시적 장애와 구분이 안 된 채 매일 조용히 반복된다.
+   */
+  failures: IngestFailure[]
   upserted: number
   limitExceeded: boolean
 }
@@ -60,6 +69,7 @@ export async function ingestRegions(
 
   const processed: string[] = []
   const skipped: string[] = []
+  const failures: IngestFailure[] = []
   let upserted = 0
   let limitExceeded = false
 
@@ -89,13 +99,18 @@ export async function ingestRegions(
       // 한 시군구가 실패해도 나머지는 계속 처리한다. 실패한 지역만 ingested_at이
       // 비어 다음 실행 대상으로 남는다.
       skipped.push(target.code)
+      // 사유를 남기지 않으면 컬럼 오타 같은 구조적 버그와 일시적 장애가 구분되지 않는다.
+      failures.push({
+        code: target.code,
+        message: error instanceof Error ? error.message : String(error),
+      })
       if (error instanceof TourApiError && error.limitExceeded) {
         limitExceeded = true
       }
     }
   }
 
-  return { processed, skipped, upserted, limitExceeded }
+  return { processed, skipped, failures, upserted, limitExceeded }
 }
 
 /** 한 시군구당 API 콜: 관광지 목록 1 + 음식점 목록 1 + overview 5 = 7콜. */

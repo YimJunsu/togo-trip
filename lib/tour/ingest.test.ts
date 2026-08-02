@@ -2,7 +2,13 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import type { Attraction } from '@/lib/data/types'
 import { TourApiError } from './parse.ts'
-import { REGION_BUDGET_MS, ingestRegions, type IngestDb, type IngestDeps } from './ingest.ts'
+import {
+  REGION_BUDGET_MS,
+  OVERVIEW_LIMIT,
+  ingestRegions,
+  type IngestDb,
+  type IngestDeps,
+} from './ingest.ts'
 
 const TARGETS = [
   { code: '42150', areaCode: 32, sigunguCode: 1 },
@@ -109,6 +115,66 @@ test('관광지에만 overview를 채운다 — 음식점은 detailCommon을 부
   assert.equal(overviewCalls, 1)
   assert.equal(upserted.find((a) => a.contentTypeId === 12)?.overview, '조선 왕조 제일의 법궁.')
   assert.equal(upserted.find((a) => a.contentTypeId === 39)?.overview, null)
+})
+
+test('overview는 상위 OVERVIEW_LIMIT건까지만 부른다 — 건별 API 콜이라 비용이 직결된다', async () => {
+  const { db } = fakeDb()
+  let overviewCalls = 0
+  await ingestRegions([TARGETS[0]], {
+    ...deps({}),
+    db,
+    client: {
+      async listByArea(_area, type, regionCode) {
+        // 관광지 8건. slice(0, OVERVIEW_LIMIT)이 사라지면 8번 부르게 된다.
+        return type === 12
+          ? Array.from({ length: 8 }, (_, i) =>
+              attraction(`${regionCode}-12-${i}`, 12, regionCode),
+            )
+          : []
+      },
+      async getOverview() {
+        overviewCalls += 1
+        return '설명'
+      },
+    },
+  })
+
+  assert.equal(overviewCalls, OVERVIEW_LIMIT)
+})
+
+test('실패한 지역은 사유를 남긴다 — 구조적 버그와 일시적 장애를 구분해야 한다', async () => {
+  const { db } = fakeDb()
+  const result = await ingestRegions(TARGETS, {
+    ...deps({}),
+    db,
+    client: {
+      async listByArea(_area, type, regionCode) {
+        if (regionCode === '42210') throw new Error('column "titel" does not exist')
+        return [attraction(`${regionCode}-${type}`, type, regionCode)]
+      },
+      async getOverview() {
+        return null
+      },
+    },
+  })
+
+  assert.deepEqual(result.failures, [
+    { code: '42210', message: 'column "titel" does not exist' },
+  ])
+})
+
+test('예산이 모자라 건너뛴 지역은 실패가 아니다', async () => {
+  const { db } = fakeDb()
+  const clock = fakeClock(REGION_BUDGET_MS)
+  const result = await ingestRegions(TARGETS, {
+    ...deps({ onRegion: () => clock.tick() }),
+    db,
+    now: clock.now,
+    budgetMs: REGION_BUDGET_MS,
+  })
+
+  assert.ok(result.skipped.length > 0, '건너뛴 지역이 없다')
+  assert.deepEqual(result.failures, [], '예산 초과는 failures에 들어가면 안 된다')
 })
 
 test('시간 예산을 넘으면 남은 지역을 미처리로 남긴다', async () => {
