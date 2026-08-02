@@ -2,7 +2,8 @@ import { DartGame } from '@/components/dashboard/DartGame'
 import { DestinationDirectory } from '@/components/dashboard/DestinationDirectory'
 import { RandomDrawer } from '@/components/dashboard/RandomDrawer'
 import { RandomModeTabs } from '@/components/dashboard/RandomModeTabs'
-import { destinationRepo } from '@/lib/data'
+import { RegionDirectory } from '@/components/dashboard/RegionDirectory'
+import { attractionRepo, destinationRepo } from '@/lib/data'
 import { rollWind } from '@/lib/geo/dart'
 import { pageMetadata } from '@/lib/seo/metadata'
 
@@ -14,7 +15,10 @@ export const metadata = pageMetadata({
 })
 
 export default async function RandomPage() {
-  const candidates = await destinationRepo.list()
+  const [candidates, regions] = await Promise.all([
+    destinationRepo.list(),
+    attractionRepo.listIngestedRegions(),
+  ])
 
   return (
     <div className="flex flex-col gap-10">
@@ -35,6 +39,7 @@ export default async function RandomPage() {
       </div>
 
       <DestinationDirectory destinations={candidates} />
+      <RegionDirectory regions={regions} />
     </div>
   )
 }
