@@ -1,7 +1,7 @@
 {
   "regions": [
     {
-      "code": "42150",
+      "code": "32030",
       "name": "강릉시",
       "province": "강원특별자치도",
       "ingestedAt": "2026-08-01T03:00:00.000Z",
@@ -19,9 +19,9 @@
   ],
   "attractions": [
     {
-      "contentId": "mock-42150-1",
+      "contentId": "mock-32030-1",
       "contentTypeId": 12,
-      "regionCode": "42150",
+      "regionCode": "32030",
       "title": "오죽헌",
       "addr": "강원특별자치도 강릉시 율곡로3139번길 24",
       "coords": [37.7794, 128.8784],
@@ -29,9 +29,9 @@
       "overview": "율곡 이이가 태어난 집으로, 조선 초기 주택 양식이 남아 있는 곳이다. 검은 대나무가 집 주위를 둘러싸고 있어 오죽헌이라 부른다."
     },
     {
-      "contentId": "mock-42150-2",
+      "contentId": "mock-32030-2",
       "contentTypeId": 12,
-      "regionCode": "42150",
+      "regionCode": "32030",
       "title": "경포해변",
       "addr": "강원특별자치도 강릉시 창해로 514",
       "coords": [37.8047, 128.9089],
@@ -39,9 +39,9 @@
       "overview": "강릉을 대표하는 백사장으로, 경포호와 소나무 숲을 끼고 있다. 여름 해수욕과 겨울 해돋이 모두 사람이 몰린다."
     },
     {
-      "contentId": "mock-42150-3",
+      "contentId": "mock-32030-3",
       "contentTypeId": 12,
-      "regionCode": "42150",
+      "regionCode": "32030",
       "title": "안목해변 커피거리",
       "addr": "강원특별자치도 강릉시 창해로14번길 20-1",
       "coords": [37.7735, 128.9471],
@@ -49,9 +49,9 @@
       "overview": null
     },
     {
-      "contentId": "mock-42150-4",
+      "contentId": "mock-32030-4",
       "contentTypeId": 39,
-      "regionCode": "42150",
+      "regionCode": "32030",
       "title": "강릉 초당순두부",
       "addr": "강원특별자치도 강릉시 초당순두부길 77",
       "coords": [37.7936, 128.9137],
@@ -59,9 +59,9 @@
       "overview": null
     },
     {
-      "contentId": "mock-42150-5",
+      "contentId": "mock-32030-5",
       "contentTypeId": 39,
-      "regionCode": "42150",
+      "regionCode": "32030",
       "title": "중앙시장 닭강정",
       "addr": "강원특별자치도 강릉시 금성로 21",
       "coords": null,
