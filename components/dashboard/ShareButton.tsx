@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { CheckIcon, ShareNetworkIcon } from '@phosphor-icons/react'
 import { ActionButton } from '@/components/dashboard/ActionButton'
-
-type State = 'idle' | 'copied' | 'failed'
+import { shareOrCopy, type ShareResult } from '@/lib/utils/share'
 
 /**
- * 결과 공유. 카카오톡·메시지로 바로 넘기는 건 브라우저의 공유 시트(Web Share)에 맡기고,
- * 그게 없는 데스크톱에서는 링크 복사로 떨어진다. 주소는 지금 보고 있는 페이지 그대로다.
+ * 결과 공유. 소프트 미니멀 갈래의 라임 버튼이다.
+ * 초대·여행권처럼 보딩패스 갈래에 놓이는 자리는 `boarding-pass/PassShareButton`을 쓴다.
+ * 공유 동작 자체는 `lib/utils/share.ts`가 갖는다.
  */
 export function ShareButton({
   title,
@@ -27,27 +27,14 @@ export function ShareButton({
   path?: string
   label?: string
 }) {
-  const [state, setState] = useState<State>('idle')
+  const [state, setState] = useState<ShareResult | 'idle'>('idle')
 
   async function share() {
-    const url = new URL(path ?? window.location.href, window.location.href).href
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, text, url })
-        return
-      } catch {
-        // 사용자가 공유 시트를 닫은 경우도 여기로 온다. 복사로 넘어간다.
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url)
-      setState('copied')
-      setTimeout(() => setState('idle'), 1800)
-    } catch {
-      setState('failed')
-    }
+    const result = await shareOrCopy({ title, text, path })
+    // 공유 시트로 넘어갔으면 이 화면이 알릴 건 없다.
+    if (result === 'shared') return
+    setState(result)
+    if (result === 'copied') setTimeout(() => setState('idle'), 1800)
   }
 
   return (
