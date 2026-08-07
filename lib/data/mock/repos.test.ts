@@ -12,7 +12,11 @@
  */
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { TripAlreadySettledError } from '../repositories.ts'
+import {
+  HostCannotLeaveError,
+  MemberHasExpensesError,
+  TripAlreadySettledError,
+} from '../repositories.ts'
 import { mockExpenseRepo } from './expenseRepo.ts'
 import { mockSettlementRepo } from './settlementRepo.ts'
 import { findTrip, store } from './store.ts'
@@ -39,6 +43,17 @@ async function reset() {
   store.members = store.members.filter(
     (m) => m.tripId !== TRIP || m.userId === HOST || m.userId === GUEST,
   )
+  // 나가기 테스트가 GUEST를 빼고 나면 위 filter로는 되살아나지 않는다.
+  // 없으면 다시 넣어 테스트 순서에 상관없이 같은 출발점이 되게 한다.
+  if (!store.members.some((m) => m.tripId === TRIP && m.userId === GUEST)) {
+    store.members.push({
+      tripId: TRIP,
+      userId: GUEST,
+      displayName: '김하늘',
+      role: 'member',
+      isDriver: false,
+    })
+  }
   findTrip(TRIP)!.driverDiscountRate = 0.2
 }
 
@@ -258,4 +273,89 @@ test('거부된 할인율은 기존 값을 덮어쓰지 않는다', async () => 
   await mockTripRepo.setDiscountRate(TRIP, 0.3)
   await assert.rejects(() => mockTripRepo.setDiscountRate(TRIP, 0.9))
   assert.equal(findTrip(TRIP)!.driverDiscountRate, 0.3)
+})
+
+// ── 4. 방 나가기 / 내보내기 ──────────────────────────────────────────────────
+//
+// trip_members를 그냥 지우면 expenses·expense_participants가 cascade로 함께
+// 사라져 남은 사람들의 정산 총액이 조용히 바뀐다(supabase/schema.sql 7·8번 섹션).
+// 그 cascade를 막는 게 아래 가드들이고, 실서버에서는 leave_trip RPC가 같은 일을 한다.
+
+test('지출이 없는 일반 멤버는 나갈 수 있다', async () => {
+  await reset()
+  await mockTripRepo.leaveTrip(TRIP, GUEST)
+
+  const members = await mockTripRepo.listMembers(TRIP)
+  assert.equal(
+    members.some((m) => m.userId === GUEST),
+    false,
+  )
+  // 방장은 그대로 남는다.
+  assert.equal(
+    members.some((m) => m.userId === HOST),
+    true,
+  )
+})
+
+test('방장은 나갈 수 없다', async () => {
+  await reset()
+  await assert.rejects(
+    () => mockTripRepo.leaveTrip(TRIP, HOST),
+    HostCannotLeaveError,
+  )
+})
+
+test('확정된 방에서는 나갈 수 없다', async () => {
+  await settled()
+  await assert.rejects(
+    () => mockTripRepo.leaveTrip(TRIP, GUEST),
+    TripAlreadySettledError,
+  )
+})
+
+test('결제한 지출이 있으면 나갈 수 없다', async () => {
+  await reset()
+  await mockExpenseRepo.add({
+    tripId: TRIP,
+    payerId: GUEST,
+    amount: 20_000,
+    description: '주유',
+    category: 'transport',
+    participantIds: [HOST, GUEST],
+  })
+
+  await assert.rejects(
+    () => mockTripRepo.leaveTrip(TRIP, GUEST),
+    MemberHasExpensesError,
+  )
+})
+
+test('참여자로만 들어간 지출이 있어도 나갈 수 없다', async () => {
+  await reset()
+  // GUEST는 결제자가 아니다. payer만 검사하면 이 케이스가 통과해 버리고,
+  // 그 순간 참여 행이 사라지면서 이 지출의 분담 인원이 2명에서 1명으로 줄어
+  // HOST의 부담이 조용히 두 배가 된다.
+  await mockExpenseRepo.add({
+    tripId: TRIP,
+    payerId: HOST,
+    amount: 20_000,
+    description: '숙소',
+    category: 'stay',
+    participantIds: [HOST, GUEST],
+  })
+
+  await assert.rejects(
+    () => mockTripRepo.leaveTrip(TRIP, GUEST),
+    MemberHasExpensesError,
+  )
+})
+
+test('이 방에 없는 사람을 빼는 건 조용히 넘어간다', async () => {
+  await reset()
+  const before = (await mockTripRepo.listMembers(TRIP)).length
+
+  // RPC의 `if not found then return`과 같다. 오류를 던지지 않는다.
+  await mockTripRepo.leaveTrip(TRIP, 'usr-없는사람')
+
+  assert.equal((await mockTripRepo.listMembers(TRIP)).length, before)
 })

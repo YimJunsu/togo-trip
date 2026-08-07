@@ -1,6 +1,8 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import {
+  HostCannotLeaveError,
   InvalidInviteCodeError,
+  MemberHasExpensesError,
   TripAlreadySettledError,
   type TripRepository,
 } from '../repositories'
@@ -174,10 +176,10 @@ export const supabaseTripRepo: TripRepository = {
     // update 정책은 "방장 + 미확정"만 통과시킨다(schema.sql). RLS는 조건에 안 맞는
     // 행을 걸러낼 뿐 오류를 던지지 않으므로, select로 실제 갱신된 행을 돌려받아
     // 0행이면 원인을 직접 되짚는다 — 그래야 mock처럼 TripAlreadySettledError를 던질 수 있다.
-    // 전제: 0행 = 항상 확정 잠금. 정책은 "방장 AND 미확정"을 함께 보므로, 멤버십
-    // 상실(방장이 아니게 됨)로도 0행이 될 수 있다 — 지금은 requireHost가 호출 전에
-    // 이미 방장인지 확인해 여기 도달할 때 항상 참이지만, 나중에 나가기/멤버 해제
-    // 기능이 생기면 이 가정이 깨져 "정산 끝난 방"이라는 오진이 날 수 있다.
+    // 0행이 되는 경로는 둘이다: 확정 잠금, 그리고 대상이 이 방 멤버가 아님.
+    // 나가기/내보내기(leave_trip)가 생기면서 두 번째가 실제로 일어날 수 있게 됐다 —
+    // 방장이 A를 내보내는 것과 A의 운전자 토글이 겹치는 경우다. 아래 사다리가
+    // settledAt을 먼저 확인하고 아니면 멤버 아님으로 떨어뜨려 오진을 막는다.
     const { data, error } = await supabase
       .from('trip_members')
       .update({ is_driver: isDriver })
@@ -201,9 +203,8 @@ export const supabaseTripRepo: TripRepository = {
     }
     const supabase = await createSupabaseServerClient()
     // setDriver와 같은 이유로 select해서 실제 갱신 행 수를 직접 확인한다.
-    // 전제: 0행 = 항상 확정 잠금. 정책은 "방장 AND 미확정"을 함께 보므로, 멤버십
-    // 상실(방장이 아니게 됨)로도 0행이 될 수 있다 — setDriver와 같은 가정이고
-    // 같은 이유로 지금은 안전하다. 나가기/멤버 해제 기능이 생기면 재검토가 필요하다.
+    // 이쪽은 trips 행을 갱신하므로 멤버 목록 변화에 영향받지 않는다 —
+    // leave_trip은 방장을 빼지 못해(HOST_CANNOT_LEAVE) 방장 지위를 잃는 경로가 없다.
     const { data, error } = await supabase
       .from('trips')
       .update({ driver_discount_rate: rate })
@@ -219,5 +220,29 @@ export const supabaseTripRepo: TripRepository = {
       throw new Error('여행방을 수정할 권한이 없습니다.')
     }
     return toTrip(data[0])
+  },
+
+  async leaveTrip(tripId, userId) {
+    const supabase = await createSupabaseServerClient()
+    // trip_members에 DELETE 정책이 없다 = 이 RPC로만 뺄 수 있다(schema.sql).
+    // 정책 대신 RPC인 이유는 cascade 때문이다 — 그냥 지우면 이 사람의 지출과
+    // 참여 행이 함께 사라져 남은 사람들의 정산 총액이 조용히 바뀐다.
+    const { error } = await supabase.rpc('leave_trip', {
+      check_trip_id: tripId,
+      check_user_id: userId,
+    })
+    if (error) {
+      // join_trip_by_code와 같이 named 예외를 message로 받아 타입으로 옮긴다.
+      if (error.message.includes('HAS_EXPENSES')) {
+        throw new MemberHasExpensesError()
+      }
+      if (error.message.includes('HOST_CANNOT_LEAVE')) {
+        throw new HostCannotLeaveError()
+      }
+      if (error.message.includes('TRIP_ALREADY_SETTLED')) {
+        throw new TripAlreadySettledError()
+      }
+      throw error
+    }
   },
 }

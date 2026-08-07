@@ -32,10 +32,14 @@ export default async function TripDetailPage({
       : previewSettlement(tripId).then((result) => result.transfers),
   ])
 
+  const meMember = members.find((m) => m.userId === me.id)
+
   // 방장이면서 아직 확정 전일 때만 참. 확정 후 운전자를 바꾸면 이미 확정된 금액의 전제가 깨진다.
-  const canEditMembers =
-    !trip.settledAt &&
-    members.some((m) => m.userId === me.id && m.role === 'host')
+  const canEditMembers = !trip.settledAt && meMember?.role === 'host'
+
+  // 방장은 못 나간다 — 방을 정리하는 건 '방 삭제'라는 별개 기능이다.
+  // 확정 후엔 멤버 구성도 계산의 전제라 지출·운전자와 함께 잠근다.
+  const canLeave = !trip.settledAt && meMember?.role === 'member'
 
   return (
     <div className="flex flex-col gap-6">
@@ -71,6 +75,8 @@ export default async function TripDetailPage({
         itineraryItems={itineraryItems}
         settlements={settlements}
         canEditMembers={canEditMembers}
+        meId={me.id}
+        canLeave={canLeave}
       />
     </div>
   )

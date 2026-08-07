@@ -26,6 +26,8 @@ export function TripDetailTabs({
   itineraryItems,
   settlements,
   canEditMembers,
+  meId,
+  canLeave,
 }: {
   trip: Trip
   members: Member[]
@@ -33,6 +35,8 @@ export function TripDetailTabs({
   /** 확정 후엔 저장된 송금, 확정 전엔 지금 지출 기준으로 계산한 예상 송금. */
   settlements: SettlementRow[]
   canEditMembers: boolean
+  meId: string
+  canLeave: boolean
 }) {
   const [tab, setTab] = useState<Tab>('members')
 
@@ -46,6 +50,8 @@ export function TripDetailTabs({
             members={members}
             tripId={trip.id}
             canEdit={canEditMembers}
+            meId={meId}
+            canLeave={canLeave}
           />
         ) : tab === 'plan' ? (
           <DayPlanList trip={trip} items={itineraryItems} />

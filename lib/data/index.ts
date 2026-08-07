@@ -56,7 +56,9 @@ export const travelStyleRepo: TravelStyleRepository = mockTravelStyleRepo
 
 export {
   DuplicateEmailError,
+  HostCannotLeaveError,
   InvalidCredentialsError,
   InvalidInviteCodeError,
+  MemberHasExpensesError,
   TripAlreadySettledError,
 } from './repositories'

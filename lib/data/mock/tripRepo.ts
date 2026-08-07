@@ -1,5 +1,7 @@
 import {
+  HostCannotLeaveError,
   InvalidInviteCodeError,
+  MemberHasExpensesError,
   TripAlreadySettledError,
   type TripRepository,
 } from '../repositories'
@@ -109,5 +111,35 @@ export const mockTripRepo: TripRepository = {
     }
     trip.driverDiscountRate = rate
     return trip
+  },
+
+  // 검사 순서를 leave_trip RPC와 같게 맞춘다. 순서가 다르면 같은 입력에 다른
+  // 오류가 나와 NEXT_PUBLIC_DATA_SOURCE 스위치가 의미를 잃는다.
+  async leaveTrip(tripId, userId) {
+    const trip = findTrip(tripId)
+    if (!trip) throw new Error('여행방을 찾을 수 없습니다.')
+
+    const member = store.members.find(
+      (m) => m.tripId === tripId && m.userId === userId,
+    )
+    // 이 방에 없는 사람은 조용히 넘어간다 (RPC의 `if not found then return`).
+    if (!member) return
+
+    if (member.role === 'host') throw new HostCannotLeaveError()
+    if (trip.settledAt) throw new TripAlreadySettledError()
+
+    // 실서버에서는 cascade가 지워 버릴 것을 여기서 손으로 확인한다.
+    // 참여자로만 들어간 경우도 막아야 한다 — 그 행이 사라지면 해당 지출의
+    // 분담 인원이 줄어 남은 사람 부담이 조용히 늘어난다.
+    const hasExpense = store.expenses.some(
+      (e) =>
+        e.tripId === tripId &&
+        (e.payerId === userId || e.participantIds.includes(userId)),
+    )
+    if (hasExpense) throw new MemberHasExpensesError()
+
+    store.members = store.members.filter(
+      (m) => !(m.tripId === tripId && m.userId === userId),
+    )
   },
 }

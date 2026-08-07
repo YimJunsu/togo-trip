@@ -85,13 +85,15 @@ export default async function SettingsPage() {
         </form>
 
         {/*
-          계정 삭제는 아직 못 만든다. 두 군데가 동시에 막혀 있다:
-          1) 방이 하나라도 남아 있으면 DB가 막는다 — trips.created_by·trip_members.user_id·
-             settlements.from/to_user_id가 전부 on delete restrict다 (supabase/schema.sql).
-             trips·trip_members에는 DELETE 정책이 없어 "방 나가기"조차 없다.
+          계정 삭제는 아직 못 만든다. 막힌 곳이 둘이었는데 하나가 풀렸다:
+          1) (풀림) 일반 멤버는 leave_trip RPC로 여행방을 나갈 수 있다. 다만 방장은
+             여전히 못 나가고, 방 자체를 지우는 기능도 없다 — 방장으로 만든 방이
+             하나라도 남아 있으면 trips.created_by의 on delete restrict가 막는다.
           2) auth.users 삭제는 service_role 키가 있어야 하는데, 이 앱은 anon 키만 쓴다
              (lib/supabase/server.ts).
           버튼을 눌러 놓고 실패하게 두는 대신, 소셜 로그인과 같은 방식으로 표시만 해 둔다.
+          문구는 "여행방을 나가면 열린다"고 약속하지 않는다 — 나가기가 생긴 지금도
+          2번이 남아 있어 지킬 수 없는 약속이 된다.
         */}
         <div className="border-line mt-3 rounded-inner border border-dashed p-4">
           <p className="flex items-center gap-2 text-sm font-medium">
@@ -99,8 +101,7 @@ export default async function SettingsPage() {
             <Badge className="bg-ink/5 text-muted">준비 중</Badge>
           </p>
           <p className="text-muted mt-1 text-sm">
-            참여 중인 여행방을 먼저 정리해야 지울 수 있습니다. 여행방을 나가는
-            기능이 준비되면 함께 열립니다.
+            아직 앱에서 계정을 지울 수 없습니다. 필요하시면 문의해 주세요.
           </p>
         </div>
       </Section>

@@ -107,3 +107,29 @@ export async function setDiscountRateAction(
   await requireHost(tripId)
   return tripRepo.setDiscountRate(tripId, rate)
 }
+
+/*
+ * 나가기와 내보내기는 repo에서 같은 메서드지만 액션은 둘로 나눈다.
+ * 하나로 합쳐 userId 유무로 분기하면 requireUser냐 requireHost냐가 런타임 값에
+ * 달리게 된다 — 보안 경계가 조건문 안으로 들어가면, 나중에 그 분기를 잘못 고쳐
+ * 아무나 남을 내보낼 수 있게 되는 종류의 사고가 난다. 이름으로 갈라 둔다.
+ */
+
+/** 본인이 나간다. 방장은 못 나간다(repo가 HostCannotLeaveError). */
+export async function leaveTripAction(tripId: string): Promise<void> {
+  const user = await requireUser()
+  await tripRepo.leaveTrip(tripId, user.id)
+  // 나가는 순간 requireMemberPage가 notFound()를 부른다. 리다이렉트가 없으면
+  // 방금까지 보던 화면이 404로 바뀌는 것을 사용자가 그대로 본다.
+  redirect('/')
+}
+
+/** 방장이 멤버를 내보낸다. 갱신된 멤버 목록을 돌려준다. */
+export async function removeMemberAction(
+  tripId: string,
+  userId: string,
+): Promise<Member[]> {
+  await requireHost(tripId)
+  await tripRepo.leaveTrip(tripId, userId)
+  return tripRepo.listMembers(tripId)
+}

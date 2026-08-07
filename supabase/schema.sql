@@ -108,11 +108,11 @@ create table if not exists public.trips (
   -- cascade였다면 생성자가 계정을 지울 때 이 방 전체(멤버·지출·참여자·정산)가
   -- 같이 사라진다 — 다른 멤버들의 여행 기록까지 함께 날아가는 셈이다. restrict로
   -- 막아 "방이 남아있는 동안은 생성자 계정을 지울 수 없다"로 실패하게 한다.
-  -- 이 사람이 속한 방이 하나라도 있으면 auth.users 삭제는 "Database error
-  -- deleting user"로 실패하고, trips·trip_members엔 DELETE 정책이 없어 앱 안에서
-  -- 방을 나가거나 지울 방법도 없다 — 지금은 DB에서 직접 방을 지우는 것 말고는
-  -- 막힘을 풀 방법이 없다. 계정 삭제 기능 자체가 아직 없어 당장 영향은 없지만,
-  -- 그 기능을 만들 때는 이 막힘부터 먼저 풀어야 한다.
+  -- 이 사람이 만든 방이 하나라도 있으면 auth.users 삭제는 "Database error
+  -- deleting user"로 실패한다. 일반 멤버로 참여한 방은 leave_trip RPC(12번 섹션)로
+  -- 나갈 수 있지만, 방장은 나갈 수 없고 방을 지우는 기능도 없다 — 방장으로 만든
+  -- 방은 DB에서 직접 지우는 것 말고는 막힘을 풀 방법이 없다. 계정 삭제 기능 자체가
+  -- 아직 없어 당장 영향은 없지만, 그 기능을 만들 때는 이 막힘부터 먼저 풀어야 한다.
   created_by           uuid not null references public.profiles(id) on delete restrict,
   cover_theme          text not null default 'sea',
   -- 계산 입력이므로 확정 시 지출과 함께 잠긴다. 저장하지 않으면 기본값이 바뀔 때
@@ -133,6 +133,10 @@ create table if not exists public.trip_members (
   -- 지출까지 지운다. 그러면 남은 멤버들의 정산 총액이 조용히 바뀐다. restrict로
   -- 막아 "이 방의 멤버인 동안은 계정을 지울 수 없다"로 실패하게 한다.
   -- 계정 삭제 기능은 지금 없어 당장 영향은 없다.
+  --
+  -- 같은 연쇄가 "방 나가기"에도 그대로 걸린다. 그래서 이 표에는 DELETE 정책을
+  -- 두지 않고 leave_trip RPC(12번 섹션)로만 지운다 — 지우기 전에 지출 흔적을
+  -- 검사해야 하고, 검사에 걸린 이유를 사용자에게 돌려줘야 하기 때문이다.
   user_id      uuid not null references public.profiles(id) on delete restrict,
   display_name text not null,
   role         text not null default 'member' check (role in ('host','member')),
@@ -757,7 +761,88 @@ begin
 end;
 $$;
 
--- 여섯 RPC 모두 auth.uid()로 이미 걸러지지만(NOT_AUTHENTICATED 예외, is_trip_host
+-- 여행방 나가기 / 방장이 멤버 내보내기.
+--
+-- trip_members에 DELETE 정책을 두지 않는 이유가 이 함수다. expenses(7번 섹션)와
+-- expense_participants(8번 섹션)가 trip_members를 on delete cascade로 참조하므로,
+-- 정책으로 열어 두면 멤버 한 줄을 지우는 순간 그 사람이 결제한 지출과 참여 행이
+-- 함께 사라지고 남은 사람들의 정산 총액이 조용히 바뀐다. 지우기 전에 검사해야
+-- 하고, 검사에 걸렸을 때 "왜 안 되는지"를 돌려줘야 한다 — 정책은 안 맞는 행을
+-- 조용히 0행으로 거를 뿐이라 둘 다 못 한다.
+--
+-- 범위: 일반 멤버만. 방장은 나가지도, 쫓겨나지도 않는다. 방을 정리하는 것은
+-- '방 삭제'라는 별개 기능이고 아직 없다.
+create or replace function public.leave_trip(
+  check_trip_id uuid,
+  -- 본인이 나가면 auth.uid()와 같고, 방장이 내보내면 다르다.
+  check_user_id uuid
+)
+returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  target_role       text;
+  locked_settled_at timestamptz;
+begin
+  -- auth.uid()가 null이면 아래 `check_user_id <> auth.uid()`가 NULL이 되고,
+  -- `NULL and ...`도 NULL이라 if가 거짓으로 떨어져 권한 검사를 통과해 버린다.
+  -- 다른 RPC와 같이 맨 앞에서 막는다.
+  if auth.uid() is null then
+    raise exception 'NOT_AUTHENTICATED';
+  end if;
+
+  -- 본인이거나, 이 방의 방장이거나.
+  if check_user_id <> auth.uid() and not public.is_trip_host(check_trip_id) then
+    raise exception 'NOT_ALLOWED';
+  end if;
+
+  select role into target_role
+    from public.trip_members
+    where trip_id = check_trip_id and user_id = check_user_id;
+  -- 없는 멤버는 조용히 넘어간다. remove_expense와 같은 규칙이고, mock 구현
+  -- (lib/data/mock/tripRepo.ts)이 같게 동작해야 NEXT_PUBLIC_DATA_SOURCE
+  -- 스위치가 의미를 유지한다.
+  if not found then
+    return;
+  end if;
+
+  if target_role = 'host' then
+    raise exception 'HOST_CANNOT_LEAVE';
+  end if;
+
+  -- 확정 후에는 멤버 구성도 계산의 전제라 지출·운전자·할인율과 함께 잠긴다.
+  -- add_expense와 같은 이유로 `for share`를 건다 — 이게 없으면 settle_trip이
+  -- 커밋하는 순간과 겹쳐, 이미 저장된 송금 리스트의 전제와 실제 멤버가 어긋난다.
+  select settled_at into locked_settled_at
+    from public.trips where id = check_trip_id for share;
+  if locked_settled_at is not null then
+    raise exception 'TRIP_ALREADY_SETTLED';
+  end if;
+
+  -- 이 함수의 존재 이유. payer와 participant를 둘 다 본다.
+  -- payer만 검사하면 남의 지출에 참여자로만 들어간 사람이 통과하고, 그 행이
+  -- cascade로 사라지면서 그 지출의 분담 인원이 줄어 남은 사람 부담이 늘어난다.
+  -- 사용자가 할 일("지출부터 정리하세요")이 같아서 예외는 하나로 묶는다.
+  if exists (
+    select 1 from public.expenses
+     where trip_id = check_trip_id and payer_id = check_user_id
+  ) then
+    raise exception 'HAS_EXPENSES';
+  end if;
+
+  if exists (
+    select 1 from public.expense_participants
+     where trip_id = check_trip_id and user_id = check_user_id
+  ) then
+    raise exception 'HAS_EXPENSES';
+  end if;
+
+  delete from public.trip_members
+   where trip_id = check_trip_id and user_id = check_user_id;
+end;
+$$;
+
+-- 일곱 RPC 모두 auth.uid()로 이미 걸러지지만(NOT_AUTHENTICATED 예외, is_trip_host
 -- 등), 위 helper 함수들과 같은 이유로 anon의 기본 직접 EXECUTE 권한도 걷어
 -- 관례를 맞추고 방어를 겹쳐 둔다.
 revoke execute on function public.join_trip_by_code(text, text)                    from anon;
@@ -766,6 +851,8 @@ revoke execute on function public.remove_expense(uuid)                          
 revoke execute on function public.create_trip(text, text, date, date, text, text, text) from anon;
 revoke execute on function public.settle_trip(uuid, jsonb)                         from anon;
 revoke execute on function public.unsettle_trip(uuid)                              from anon;
+revoke execute on function public.leave_trip(uuid, uuid)                           from public;
+revoke execute on function public.leave_trip(uuid, uuid)                           from anon;
 
 grant execute on function public.join_trip_by_code(text, text) to authenticated;
 grant execute on function public.add_expense(uuid, uuid, integer, text, text, uuid[])
@@ -775,3 +862,4 @@ grant execute on function public.create_trip(text, text, date, date, text, text,
   to authenticated;
 grant execute on function public.settle_trip(uuid, jsonb)     to authenticated;
 grant execute on function public.unsettle_trip(uuid)          to authenticated;
+grant execute on function public.leave_trip(uuid, uuid)       to authenticated;

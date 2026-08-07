@@ -83,6 +83,27 @@ export class TripAlreadySettledError extends Error {
 }
 
 /**
+ * 지출에 얽힌 사람을 방에서 빼려 했다. 결제자든 참여자든 같은 오류다 —
+ * 사용자가 할 일("지출부터 정리하기")이 같아서다.
+ * 이 사람을 그냥 빼면 expenses·expense_participants가 cascade로 함께 지워져
+ * 남은 사람들의 정산 총액이 조용히 바뀐다 (supabase/schema.sql 7·8번 섹션).
+ */
+export class MemberHasExpensesError extends Error {
+  constructor() {
+    super('지출 내역이 있어 여행방에서 뺄 수 없습니다.')
+    this.name = 'MemberHasExpensesError'
+  }
+}
+
+/** 방장은 나가지도, 쫓겨나지도 않는다. 방을 정리하는 것은 '방 삭제'라는 별개 기능이다. */
+export class HostCannotLeaveError extends Error {
+  constructor() {
+    super('방장은 여행방을 나갈 수 없습니다.')
+    this.name = 'HostCannotLeaveError'
+  }
+}
+
+/**
  * 인증. 자격증명(Account)은 이 인터페이스 밖으로 나가지 않는다 —
  * 모든 메서드가 Profile만 반환한다.
  */
@@ -131,6 +152,16 @@ export interface TripRepository {
   ): Promise<Member[]>
   /** 방장만. rate는 0 ~ 0.5. 확정된 방이면 TripAlreadySettledError. */
   setDiscountRate(tripId: string, rate: number): Promise<Trip>
+  /**
+   * 한 사람을 방에서 뺀다. 본인이 나가는 경우와 방장이 내보내는 경우가 같은
+   * 메서드다 — DB가 하는 일이 같고, 갈리는 건 누가 부를 수 있는가뿐이라
+   * 그 판단은 호출부(lib/trips/actions.ts)와 RLS/RPC가 한다.
+   *
+   * 지출에 얽혀 있으면 MemberHasExpensesError, 확정된 방이면
+   * TripAlreadySettledError, 대상이 방장이면 HostCannotLeaveError.
+   * 이 방에 없는 사람이면 조용히 넘어간다 (ExpenseRepository.remove와 같은 규칙).
+   */
+  leaveTrip(tripId: string, userId: string): Promise<void>
 }
 
 export interface ExpenseRepository {
