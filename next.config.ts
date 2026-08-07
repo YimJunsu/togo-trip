@@ -30,12 +30,25 @@ const nextConfig: NextConfig = {
    * www와 apex가 둘 다 200으로 열리면 검색엔진에는 같은 내용의 사이트가 두 개로
    * 보인다. canonical로도 대개 정리되지만, 아예 한쪽으로 몰아주는 편이 확실하다.
    * apex(togo-trip.com)를 정식 주소로 삼는다.
+   *
+   * Vercel이 주는 togo-trip.vercel.app도 같은 이유로 몰아준다. 이 도메인은
+   * 대시보드에서 지우거나 리다이렉트로 바꿀 수 없어서 여기서 처리한다.
    */
   async redirects() {
     return [
       {
         source: '/:path*',
         has: [{ type: 'host', value: 'www.togo-trip.com' }],
+        destination: 'https://togo-trip.com/:path*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        // 운영 별칭 하나만 정확히 지목한다. *.vercel.app을 통째로 잡으면
+        // 프리뷰 배포(togo-trip-git-<브랜치>-*.vercel.app)까지 운영으로 튕겨
+        // 배포 전 확인이 불가능해진다. lib/seo/site.ts가 프리뷰를 자기 주소로
+        // 두는 것과도 어긋난다.
+        has: [{ type: 'host', value: 'togo-trip.vercel.app' }],
         destination: 'https://togo-trip.com/:path*',
         permanent: true,
       },
