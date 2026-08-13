@@ -9,6 +9,13 @@ export function formatDate(iso: string): string {
   return `${year}.${month}.${day}`
 }
 
+/** 적재 이력처럼 시각까지 필요한 자리. YYYY.MM.DD HH:mm */
+export function formatDateTime(iso: string): string {
+  const d = new Date(iso)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
 /** 같은 해·같은 달이면 뒤쪽을 줄인다. 2026.08.14 – 16 */
 export function formatDateRange(startIso: string, endIso: string): string {
   const [sy, sm, sd] = startIso.split('-')
