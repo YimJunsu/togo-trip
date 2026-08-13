@@ -26,9 +26,9 @@ export function IngestRunList({ runs }: { runs: IngestRun[] }) {
   }
 
   return (
-    <div className="bg-surface rounded-card border-line shadow-soft divide-line divide-y border">
+    <ul className="bg-surface rounded-card border-line shadow-soft divide-line divide-y border">
       {runs.map((run) => (
-        <div key={run.id} className="px-5 py-4">
+        <li key={run.id} className="px-5 py-4">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="text-muted font-mono text-xs tracking-widest">
               {formatDateTime(run.startedAt)}
@@ -64,9 +64,9 @@ export function IngestRunList({ runs }: { runs: IngestRun[] }) {
               </pre>
             </details>
           )}
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }
 
