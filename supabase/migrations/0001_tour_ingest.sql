@@ -31,11 +31,20 @@ create table if not exists public.attractions (
   image_url        text,
   cat1 text, cat2 text, cat3 text,
   overview         text,                        -- 지역 페이지 본문의 재료. 음식점은 항상 null
+  -- overview 유무를 정렬 키로 쓴다. overview 본문으로 정렬하면 한국어 문단 사전순이
+  -- 되어 버려 의미가 없고, mock 구현이 같은 순서를 재현할 수도 없다.
+  has_overview     boolean generated always as (overview is not null) stored,
   tel              text,
   updated_at       timestamptz not null default now()
 );
+
+-- 테이블이 이미 존재하는 경우(위 create table if not exists가 스킵된 경우)를 위한 보강.
+alter table public.attractions
+  add column if not exists has_overview boolean
+  generated always as (overview is not null) stored;
+
 create index if not exists attractions_region_type_idx
-  on public.attractions (region_code, content_type_id);
+  on public.attractions (region_code, content_type_id, has_overview desc, title);
 
 -- 적재 이력. 실패 원인을 나중에 확인할 유일한 창구다.
 create table if not exists public.ingest_runs (

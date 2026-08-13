@@ -68,8 +68,10 @@ async function query(
     .select('content_id, content_type_id, region_code, title, addr, lat, lng, image_url, overview')
     .eq('region_code', code)
   if (opts?.type) q = q.eq('content_type_id', opts.type)
-  // overview가 있는 건을 앞으로. 지역 페이지 본문이 이 값으로 채워진다.
-  q = q.order('overview', { ascending: false, nullsFirst: false }).order('title')
+  // overview가 있는 건을 앞으로. 지역 페이지 본문이 이 값으로 채워지기 때문이다.
+  // 정렬 키는 has_overview(생성 컬럼)다 — overview 본문으로 정렬하면 한국어 문단
+  // 사전순이 되어 mock이 같은 순서를 재현할 수 없다.
+  q = q.order('has_overview', { ascending: false }).order('title')
   // limit이 0일 수도 있다. falsy 검사로 쓰면 0이 "제한 없음"이 된다.
   if (typeof opts?.limit === 'number') q = q.limit(opts.limit)
 
@@ -130,7 +132,7 @@ async function ingestNow(region: RegionRow): Promise<void> {
       createIngestDeps(READ_THROUGH_BUDGET_MS),
     )
     if (run) {
-      await admin
+      const { error: okUpdateError } = await admin
         .from('ingest_runs')
         .update({
           finished_at: new Date().toISOString(),
@@ -146,10 +148,14 @@ async function ingestNow(region: RegionRow): Promise<void> {
                 : '적재 결과 없음',
         })
         .eq('id', run.id)
+      // 여기서도 실패하면 행이 running 상태로 남는다 — 조용히 넘어가지 않고 로그로 남긴다.
+      if (okUpdateError) {
+        console.error('ingest_runs update 실패 (read_through, ok):', okUpdateError.message)
+      }
     }
   } catch (error) {
     if (run) {
-      await admin
+      const { error: failUpdateError } = await admin
         .from('ingest_runs')
         .update({
           finished_at: new Date().toISOString(),
@@ -157,6 +163,9 @@ async function ingestNow(region: RegionRow): Promise<void> {
           error: error instanceof Error ? error.message : String(error),
         })
         .eq('id', run.id)
+      if (failUpdateError) {
+        console.error('ingest_runs update 실패 (read_through, failed):', failUpdateError.message)
+      }
     }
   }
 }

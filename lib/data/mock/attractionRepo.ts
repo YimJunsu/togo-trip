@@ -9,7 +9,9 @@ export const mockAttractionRepo: AttractionRepository = {
     const rows = data.attractions.filter(
       (a) => a.regionCode === code && (!opts?.type || a.contentTypeId === opts.type),
     )
-    // Supabase 구현(overview 있는 건 먼저, 그다음 title)과 순서를 맞춘다.
+    // Supabase 구현(has_overview desc, title)과 순서를 맞춘다. overview 유무가
+    // 1순위, title이 2순위다 — overview 본문 자체로 정렬하면 한국어 문단
+    // 사전순이 되어 의미가 없고, mock이 Postgres collation을 재현할 수도 없다.
     // 지역 페이지 본문이 overview로 채워지므로 두 백엔드가 다른 순서를 주면
     // UI가 mock인지 실서버인지 구분돼 버린다 — 원본 배열은 건드리지 않고 복사본을 정렬한다.
     const sorted = [...rows].sort((a, b) => {
