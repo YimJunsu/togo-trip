@@ -1,0 +1,1002 @@
+{
+  "11010": {
+    "areaCode": 1,
+    "sigunguCode": 23
+  },
+  "11020": {
+    "areaCode": 1,
+    "sigunguCode": 24
+  },
+  "11030": {
+    "areaCode": 1,
+    "sigunguCode": 21
+  },
+  "11040": {
+    "areaCode": 1,
+    "sigunguCode": 16
+  },
+  "11050": {
+    "areaCode": 1,
+    "sigunguCode": 6
+  },
+  "11060": {
+    "areaCode": 1,
+    "sigunguCode": 11
+  },
+  "11070": {
+    "areaCode": 1,
+    "sigunguCode": 25
+  },
+  "11080": {
+    "areaCode": 1,
+    "sigunguCode": 17
+  },
+  "11090": {
+    "areaCode": 1,
+    "sigunguCode": 3
+  },
+  "11100": {
+    "areaCode": 1,
+    "sigunguCode": 10
+  },
+  "11110": {
+    "areaCode": 1,
+    "sigunguCode": 9
+  },
+  "11120": {
+    "areaCode": 1,
+    "sigunguCode": 22
+  },
+  "11130": {
+    "areaCode": 1,
+    "sigunguCode": 14
+  },
+  "11140": {
+    "areaCode": 1,
+    "sigunguCode": 13
+  },
+  "11150": {
+    "areaCode": 1,
+    "sigunguCode": 19
+  },
+  "11160": {
+    "areaCode": 1,
+    "sigunguCode": 4
+  },
+  "11170": {
+    "areaCode": 1,
+    "sigunguCode": 7
+  },
+  "11180": {
+    "areaCode": 1,
+    "sigunguCode": 8
+  },
+  "11190": {
+    "areaCode": 1,
+    "sigunguCode": 20
+  },
+  "11200": {
+    "areaCode": 1,
+    "sigunguCode": 12
+  },
+  "11210": {
+    "areaCode": 1,
+    "sigunguCode": 5
+  },
+  "11220": {
+    "areaCode": 1,
+    "sigunguCode": 15
+  },
+  "11230": {
+    "areaCode": 1,
+    "sigunguCode": 1
+  },
+  "11240": {
+    "areaCode": 1,
+    "sigunguCode": 18
+  },
+  "11250": {
+    "areaCode": 1,
+    "sigunguCode": 2
+  },
+  "21010": {
+    "areaCode": 6,
+    "sigunguCode": 15
+  },
+  "21020": {
+    "areaCode": 6,
+    "sigunguCode": 11
+  },
+  "21030": {
+    "areaCode": 6,
+    "sigunguCode": 5
+  },
+  "21040": {
+    "areaCode": 6,
+    "sigunguCode": 14
+  },
+  "21050": {
+    "areaCode": 6,
+    "sigunguCode": 7
+  },
+  "21060": {
+    "areaCode": 6,
+    "sigunguCode": 6
+  },
+  "21070": {
+    "areaCode": 6,
+    "sigunguCode": 4
+  },
+  "21080": {
+    "areaCode": 6,
+    "sigunguCode": 8
+  },
+  "21090": {
+    "areaCode": 6,
+    "sigunguCode": 16
+  },
+  "21100": {
+    "areaCode": 6,
+    "sigunguCode": 10
+  },
+  "21110": {
+    "areaCode": 6,
+    "sigunguCode": 2
+  },
+  "21120": {
+    "areaCode": 6,
+    "sigunguCode": 1
+  },
+  "21130": {
+    "areaCode": 6,
+    "sigunguCode": 13
+  },
+  "21140": {
+    "areaCode": 6,
+    "sigunguCode": 12
+  },
+  "21150": {
+    "areaCode": 6,
+    "sigunguCode": 9
+  },
+  "21310": {
+    "areaCode": 6,
+    "sigunguCode": 3
+  },
+  "22010": {
+    "areaCode": 4,
+    "sigunguCode": 8
+  },
+  "22020": {
+    "areaCode": 4,
+    "sigunguCode": 4
+  },
+  "22030": {
+    "areaCode": 4,
+    "sigunguCode": 6
+  },
+  "22040": {
+    "areaCode": 4,
+    "sigunguCode": 1
+  },
+  "22050": {
+    "areaCode": 4,
+    "sigunguCode": 5
+  },
+  "22060": {
+    "areaCode": 4,
+    "sigunguCode": 7
+  },
+  "22070": {
+    "areaCode": 4,
+    "sigunguCode": 2
+  },
+  "22310": {
+    "areaCode": 4,
+    "sigunguCode": 3
+  },
+  "23010": {
+    "areaCode": 2,
+    "sigunguCode": 10
+  },
+  "23020": {
+    "areaCode": 2,
+    "sigunguCode": 5
+  },
+  "23030": {
+    "areaCode": 2,
+    "sigunguCode": 3
+  },
+  "23040": {
+    "areaCode": 2,
+    "sigunguCode": 8
+  },
+  "23050": {
+    "areaCode": 2,
+    "sigunguCode": 4
+  },
+  "23060": {
+    "areaCode": 2,
+    "sigunguCode": 6
+  },
+  "23070": {
+    "areaCode": 2,
+    "sigunguCode": 2
+  },
+  "23080": {
+    "areaCode": 2,
+    "sigunguCode": 7
+  },
+  "23310": {
+    "areaCode": 2,
+    "sigunguCode": 1
+  },
+  "23320": {
+    "areaCode": 2,
+    "sigunguCode": 9
+  },
+  "24010": {
+    "areaCode": 5,
+    "sigunguCode": 3
+  },
+  "24020": {
+    "areaCode": 5,
+    "sigunguCode": 5
+  },
+  "24030": {
+    "areaCode": 5,
+    "sigunguCode": 2
+  },
+  "24040": {
+    "areaCode": 5,
+    "sigunguCode": 4
+  },
+  "24050": {
+    "areaCode": 5,
+    "sigunguCode": 1
+  },
+  "25010": {
+    "areaCode": 3,
+    "sigunguCode": 2
+  },
+  "25020": {
+    "areaCode": 3,
+    "sigunguCode": 5
+  },
+  "25030": {
+    "areaCode": 3,
+    "sigunguCode": 3
+  },
+  "25040": {
+    "areaCode": 3,
+    "sigunguCode": 4
+  },
+  "25050": {
+    "areaCode": 3,
+    "sigunguCode": 1
+  },
+  "26010": {
+    "areaCode": 7,
+    "sigunguCode": 1
+  },
+  "26020": {
+    "areaCode": 7,
+    "sigunguCode": 2
+  },
+  "26030": {
+    "areaCode": 7,
+    "sigunguCode": 3
+  },
+  "26040": {
+    "areaCode": 7,
+    "sigunguCode": 4
+  },
+  "26310": {
+    "areaCode": 7,
+    "sigunguCode": 5
+  },
+  "29010": {
+    "areaCode": 8,
+    "sigunguCode": null
+  },
+  "31011": {
+    "areaCode": 31,
+    "sigunguCode": 13
+  },
+  "31012": {
+    "areaCode": 31,
+    "sigunguCode": 13
+  },
+  "31013": {
+    "areaCode": 31,
+    "sigunguCode": 13
+  },
+  "31014": {
+    "areaCode": 31,
+    "sigunguCode": 13
+  },
+  "31021": {
+    "areaCode": 31,
+    "sigunguCode": 12
+  },
+  "31022": {
+    "areaCode": 31,
+    "sigunguCode": 12
+  },
+  "31023": {
+    "areaCode": 31,
+    "sigunguCode": 12
+  },
+  "31030": {
+    "areaCode": 31,
+    "sigunguCode": 25
+  },
+  "31041": {
+    "areaCode": 31,
+    "sigunguCode": 17
+  },
+  "31042": {
+    "areaCode": 31,
+    "sigunguCode": 17
+  },
+  "31050": {
+    "areaCode": 31,
+    "sigunguCode": 11
+  },
+  "31060": {
+    "areaCode": 31,
+    "sigunguCode": 4
+  },
+  "31070": {
+    "areaCode": 31,
+    "sigunguCode": 28
+  },
+  "31080": {
+    "areaCode": 31,
+    "sigunguCode": 10
+  },
+  "31091": {
+    "areaCode": 31,
+    "sigunguCode": 15
+  },
+  "31092": {
+    "areaCode": 31,
+    "sigunguCode": 15
+  },
+  "31101": {
+    "areaCode": 31,
+    "sigunguCode": 2
+  },
+  "31103": {
+    "areaCode": 31,
+    "sigunguCode": 2
+  },
+  "31104": {
+    "areaCode": 31,
+    "sigunguCode": 2
+  },
+  "31110": {
+    "areaCode": 31,
+    "sigunguCode": 3
+  },
+  "31120": {
+    "areaCode": 31,
+    "sigunguCode": 6
+  },
+  "31130": {
+    "areaCode": 31,
+    "sigunguCode": 9
+  },
+  "31140": {
+    "areaCode": 31,
+    "sigunguCode": 22
+  },
+  "31150": {
+    "areaCode": 31,
+    "sigunguCode": 14
+  },
+  "31160": {
+    "areaCode": 31,
+    "sigunguCode": 7
+  },
+  "31170": {
+    "areaCode": 31,
+    "sigunguCode": 24
+  },
+  "31180": {
+    "areaCode": 31,
+    "sigunguCode": 30
+  },
+  "31191": {
+    "areaCode": 31,
+    "sigunguCode": 23
+  },
+  "31192": {
+    "areaCode": 31,
+    "sigunguCode": 23
+  },
+  "31193": {
+    "areaCode": 31,
+    "sigunguCode": 23
+  },
+  "31200": {
+    "areaCode": 31,
+    "sigunguCode": 27
+  },
+  "31210": {
+    "areaCode": 31,
+    "sigunguCode": 26
+  },
+  "31220": {
+    "areaCode": 31,
+    "sigunguCode": 16
+  },
+  "31230": {
+    "areaCode": 31,
+    "sigunguCode": 8
+  },
+  "31240": {
+    "areaCode": 31,
+    "sigunguCode": 31
+  },
+  "31250": {
+    "areaCode": 31,
+    "sigunguCode": 5
+  },
+  "31260": {
+    "areaCode": 31,
+    "sigunguCode": 18
+  },
+  "31270": {
+    "areaCode": 31,
+    "sigunguCode": 29
+  },
+  "31280": {
+    "areaCode": 31,
+    "sigunguCode": 20
+  },
+  "31350": {
+    "areaCode": 31,
+    "sigunguCode": 21
+  },
+  "31370": {
+    "areaCode": 31,
+    "sigunguCode": 1
+  },
+  "31380": {
+    "areaCode": 31,
+    "sigunguCode": 19
+  },
+  "32010": {
+    "areaCode": 32,
+    "sigunguCode": 13
+  },
+  "32020": {
+    "areaCode": 32,
+    "sigunguCode": 9
+  },
+  "32030": {
+    "areaCode": 32,
+    "sigunguCode": 1
+  },
+  "32040": {
+    "areaCode": 32,
+    "sigunguCode": 3
+  },
+  "32050": {
+    "areaCode": 32,
+    "sigunguCode": 14
+  },
+  "32060": {
+    "areaCode": 32,
+    "sigunguCode": 5
+  },
+  "32070": {
+    "areaCode": 32,
+    "sigunguCode": 4
+  },
+  "32310": {
+    "areaCode": 32,
+    "sigunguCode": 16
+  },
+  "32320": {
+    "areaCode": 32,
+    "sigunguCode": 18
+  },
+  "32330": {
+    "areaCode": 32,
+    "sigunguCode": 8
+  },
+  "32340": {
+    "areaCode": 32,
+    "sigunguCode": 15
+  },
+  "32350": {
+    "areaCode": 32,
+    "sigunguCode": 11
+  },
+  "32360": {
+    "areaCode": 32,
+    "sigunguCode": 12
+  },
+  "32370": {
+    "areaCode": 32,
+    "sigunguCode": 17
+  },
+  "32380": {
+    "areaCode": 32,
+    "sigunguCode": 6
+  },
+  "32390": {
+    "areaCode": 32,
+    "sigunguCode": 10
+  },
+  "32400": {
+    "areaCode": 32,
+    "sigunguCode": 2
+  },
+  "32410": {
+    "areaCode": 32,
+    "sigunguCode": 7
+  },
+  "33020": {
+    "areaCode": 33,
+    "sigunguCode": 11
+  },
+  "33030": {
+    "areaCode": 33,
+    "sigunguCode": 7
+  },
+  "33041": {
+    "areaCode": 33,
+    "sigunguCode": 10
+  },
+  "33042": {
+    "areaCode": 33,
+    "sigunguCode": 10
+  },
+  "33043": {
+    "areaCode": 33,
+    "sigunguCode": 10
+  },
+  "33044": {
+    "areaCode": 33,
+    "sigunguCode": 9
+  },
+  "33320": {
+    "areaCode": 33,
+    "sigunguCode": 3
+  },
+  "33330": {
+    "areaCode": 33,
+    "sigunguCode": 5
+  },
+  "33340": {
+    "areaCode": 33,
+    "sigunguCode": 4
+  },
+  "33350": {
+    "areaCode": 33,
+    "sigunguCode": 8
+  },
+  "33360": {
+    "areaCode": 33,
+    "sigunguCode": 1
+  },
+  "33370": {
+    "areaCode": 33,
+    "sigunguCode": 6
+  },
+  "33380": {
+    "areaCode": 33,
+    "sigunguCode": 2
+  },
+  "33390": {
+    "areaCode": 33,
+    "sigunguCode": 12
+  },
+  "34011": {
+    "areaCode": 34,
+    "sigunguCode": 12
+  },
+  "34012": {
+    "areaCode": 34,
+    "sigunguCode": 12
+  },
+  "34020": {
+    "areaCode": 34,
+    "sigunguCode": 1
+  },
+  "34030": {
+    "areaCode": 34,
+    "sigunguCode": 5
+  },
+  "34040": {
+    "areaCode": 34,
+    "sigunguCode": 9
+  },
+  "34050": {
+    "areaCode": 34,
+    "sigunguCode": 7
+  },
+  "34060": {
+    "areaCode": 34,
+    "sigunguCode": 3
+  },
+  "34070": {
+    "areaCode": 34,
+    "sigunguCode": 16
+  },
+  "34080": {
+    "areaCode": 34,
+    "sigunguCode": 4
+  },
+  "34310": {
+    "areaCode": 34,
+    "sigunguCode": 2
+  },
+  "34330": {
+    "areaCode": 34,
+    "sigunguCode": 6
+  },
+  "34340": {
+    "areaCode": 34,
+    "sigunguCode": 8
+  },
+  "34350": {
+    "areaCode": 34,
+    "sigunguCode": 13
+  },
+  "34360": {
+    "areaCode": 34,
+    "sigunguCode": 15
+  },
+  "34370": {
+    "areaCode": 34,
+    "sigunguCode": 11
+  },
+  "34380": {
+    "areaCode": 34,
+    "sigunguCode": 14
+  },
+  "35011": {
+    "areaCode": 37,
+    "sigunguCode": 12
+  },
+  "35012": {
+    "areaCode": 37,
+    "sigunguCode": 12
+  },
+  "35020": {
+    "areaCode": 37,
+    "sigunguCode": 2
+  },
+  "35030": {
+    "areaCode": 37,
+    "sigunguCode": 9
+  },
+  "35040": {
+    "areaCode": 37,
+    "sigunguCode": 13
+  },
+  "35050": {
+    "areaCode": 37,
+    "sigunguCode": 4
+  },
+  "35060": {
+    "areaCode": 37,
+    "sigunguCode": 3
+  },
+  "35310": {
+    "areaCode": 37,
+    "sigunguCode": 8
+  },
+  "35320": {
+    "areaCode": 37,
+    "sigunguCode": 14
+  },
+  "35330": {
+    "areaCode": 37,
+    "sigunguCode": 5
+  },
+  "35340": {
+    "areaCode": 37,
+    "sigunguCode": 11
+  },
+  "35350": {
+    "areaCode": 37,
+    "sigunguCode": 10
+  },
+  "35360": {
+    "areaCode": 37,
+    "sigunguCode": 7
+  },
+  "35370": {
+    "areaCode": 37,
+    "sigunguCode": 1
+  },
+  "35380": {
+    "areaCode": 37,
+    "sigunguCode": 6
+  },
+  "36010": {
+    "areaCode": 38,
+    "sigunguCode": 8
+  },
+  "36020": {
+    "areaCode": 38,
+    "sigunguCode": 13
+  },
+  "36030": {
+    "areaCode": 38,
+    "sigunguCode": 11
+  },
+  "36040": {
+    "areaCode": 38,
+    "sigunguCode": 6
+  },
+  "36060": {
+    "areaCode": 38,
+    "sigunguCode": 4
+  },
+  "36310": {
+    "areaCode": 38,
+    "sigunguCode": 7
+  },
+  "36320": {
+    "areaCode": 38,
+    "sigunguCode": 3
+  },
+  "36330": {
+    "areaCode": 38,
+    "sigunguCode": 5
+  },
+  "36350": {
+    "areaCode": 38,
+    "sigunguCode": 2
+  },
+  "36360": {
+    "areaCode": 38,
+    "sigunguCode": 10
+  },
+  "36370": {
+    "areaCode": 38,
+    "sigunguCode": 24
+  },
+  "36380": {
+    "areaCode": 38,
+    "sigunguCode": 20
+  },
+  "36390": {
+    "areaCode": 38,
+    "sigunguCode": 1
+  },
+  "36400": {
+    "areaCode": 38,
+    "sigunguCode": 23
+  },
+  "36410": {
+    "areaCode": 38,
+    "sigunguCode": 17
+  },
+  "36420": {
+    "areaCode": 38,
+    "sigunguCode": 9
+  },
+  "36430": {
+    "areaCode": 38,
+    "sigunguCode": 22
+  },
+  "36440": {
+    "areaCode": 38,
+    "sigunguCode": 16
+  },
+  "36450": {
+    "areaCode": 38,
+    "sigunguCode": 19
+  },
+  "36460": {
+    "areaCode": 38,
+    "sigunguCode": 18
+  },
+  "36470": {
+    "areaCode": 38,
+    "sigunguCode": 21
+  },
+  "36480": {
+    "areaCode": 38,
+    "sigunguCode": 12
+  },
+  "37011": {
+    "areaCode": 35,
+    "sigunguCode": 23
+  },
+  "37012": {
+    "areaCode": 35,
+    "sigunguCode": 23
+  },
+  "37020": {
+    "areaCode": 35,
+    "sigunguCode": 2
+  },
+  "37030": {
+    "areaCode": 35,
+    "sigunguCode": 6
+  },
+  "37040": {
+    "areaCode": 35,
+    "sigunguCode": 11
+  },
+  "37050": {
+    "areaCode": 35,
+    "sigunguCode": 4
+  },
+  "37060": {
+    "areaCode": 35,
+    "sigunguCode": 14
+  },
+  "37070": {
+    "areaCode": 35,
+    "sigunguCode": 15
+  },
+  "37080": {
+    "areaCode": 35,
+    "sigunguCode": 9
+  },
+  "37090": {
+    "areaCode": 35,
+    "sigunguCode": 7
+  },
+  "37100": {
+    "areaCode": 35,
+    "sigunguCode": 1
+  },
+  "37310": {
+    "areaCode": 4,
+    "sigunguCode": 9
+  },
+  "37320": {
+    "areaCode": 35,
+    "sigunguCode": 19
+  },
+  "37330": {
+    "areaCode": 35,
+    "sigunguCode": 21
+  },
+  "37340": {
+    "areaCode": 35,
+    "sigunguCode": 13
+  },
+  "37350": {
+    "areaCode": 35,
+    "sigunguCode": 12
+  },
+  "37360": {
+    "areaCode": 35,
+    "sigunguCode": 20
+  },
+  "37370": {
+    "areaCode": 35,
+    "sigunguCode": 3
+  },
+  "37380": {
+    "areaCode": 35,
+    "sigunguCode": 10
+  },
+  "37390": {
+    "areaCode": 35,
+    "sigunguCode": 22
+  },
+  "37400": {
+    "areaCode": 35,
+    "sigunguCode": 16
+  },
+  "37410": {
+    "areaCode": 35,
+    "sigunguCode": 8
+  },
+  "37420": {
+    "areaCode": 35,
+    "sigunguCode": 18
+  },
+  "37430": {
+    "areaCode": 35,
+    "sigunguCode": 17
+  },
+  "38030": {
+    "areaCode": 36,
+    "sigunguCode": 13
+  },
+  "38050": {
+    "areaCode": 36,
+    "sigunguCode": 17
+  },
+  "38060": {
+    "areaCode": 36,
+    "sigunguCode": 8
+  },
+  "38070": {
+    "areaCode": 36,
+    "sigunguCode": 4
+  },
+  "38080": {
+    "areaCode": 36,
+    "sigunguCode": 7
+  },
+  "38090": {
+    "areaCode": 36,
+    "sigunguCode": 1
+  },
+  "38100": {
+    "areaCode": 36,
+    "sigunguCode": 10
+  },
+  "38111": {
+    "areaCode": 36,
+    "sigunguCode": 16
+  },
+  "38112": {
+    "areaCode": 36,
+    "sigunguCode": 16
+  },
+  "38113": {
+    "areaCode": 36,
+    "sigunguCode": 6
+  },
+  "38114": {
+    "areaCode": 36,
+    "sigunguCode": 6
+  },
+  "38115": {
+    "areaCode": 36,
+    "sigunguCode": 14
+  },
+  "38310": {
+    "areaCode": 36,
+    "sigunguCode": 12
+  },
+  "38320": {
+    "areaCode": 36,
+    "sigunguCode": 19
+  },
+  "38330": {
+    "areaCode": 36,
+    "sigunguCode": 15
+  },
+  "38340": {
+    "areaCode": 36,
+    "sigunguCode": 3
+  },
+  "38350": {
+    "areaCode": 36,
+    "sigunguCode": 5
+  },
+  "38360": {
+    "areaCode": 36,
+    "sigunguCode": 18
+  },
+  "38370": {
+    "areaCode": 36,
+    "sigunguCode": 9
+  },
+  "38380": {
+    "areaCode": 36,
+    "sigunguCode": 20
+  },
+  "38390": {
+    "areaCode": 36,
+    "sigunguCode": 2
+  },
+  "38400": {
+    "areaCode": 36,
+    "sigunguCode": 21
+  },
+  "39010": {
+    "areaCode": 39,
+    "sigunguCode": 4
+  },
+  "39020": {
+    "areaCode": 39,
+    "sigunguCode": 3
+  }
+}
