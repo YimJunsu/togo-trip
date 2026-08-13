@@ -204,21 +204,47 @@ for (const region of korea.regions) {
   }
 
   const key = normalize(region.name)
-  // 정확 일치 → 접미 일치("청주시상당구"가 "상당구"를 포함) 순으로 찾는다.
-  const hit =
-    table.get(key) ??
-    [...table.entries()].find(([k]) => k.endsWith(key) || key.endsWith(k))?.[1]
-
-  if (!hit) {
-    failed.push(`${region.province} ${region.name} (${region.code})`)
+  // 정확 일치를 먼저 본다.
+  const exact = table.get(key)
+  if (exact) {
+    map[region.code] = exact
     continue
   }
-  map[region.code] = hit
+
+  // 접미 일치("청주시상당구"가 "상당구"를 포함) 후보를 전부 모은다 — 하나만
+  // 골라 놓고 넘어가면, 나중에 후보가 둘로 늘어나도 어느 걸 골랐는지 알 길이
+  // 없어진다. 정확히 하나일 때만 채택한다.
+  const candidates = [...table.entries()].filter(([k]) => k.endsWith(key) || key.endsWith(k))
+
+  if (candidates.length === 1) {
+    map[region.code] = candidates[0][1]
+    continue
+  }
+
+  if (candidates.length === 0) {
+    failed.push(`${region.province} ${region.name} (${region.code}) — 후보 없음`)
+    continue
+  }
+
+  // 후보가 둘 이상이면 어느 쪽이 맞는지 스크립트가 추측하지 않는다. 잘못
+  // 고르면 다른 시군구의 관광지·맛집을 이 시군구 이름으로 조용히 적재하게
+  // 되고, 어떤 테스트도 그 오류를 잡지 못한다. MANUAL_OVERRIDES에 명시적으로
+  // 채우도록 후보 이름을 그대로 실패 메시지에 남긴다.
+  failed.push(
+    `${region.province} ${region.name} (${region.code}) — 후보 ${candidates.length}건 중 택일 불가: ${candidates
+      .map(([k]) => k)
+      .join(', ')}`,
+  )
 }
 
+// 실패가 하나라도 있으면 JSON 파일을 건드리지 않는다. 여기서 그냥 쓰고 나서
+// exit 1을 하면, 실패한 이번 실행이 이전에 검증된 정상 매핑을 부분적인
+// 결과로 덮어써 버린다 — exit code를 안 보는 사람이나 다음 실행이 그걸
+// 완료된 매핑으로 착각할 수 있다.
 if (failed.length > 0) {
   console.error(`\n대조 실패 ${failed.length}건 — MANUAL_OVERRIDES에 채운 뒤 다시 돌린다:`)
   for (const f of failed) console.error(`  ${f}`)
+  process.exit(1)
 }
 
 const sorted = Object.fromEntries(Object.entries(map).sort(([a], [b]) => a.localeCompare(b)))
@@ -228,4 +254,3 @@ writeFileSync(
   'utf8',
 )
 console.log(`\nlib/geo/tour-area-map.json 에 ${Object.keys(sorted).length}건 기록.`)
-if (failed.length > 0) process.exit(1)

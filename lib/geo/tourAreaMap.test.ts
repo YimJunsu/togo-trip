@@ -24,6 +24,16 @@ test('areaCode는 항상 양수다', () => {
   }
 })
 
+test('sigunguCode는 null이 아니면 양의 정수다', () => {
+  for (const [code, area] of Object.entries(TOUR_AREA_MAP)) {
+    if (area.sigunguCode === null) continue
+    assert.ok(
+      Number.isInteger(area.sigunguCode) && area.sigunguCode > 0,
+      `${code}의 sigunguCode가 ${area.sigunguCode}`,
+    )
+  }
+})
+
 test('세종특별자치시는 sigunguCode가 null이다 — 시군구가 없다', () => {
   const sejong = REGIONS.find((r) => r.province === '세종특별자치시')
   assert.ok(sejong, '세종이 korea-sigungu.json에 없다')
