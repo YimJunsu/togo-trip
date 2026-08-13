@@ -44,11 +44,16 @@ export async function GET(request: Request) {
   }
 
   const codes = pending.map((r) => r.code)
-  const { data: run } = await admin
+  const { data: run, error: runError } = await admin
     .from('ingest_runs')
     .insert({ region_codes: codes, trigger: 'cron', status: 'running' })
     .select('id')
     .single()
+
+  // 이력 행이 없어도 적재는 진행한다. 다만 무인 실행이라 로그가 유일한 통로다.
+  if (runError) {
+    console.error('ingest_runs insert 실패 (cron):', runError.message)
+  }
 
   try {
     const result = await ingestRegions(
@@ -64,7 +69,7 @@ export async function GET(request: Request) {
     // 남은 지역은 ingested_at이 비어 다음 실행이 자동으로 다시 집는다.
     const status = result.processed.length > 0 ? 'ok' : 'failed'
     if (run) {
-      await admin
+      const { error: updateError } = await admin
         .from('ingest_runs')
         .update({
           finished_at: new Date().toISOString(),
@@ -75,16 +80,24 @@ export async function GET(request: Request) {
           error: describeFailures(result),
         })
         .eq('id', run.id)
+
+      if (updateError) {
+        console.error('ingest_runs 마감 실패:', updateError.message)
+      }
     }
 
     return NextResponse.json(result)
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     if (run) {
-      await admin
+      const { error: catchUpdateError } = await admin
         .from('ingest_runs')
         .update({ finished_at: new Date().toISOString(), status: 'failed', error: message })
         .eq('id', run.id)
+
+      if (catchUpdateError) {
+        console.error('ingest_runs 마감 실패:', catchUpdateError.message)
+      }
     }
     return NextResponse.json({ error: message }, { status: 500 })
   }

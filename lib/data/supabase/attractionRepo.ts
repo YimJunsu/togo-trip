@@ -106,11 +106,17 @@ async function ingestNow(region: RegionRow): Promise<void> {
   if (await readThroughExhausted()) return
 
   const admin = createSupabaseAdminClient()
-  const { data: run } = await admin
+  const { data: run, error: runError } = await admin
     .from('ingest_runs')
     .insert({ region_codes: [region.code], trigger: 'read_through', status: 'running' })
     .select('id')
     .single()
+
+  // 이력 행을 못 만들어도 적재는 계속한다 — 사용자 요청 중이라 여기서 멈추면 화면이 빈다.
+  // 다만 조용히 넘어가면 이 실행은 감사 흔적이 0이 되므로 로그로는 반드시 남긴다.
+  if (runError) {
+    console.error('ingest_runs insert 실패 (read_through):', runError.message)
+  }
 
   try {
     const result = await ingestRegions(

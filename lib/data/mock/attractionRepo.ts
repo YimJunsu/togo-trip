@@ -9,8 +9,17 @@ export const mockAttractionRepo: AttractionRepository = {
     const rows = data.attractions.filter(
       (a) => a.regionCode === code && (!opts?.type || a.contentTypeId === opts.type),
     )
+    // Supabase 구현(overview 있는 건 먼저, 그다음 title)과 순서를 맞춘다.
+    // 지역 페이지 본문이 overview로 채워지므로 두 백엔드가 다른 순서를 주면
+    // UI가 mock인지 실서버인지 구분돼 버린다 — 원본 배열은 건드리지 않고 복사본을 정렬한다.
+    const sorted = [...rows].sort((a, b) => {
+      if ((a.overview !== null) !== (b.overview !== null)) {
+        return a.overview !== null ? -1 : 1
+      }
+      return a.title.localeCompare(b.title, 'ko')
+    })
     // limit이 0일 수도 있다. falsy 검사로 쓰면 0이 "제한 없음"이 돼 전부 돌려준다.
-    return typeof opts?.limit === 'number' ? rows.slice(0, opts.limit) : rows
+    return typeof opts?.limit === 'number' ? sorted.slice(0, opts.limit) : sorted
   },
 
   async getRegion(code) {
