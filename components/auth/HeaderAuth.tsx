@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useSession } from '@/components/auth/SessionProvider'
-import { signOutAction } from '@/lib/auth/actions'
+import { SignOutButton } from '@/components/auth/SignOutButton'
 
 const LINK_CLASS =
   'text-muted hover:text-ink block shrink-0 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition duration-200'
@@ -19,7 +19,7 @@ const LINK_CLASS =
  * 비로그인이라 눈에 띄는 변화가 없다. 로그인한 사람만 이름이 한 박자 늦게 붙는다.
  */
 export function HeaderAuth() {
-  const { name, clear } = useSession()
+  const { name } = useSession()
 
   if (!name) {
     return (
@@ -36,15 +36,7 @@ export function HeaderAuth() {
       <Link href="/settings" className={LINK_CLASS}>
         {name}
       </Link>
-      {/*
-        로그아웃 후 redirect 목적지가 지금 경로와 같으면 세션 재조회가 돌지 않는다.
-        누른 즉시 비로그인으로 바꿔 버튼이 그대로 남아 있는 것처럼 보이지 않게 한다.
-      */}
-      <form action={signOutAction} onSubmit={clear}>
-        <button type="submit" className={LINK_CLASS}>
-          로그아웃
-        </button>
-      </form>
+      <SignOutButton className={LINK_CLASS}>로그아웃</SignOutButton>
     </span>
   )
 }

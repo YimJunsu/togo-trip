@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { SignOutIcon } from '@phosphor-icons/react/dist/ssr'
 import { PasswordForm } from '@/components/auth/PasswordForm'
+import { SignOutButton } from '@/components/auth/SignOutButton'
 import { actionButtonClass } from '@/components/dashboard/ActionButton'
 import { Avatar } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
 import { requireUser } from '@/lib/auth/session'
-import { signOutAction } from '@/lib/auth/actions'
 import { tripRepo } from '@/lib/data'
 import { pageMetadata } from '@/lib/seo/metadata'
 import { formatDateRange } from '@/lib/utils/format'
@@ -71,18 +71,12 @@ export default async function SettingsPage() {
       </Section>
 
       <Section title="계정">
-        <form action={signOutAction}>
-          <button
-            type="submit"
-            className={actionButtonClass({
-              tone: 'quiet',
-              className: 'w-full',
-            })}
-          >
-            <SignOutIcon size={16} weight="bold" aria-hidden />
-            로그아웃
-          </button>
-        </form>
+        <SignOutButton
+          className={actionButtonClass({ tone: 'quiet', className: 'w-full' })}
+        >
+          <SignOutIcon size={16} weight="bold" aria-hidden />
+          로그아웃
+        </SignOutButton>
 
         {/*
           계정 삭제는 아직 못 만든다. 막힌 곳이 둘이었는데 하나가 풀렸다:
