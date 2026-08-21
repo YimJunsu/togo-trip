@@ -1,6 +1,7 @@
 'use client'
 
 import { useSession } from '@/components/auth/SessionProvider'
+import { queueNotice } from '@/components/ui/Notice'
 import { signOutAction } from '@/lib/auth/actions'
 
 /**
@@ -21,6 +22,7 @@ export function SignOutButton({
 }) {
   const { clear } = useSession()
 
+
   return (
     <form
       action={signOutAction}
@@ -32,7 +34,10 @@ export function SignOutButton({
         // 그 뒤에 클라이언트 코드가 돌 자리가 없고, 바로 위 clear()도 이미 같은
         // 낙관을 하고 있다. 틀리는 방향은 안전한 쪽이다 — 실패하면 다음 이동에서
         // 다시 로그인 상태로 돌아온다.
-        window.alert('로그아웃되었습니다.')
+        //
+        // 알림은 sessionStorage에 맡겨 redirect를 건넌다. 상태로 넘기면 도착한
+        // 화면에서 사라진다 (Notice.tsx의 queueNotice 주석).
+        queueNotice('로그아웃되었습니다.')
       }}
     >
       <button type="submit" className={className}>
