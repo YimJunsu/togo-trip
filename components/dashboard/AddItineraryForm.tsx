@@ -80,7 +80,7 @@ export function AddItineraryForm({
       <div className="flex gap-3">
         <ActionButton
           type="submit"
-          tone="lime"
+          tone="accent"
           size="sm"
           className="flex-1"
           disabled={isPending}

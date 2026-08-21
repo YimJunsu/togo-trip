@@ -50,16 +50,32 @@ export function DayPlanList({
 
   return (
     <div className="flex flex-col gap-4">
-      <ol className="flex flex-col gap-3">
+      {/*
+        노선 배치 (DESIGN_SYSTEM §2). 하루가 선 위의 정거장 하나다.
+        정거장 안을 채우는 기준은 "그날 일정이 있는가"라서, 노드만 봐도
+        어느 날이 비었는지 읽힌다. 장식이 아니라 상태 표시다.
+      */}
+      <ol className="relative pl-[30px]">
+        <span
+          aria-hidden
+          className="bg-accent absolute top-2 bottom-2 left-[7px] w-0.5 opacity-25"
+        />
         {days.map((day, i) => {
           const ofDay = items.filter((item) => item.day === day)
+          const isLast = i === days.length - 1
           return (
             <li
               key={day}
               style={{ animationDelay: `${i * 70}ms` }}
-              className="rounded-card border-line bg-surface animate-rise border p-5"
+              className={`animate-rise relative ${isLast ? '' : 'pb-7'}`}
             >
-              <div className="flex items-baseline justify-between">
+              <span
+                aria-hidden
+                className={`border-accent absolute top-1 -left-[30px] size-4 rounded-full border-2 ${
+                  ofDay.length > 0 ? 'bg-accent' : 'bg-paper'
+                }`}
+              />
+              <div className="flex items-baseline justify-between gap-3">
                 <span className="font-display font-semibold tracking-tight">
                   DAY {i + 1}
                 </span>
@@ -69,11 +85,11 @@ export function DayPlanList({
               </div>
 
               {ofDay.length === 0 ? (
-                <p className="rounded-inner border-line text-muted mt-3 border border-dashed p-5 text-center text-sm">
+                <p className="text-muted mt-2 text-sm">
                   아직 담은 곳이 없습니다
                 </p>
               ) : (
-                <ul className="divide-line mt-3 divide-y">
+                <ul className="divide-line mt-2 divide-y">
                   {ofDay.map((item) => (
                     <li key={item.id} className="flex items-start gap-3 py-3">
                       <span className="text-muted w-11 shrink-0 pt-0.5 font-mono text-xs">
@@ -115,7 +131,6 @@ export function DayPlanList({
                   <ActionButton
                     size="sm"
                     tone="quiet"
-                    className="w-full"
                     onClick={() => setAddingDay(day)}
                   >
                     <PlusIcon size={14} weight="bold" aria-hidden />

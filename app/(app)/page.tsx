@@ -25,17 +25,18 @@ export default function HomePage() {
         </h1>
         <Link
           href="/random"
-          className="rounded-card bg-lime shadow-soft hover:shadow-lift mt-4 flex items-center justify-between p-6 transition duration-300 ease-out hover:-translate-y-[3px]"
+          className="rounded-card bg-accent text-surface shadow-soft hover:shadow-lift mt-4 flex items-center justify-between p-6 transition duration-300 ease-out hover:-translate-y-[3px]"
         >
           <span>
             <span className="font-display block text-2xl font-semibold tracking-tight">
               여행지 뽑기
             </span>
-            <span className="mt-1 block text-sm opacity-70">
+            {/* 초록 위 흰 글자는 opacity-70이면 4.1:1로 AA에 못 미친다. 80이 4.8:1. */}
+            <span className="mt-1 block text-sm opacity-80">
               다트 던지거나, 태그 고르고 운에 맡기기
             </span>
           </span>
-          <span className="bg-ink text-paper rounded-full p-3">
+          <span className="bg-surface text-accent rounded-full p-3">
             <ShuffleIcon size={22} weight="bold" aria-hidden />
           </span>
         </Link>

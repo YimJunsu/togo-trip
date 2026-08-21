@@ -342,7 +342,7 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
                 strokeLinecap="round"
                 strokeDasharray={`${power * ringC} ${ringC}`}
                 transform={`rotate(-90 ${HOME.x} ${HOME.y})`}
-                className="stroke-lime fill-none"
+                className="stroke-accent fill-none"
               />
             </g>
           )}
@@ -367,7 +367,7 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
               transform={`translate(${outcome.landing.x} ${outcome.landing.y})`}
               className="animate-stamp"
             >
-              <circle r={22} className="fill-lime/40" />
+              <circle r={22} className="fill-accent/40" />
               <circle r={9} className="fill-ink" />
             </g>
           )}
@@ -388,7 +388,7 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
                 rx={3.5}
                 className="fill-ink"
               />
-              <path d="M0 10 L12 30 L0 23 L-12 30 Z" className="fill-lime" />
+              <path d="M0 10 L12 30 L0 23 L-12 30 Z" className="fill-accent" />
             </g>
           )}
         </svg>

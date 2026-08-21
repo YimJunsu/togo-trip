@@ -21,7 +21,7 @@ export function DrawSlot({ names }: { names: string[] }) {
 
   return (
     <div
-      className="rounded-card bg-lime flex h-44 items-center justify-center overflow-hidden"
+      className="rounded-card bg-accent text-surface flex h-44 items-center justify-center overflow-hidden"
       role="status"
       aria-live="polite"
     >

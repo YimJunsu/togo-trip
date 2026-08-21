@@ -34,7 +34,7 @@ export function MapPlaceholder({ places }: { places: Place[] }) {
           }}
           className={`absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full ${
             place.isChakan
-              ? 'bg-lime ring-lime/25 ring-4'
+              ? 'bg-accent ring-accent/25 ring-4'
               : 'bg-paper/35 ring-paper/10 ring-2'
           }`}
         >
@@ -47,7 +47,7 @@ export function MapPlaceholder({ places }: { places: Place[] }) {
 
       <div className="bg-ink/60 text-paper absolute right-4 bottom-4 rounded-full px-3 py-1.5 text-xs backdrop-blur-sm">
         <span className="flex items-center gap-1.5">
-          <span className="bg-lime h-2 w-2 rounded-full" aria-hidden />
+          <span className="bg-accent h-2 w-2 rounded-full" aria-hidden />
           착한식당
           <span className="text-paper/30">·</span>
           <span className="bg-paper/35 h-2 w-2 rounded-full" aria-hidden />

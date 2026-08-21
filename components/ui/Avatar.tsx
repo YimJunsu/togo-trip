@@ -24,7 +24,7 @@ export function Avatar({
     <span
       style={{ width: px, height: px }}
       className={cn(
-        'border-surface bg-lime-soft relative inline-block shrink-0 overflow-hidden rounded-full border-2',
+        'border-surface bg-accent-soft relative inline-block shrink-0 overflow-hidden rounded-full border-2',
         className,
       )}
     >

@@ -71,9 +71,9 @@ export function SettledResult({
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="rounded-card bg-lime shadow-soft p-7">
+      <section className="rounded-card bg-accent text-surface shadow-soft p-7">
         <div className="flex items-start justify-between gap-4">
-          <p className="flex items-center gap-1.5 font-mono text-xs tracking-widest opacity-60">
+          <p className="flex items-center gap-1.5 font-mono text-xs tracking-widest opacity-75">
             <LockIcon size={13} weight="bold" aria-hidden />
             정산 확정됨
           </p>
@@ -84,7 +84,7 @@ export function SettledResult({
         <p className="font-display mt-2 text-2xl font-semibold tracking-tight">
           {formatSettledDate(settledAt)}
         </p>
-        <p className="mt-1 text-sm opacity-70">
+        <p className="mt-1 text-sm opacity-80">
           지출은 더 고칠 수 없습니다. 고치려면 방장이 정산을 취소해야 합니다.
         </p>
       </section>

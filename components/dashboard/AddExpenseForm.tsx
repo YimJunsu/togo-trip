@@ -117,7 +117,7 @@ export function AddExpenseForm({
       </ChipGroup>
 
       <div className="flex gap-3">
-        <ActionButton type="submit" tone="lime" className="flex-1">
+        <ActionButton type="submit" tone="accent" className="flex-1">
           넣기
         </ActionButton>
         <ActionButton type="button" tone="quiet" onClick={onCancel}>

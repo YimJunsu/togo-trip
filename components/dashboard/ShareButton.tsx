@@ -40,7 +40,7 @@ export function ShareButton({
   return (
     <div>
       <ActionButton
-        tone="lime"
+        tone="accent"
         size="lg"
         className="w-full"
         onClick={share}

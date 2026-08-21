@@ -126,7 +126,7 @@ export function StartSettleDialog({
 
       <div className="flex gap-3">
         <ActionButton
-          tone="lime"
+          tone="accent"
           className="flex-1"
           onClick={confirm}
           disabled={isPending}

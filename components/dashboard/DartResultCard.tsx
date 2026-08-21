@@ -19,7 +19,7 @@ export function DartResultCard({
   const [lat, lng] = coords
   return (
     <div className="bg-surface rounded-card border-line shadow-soft animate-rise border p-6 text-center">
-      <span className="bg-lime-soft font-display inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
+      <span className="bg-accent-soft font-display inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
         <MapPinIcon size={14} weight="fill" aria-hidden />
         여행지 당첨
       </span>
@@ -32,7 +32,7 @@ export function DartResultCard({
       </p>
 
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
-        <ActionButton tone="lime" onClick={onRetry}>
+        <ActionButton tone="accent" onClick={onRetry}>
           <ArrowCounterClockwiseIcon size={18} weight="bold" aria-hidden />
           다시 던지기
         </ActionButton>

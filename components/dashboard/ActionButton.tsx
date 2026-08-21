@@ -2,12 +2,12 @@ import type { ButtonHTMLAttributes } from 'react'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils/cn'
 
-export type Tone = 'ink' | 'lime' | 'quiet'
+export type Tone = 'ink' | 'accent' | 'quiet'
 type Size = 'sm' | 'md' | 'lg'
 
 const TONE: Record<Tone, string> = {
   ink: 'bg-ink text-paper hover:bg-ink/90',
-  lime: 'bg-lime text-ink hover:brightness-[0.97]',
+  accent: 'bg-accent text-surface hover:brightness-[0.97]',
   quiet: 'bg-surface text-ink border-line border hover:bg-paper',
 }
 

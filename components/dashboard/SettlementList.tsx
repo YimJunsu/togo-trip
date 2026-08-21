@@ -136,7 +136,7 @@ export function SettlementList({
                     'transition duration-200 ease-out active:scale-[0.98]',
                     'disabled:cursor-not-allowed disabled:opacity-40',
                     s.isPaid
-                      ? 'bg-lime text-ink'
+                      ? 'bg-accent text-surface'
                       : 'border-line text-muted border',
                   )}
                 >

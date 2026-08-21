@@ -66,7 +66,7 @@ export function CompatQuiz({ questions }: { questions: QuizQuestion[] }) {
         aria-valuemax={questions.length}
       >
         <div
-          className="bg-lime h-full rounded-full transition-all duration-300 ease-out"
+          className="bg-accent h-full rounded-full transition-all duration-300 ease-out"
           style={{ width: `${((step + 1) / questions.length) * 100}%` }}
         />
       </div>

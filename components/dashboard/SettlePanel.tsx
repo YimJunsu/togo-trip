@@ -77,9 +77,9 @@ export function SettlePanel({
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="rounded-card bg-lime shadow-soft p-7">
+      <section className="rounded-card bg-accent text-surface shadow-soft p-7">
         <div className="flex items-start justify-between gap-4">
-          <p className="font-mono text-xs tracking-widest opacity-60">
+          <p className="font-mono text-xs tracking-widest opacity-75">
             총 지출
           </p>
           <AvatarStack
@@ -91,8 +91,8 @@ export function SettlePanel({
           {formatWon(total)}
         </p>
         <div className="mt-4 flex flex-wrap gap-1.5">
-          <Badge className="bg-ink/8 text-ink">{expenses.length}건</Badge>
-          <Badge className="bg-ink/8 text-ink">{members.length}명</Badge>
+          <Badge className="bg-surface/20 text-surface">{expenses.length}건</Badge>
+          <Badge className="bg-surface/20 text-surface">{members.length}명</Badge>
           {driverNames.length > 0 ? (
             <Badge className="bg-ink text-paper">
               운전자 {driverNames.join('·')}{' '}

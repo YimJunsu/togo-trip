@@ -52,10 +52,14 @@ export default async function StylePage() {
         </header>
 
         {/* 기존 텍스트 감성을 유지하되, 박스와 볼드 처리로 가독성(스캐닝) 향상 */}
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5">
-          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-            <strong>{questions.length}문항</strong>이면 네 축이 엇갈려 <strong>{styles.length}가지</strong> 중 하나의 결과가 나옵니다. <br className="hidden sm:block" />
-            가입도 로그인도 필요 없고, 결과는 링크 하나로 친구에게 바로 넘길 수 있어요.
+        <div className="rounded-card border-line bg-surface border p-5">
+          <p className="text-muted text-sm leading-relaxed">
+            <strong className="text-ink">{questions.length}문항</strong>이면 네
+            축이 엇갈려{' '}
+            <strong className="text-ink">{styles.length}가지</strong> 중 하나의
+            결과가 나옵니다. <br className="hidden sm:block" />
+            가입도 로그인도 필요 없고, 결과는 링크 하나로 친구에게 바로 넘길 수
+            있어요.
           </p>
         </div>
 

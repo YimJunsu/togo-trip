@@ -123,7 +123,7 @@ export function MemberList({
                     'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
                     'transition duration-200 ease-out active:scale-[0.98] disabled:opacity-50',
                     member.isDriver
-                      ? 'bg-lime text-ink'
+                      ? 'bg-accent text-surface'
                       : 'border-line text-muted hover:text-ink border',
                   )}
                 >
@@ -131,7 +131,7 @@ export function MemberList({
                   운전자
                 </button>
               ) : member.isDriver ? (
-                <Badge className="bg-lime text-ink">
+                <Badge className="bg-accent text-surface">
                   <SteeringWheelIcon size={13} weight="bold" aria-hidden />
                   운전자
                 </Badge>

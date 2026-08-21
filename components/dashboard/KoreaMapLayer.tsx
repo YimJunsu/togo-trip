@@ -49,7 +49,7 @@ export function KoreaMapLayer({
             className={cn(
               'stroke-surface transition-[fill] duration-300',
               isHit
-                ? 'fill-lime'
+                ? 'fill-map-hit'
                 : GRADE_FILL[terrainGrade(region.province, region.name)],
             )}
             strokeWidth={1}

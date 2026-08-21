@@ -49,7 +49,7 @@ export function TripCard({
               className={
                 isPast
                   ? 'bg-ink/5 text-muted font-mono'
-                  : 'bg-lime text-ink font-mono'
+                  : 'bg-accent text-surface font-mono'
               }
             >
               {dday}
