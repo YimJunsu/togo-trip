@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { OVERVIEW_LIMIT } from './ingest'
+import { OVERVIEW_LIMIT } from './ingest.ts'
 
 /**
  * 이 횟수를 넘게 실패한 지역은 같은 순위 안에서 뒤로 민다.
@@ -81,7 +81,9 @@ export async function selectQueue(
     .select(SELECT)
     .not('ingested_at', 'is', null)
     .lt('overview_count', OVERVIEW_LIMIT)
-    .lt('attempt_count', MAX_ATTEMPTS)
+    // 실패가 잦은 지역은 배제하지 않고 뒤로 민다. 배제하면 3연속 실패한 지역이
+    // 영영 큐에서 사라져 수동 SQL 없이는 돌아오지 못한다.
+    .order('attempt_count')
     .order('priority')
     .order('code')
     .limit(limit)
@@ -94,7 +96,9 @@ export async function selectQueue(
     .from('regions')
     .select(SELECT)
     .not('ingested_at', 'is', null)
-    .lt('attempt_count', MAX_ATTEMPTS)
+    // 여기서도 배제가 아니라 후순위. TourAPI가 사흘 죽으면 같은 지역이 세 번
+    // 연속으로 뽑혀 임계를 넘는데, 그 지역을 영구 제외해 버리면 안 된다.
+    .order('attempt_count')
     .order('refreshed_at', { nullsFirst: true })
     .order('priority')
     .limit(limit)

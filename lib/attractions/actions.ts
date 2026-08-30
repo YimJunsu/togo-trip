@@ -19,8 +19,8 @@ export async function listRegionAttractions(
   if (!getTourArea(code)) return []
 
   const limit =
-    typeof opts?.limit === 'number'
-      ? Math.max(0, Math.min(opts.limit, MAX_LIMIT))
+    typeof opts?.limit === 'number' && Number.isFinite(opts.limit)
+      ? Math.max(0, Math.min(Math.trunc(opts.limit), MAX_LIMIT))
       : undefined
 
   return attractionRepo.listByRegion(code, { type: opts?.type, limit })

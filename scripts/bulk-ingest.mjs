@@ -14,16 +14,24 @@ import { createClient } from '@supabase/supabase-js'
 import { ingestRegions, OVERVIEW_LIMIT } from '../lib/tour/ingest.ts'
 import { groupTargets } from '../lib/tour/group.ts'
 import { tourClient } from '../lib/tour/client.ts'
+import { createIngestDb } from '../lib/tour/ingestDb.ts'
 
-// lib/tour/ingestDeps.ts 를 import하지 않는다 — 그 파일은 @/lib/supabase/admin 을
-// 값으로 끌어와서 순수 node가 @/ 별칭을 못 푼다 (ERR_MODULE_NOT_FOUND).
-// 여기서 같은 모양의 IngestDb를 직접 조립한다.
+// lib/tour/ingestDeps.ts 는 import하지 않는다 — 그 파일이 @/lib/supabase/admin 을
+// 값으로 끌어와서 순수 node가 @/ 별칭을 못 푼다. 쓰기 구현 자체는 ingestDb.ts에
+// 한 벌만 두고 클라이언트를 주입한다.
 
 const args = process.argv.slice(2)
 const noOverview = args.includes('--no-overview')
 const budgetIndex = args.indexOf('--budget')
 /** TourAPI 개발계정 일일 한도. 넘기지 않도록 콜 수를 세면서 진행한다. */
-const CALL_BUDGET = budgetIndex >= 0 ? Number(args[budgetIndex + 1]) : 950
+const budgetArg = budgetIndex >= 0 ? Number(args[budgetIndex + 1]) : 950
+// --budget에 값을 안 붙이면 NaN이 되고, slice(0, NaN)이 0개를 잘라 "0개 그룹"을
+// 성공처럼 출력한다.
+if (!Number.isFinite(budgetArg) || budgetArg <= 0) {
+  console.error('--budget 값이 올바르지 않다:', args[budgetIndex + 1])
+  process.exit(1)
+}
+const CALL_BUDGET = budgetArg
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -75,43 +83,7 @@ if (plannedGroups.length < groups.length) {
 }
 console.log('')
 
-/** ingestDeps.ts와 같은 쓰기 구현. 저쪽을 import할 수 없어 여기 한 벌 둔다. */
-const db = {
-  async upsertAttractions(rows) {
-    const { error: upsertError } = await admin.from('attractions').upsert(
-      rows.map((r) => ({
-        content_id: r.contentId,
-        content_type_id: r.contentTypeId,
-        region_code: r.regionCode,
-        title: r.title,
-        addr: r.addr,
-        lat: r.coords?.[0] ?? null,
-        lng: r.coords?.[1] ?? null,
-        image_url: r.imageUrl,
-        overview: r.overview,
-        updated_at: new Date().toISOString(),
-      })),
-      { onConflict: 'content_id,region_code' },
-    )
-    if (upsertError) throw new Error(`attractions upsert 실패: ${upsertError.message}`)
-  },
-  async markIngested(code, counts) {
-    const nowIso = new Date().toISOString()
-    const { error: updateError } = await admin
-      .from('regions')
-      .update({
-        ingested_at: nowIso,
-        refreshed_at: nowIso,
-        attraction_count: counts.attractions,
-        restaurant_count: counts.restaurants,
-        overview_count: counts.overviews,
-        attempt_count: 0,
-        last_error: null,
-      })
-      .eq('code', code)
-    if (updateError) throw new Error(`regions 갱신 실패(${code}): ${updateError.message}`)
-  },
-}
+const db = createIngestDb(admin)
 
 const deps = {
   // overview를 건너뛰면 250개 페이지를 하루에 먼저 살릴 수 있다. 본문은 약 980자로

@@ -38,6 +38,7 @@ function fakeDb() {
     restaurants: number
     overviews: number
   }[] = []
+  const emptied: { code: string; message: string }[] = []
   const db: IngestDb = {
     async upsertAttractions(rows) {
       upserted.push(...rows)
@@ -45,8 +46,11 @@ function fakeDb() {
     async markIngested(code, counts) {
       marked.push({ code, ...counts })
     },
+    async markEmpty(code, message) {
+      emptied.push({ code, message })
+    },
   }
-  return { db, upserted, marked }
+  return { db, upserted, marked, emptied }
 }
 
 /** 시각을 손으로 돌리는 시계. 시군구를 하나 끝낼 때마다 step만큼 흐른다. */
@@ -335,6 +339,7 @@ test('그룹 중간에 markIngested가 실패해도 성공한 코드는 실패�
       if (code === '31012') throw new Error('regions 갱신 실패(31012)')
       marked.push(code)
     },
+    async markEmpty() {},
   }
 
   const result = await ingestRegions(
@@ -402,4 +407,56 @@ test('0건이 아니면 empty에 들어가지 않는다', async () => {
 
   assert.deepEqual(result.empty, [])
   assert.deepEqual(result.processed, ['42150'])
+})
+
+test('0건 지역은 확인 흔적을 남긴다 — 안 남기면 큐 맨 앞에 영원히 눌러앉는다', async () => {
+  const { db, marked, emptied } = fakeDb()
+  const result = await ingestRegions([TARGETS[0]], {
+    ...deps({}),
+    db,
+    client: {
+      async listByArea() {
+        return []
+      },
+      async getOverview() {
+        return null
+      },
+    },
+  })
+
+  // 적재 완료로 표시하지는 않는다 — 본문 없는 페이지가 sitemap에 올라가면 안 된다.
+  assert.equal(marked.length, 0)
+  assert.deepEqual(result.empty, ['42150'])
+  // 하지만 확인했다는 흔적은 남겨야 다음 실행에서 큐 맨 앞을 다시 차지하지 않는다.
+  assert.deepEqual(emptied, [{ code: '42150', message: 'TourAPI 0건' }])
+  // 실패는 아니다. 예외가 난 게 아니라 그 지역에 데이터가 없을 뿐이다.
+  assert.deepEqual(result.failures, [])
+})
+
+test('그룹이 0건이면 소속 시군구 전부에 흔적을 남긴다', async () => {
+  const { db, emptied } = fakeDb()
+  const result = await ingestRegions(
+    [
+      { code: '31011', areaCode: 31, sigunguCode: 13 },
+      { code: '31012', areaCode: 31, sigunguCode: 13 },
+    ],
+    {
+      ...deps({}),
+      db,
+      client: {
+        async listByArea() {
+          return []
+        },
+        async getOverview() {
+          return null
+        },
+      },
+    },
+  )
+
+  assert.deepEqual(result.empty, ['31011', '31012'])
+  assert.deepEqual(
+    emptied.map((e) => e.code),
+    ['31011', '31012'],
+  )
 })

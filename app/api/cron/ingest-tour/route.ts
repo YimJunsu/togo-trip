@@ -135,8 +135,13 @@ export async function GET(request: Request) {
  * 컬럼 오타 같은 구조적 버그를 일시적 장애와 구분할 수 있다.
  */
 function describeFailures(result: IngestResult): string | null {
-  if (result.failures.length === 0) return null
-  const lines = result.failures.map((f) => `${f.code}: ${f.message}`)
+  if (result.failures.length === 0 && result.empty.length === 0) return null
+  const lines = [
+    ...result.failures.map((f) => `${f.code}: ${f.message}`),
+    // 0건도 남긴다. 안 남기면 전 지역이 0건인 배치가 "실패, 사유 없음"으로만
+    // 보여서 관리자 페이지에서 원인을 짚을 수 없다.
+    ...result.empty.map((code) => `${code}: TourAPI 0건`),
+  ]
   if (result.limitExceeded) lines.unshift('TourAPI 일일 한도 초과')
   return lines.join('\n')
 }

@@ -31,6 +31,8 @@ export const mockAttractionRepo: AttractionRepository = {
   },
 
   async listIngestedRegions() {
-    return data.regions.filter((r) => r.ingestedAt !== null)
+    // supabase 구현과 같은 기준으로 거른다. ingestedAt으로 거르면 0건 지역이
+    // 한쪽에만 나와 UI가 mock인지 실서버인지 구분할 수 있게 된다.
+    return data.regions.filter((r) => r.attractionCount > 0)
   },
 }

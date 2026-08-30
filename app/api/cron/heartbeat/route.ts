@@ -20,10 +20,12 @@ export async function GET(request: Request) {
   const admin = createSupabaseAdminClient()
   const beatAt = new Date().toISOString()
 
+  // update가 아니라 upsert다. 행이 없으면 update는 0건을 고치고도 에러 없이
+  // 성공을 돌려주므로, 매일 ok를 보고하면서 실제로는 아무것도 안 쓰게 된다 —
+  // 이 라우트가 막으려는 바로 그 상황(7일 무활동 정지)이 조용히 벌어진다.
   const { error } = await admin
     .from('heartbeats')
-    .update({ beat_at: beatAt })
-    .eq('id', 1)
+    .upsert({ id: 1, beat_at: beatAt }, { onConflict: 'id' })
 
   if (error) {
     console.error('heartbeat 갱신 실패:', error.message)

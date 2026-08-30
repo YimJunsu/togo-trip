@@ -27,6 +27,11 @@ export interface IngestDb {
     code: string,
     counts: { attractions: number; restaurants: number; overviews: number },
   ): Promise<void>
+  /**
+   * TourAPI가 0건을 준 지역. 적재 완료로 표시하지 않되 "확인은 했다"는 흔적은
+   * 남겨야 한다 — 안 남기면 이 지역이 큐 맨 앞에 영원히 눌러앉는다.
+   */
+  markEmpty(code: string, message: string): Promise<void>
 }
 
 export type IngestDeps = {
@@ -100,10 +105,17 @@ export async function ingestRegions(
     try {
       rows = await ingestGroup(group, client)
 
-      // 0건이면 표시하지 않는다. ingested_at을 찍으면 본문 없는 페이지가
-      // sitemap에 올라가고, 큐에서도 사라져 다음에 데이터가 생겨도 재시도되지 않는다.
+      // 0건이면 적재 완료로 표시하지 않는다. ingested_at을 찍으면 본문 없는
+      // 페이지가 sitemap에 올라간다.
+      //
+      // 다만 "확인은 했다"는 흔적(refreshed_at, attempt_count)은 남긴다. 안 남기면
+      // 이 지역이 큐 맨 앞에 영원히 눌러앉아 매일 같은 0건을 다시 받고, 그런
+      // 지역이 BATCH만큼 쌓이면 2·3순위가 영영 실행되지 않아 갱신이 통째로 멈춘다.
       if (rows.length === 0) {
-        empty.push(...group.codes)
+        for (const code of group.codes) {
+          await db.markEmpty(code, 'TourAPI 0건')
+          empty.push(code)
+        }
         continue
       }
 
