@@ -45,6 +45,12 @@ export type IngestResult = {
   /** 미처리 지역 전부 — 예외로 실패한 것과 예산이 모자라 건너뛴 것을 함께 담는다. */
   skipped: string[]
   /**
+   * TourAPI가 0건을 준 시군구. 실패가 아니라 "그 지역에 데이터가 없음"이다.
+   * ingested_at을 찍지 않으므로 큐에 남아 다음에 다시 시도한다 — 찍어 버리면
+   * 본문 없는 페이지가 sitemap에 올라가고 큐에서도 사라진다.
+   */
+  empty: string[]
+  /**
    * 실패 사유. 이게 없으면 upsert 컬럼 오타 같은 구조적 버그가 "전 지역 skipped"로만
    * 보여서, 일시적 장애와 구분이 안 된 채 매일 조용히 반복된다.
    */
@@ -70,6 +76,7 @@ export async function ingestRegions(
 
   const processed: string[] = []
   const skipped: string[] = []
+  const empty: string[] = []
   const failures: IngestFailure[] = []
   let upserted = 0
   let limitExceeded = false
@@ -92,7 +99,15 @@ export async function ingestRegions(
     let rows: Attraction[]
     try {
       rows = await ingestGroup(group, client)
-      if (rows.length > 0) await db.upsertAttractions(rows)
+
+      // 0건이면 표시하지 않는다. ingested_at을 찍으면 본문 없는 페이지가
+      // sitemap에 올라가고, 큐에서도 사라져 다음에 데이터가 생겨도 재시도되지 않는다.
+      if (rows.length === 0) {
+        empty.push(...group.codes)
+        continue
+      }
+
+      await db.upsertAttractions(rows)
       // 쓰기가 끝난 시점에 센다. 아래 markIngested가 실패해도 이미 들어간 행은
       // 남아 있으므로, 여기서 세지 않으면 실제보다 적게 보고하게 된다.
       upserted += rows.length
@@ -133,7 +148,7 @@ export async function ingestRegions(
     }
   }
 
-  return { processed, skipped, failures, upserted, limitExceeded }
+  return { processed, skipped, empty, failures, upserted, limitExceeded }
 }
 
 /**

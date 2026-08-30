@@ -371,3 +371,35 @@ test('그룹 중간에 markIngested가 실패해도 성공한 코드는 실패�
   // upsert는 이미 성공했다. markIngested 실패로 건수를 깎으면 실제보다 적게 보고된다.
   assert.equal(result.upserted, upserted.length)
 })
+
+test('TourAPI가 0건을 주면 적재 완료로 표시하지 않는다', async () => {
+  const { db, marked, upserted } = fakeDb()
+  const result = await ingestRegions([TARGETS[0]], {
+    ...deps({}),
+    db,
+    client: {
+      async listByArea() {
+        return []
+      },
+      async getOverview() {
+        return null
+      },
+    },
+  })
+
+  // 표시하면 빈 페이지가 sitemap에 올라가고 큐에서도 사라진다.
+  assert.equal(marked.length, 0)
+  assert.equal(upserted.length, 0)
+  assert.deepEqual(result.empty, ['42150'])
+  assert.deepEqual(result.processed, [])
+  // 실패는 아니다 — 예외가 난 게 아니라 그 지역에 데이터가 없을 뿐이다.
+  assert.deepEqual(result.failures, [])
+})
+
+test('0건이 아니면 empty에 들어가지 않는다', async () => {
+  const { db } = fakeDb()
+  const result = await ingestRegions([TARGETS[0]], { ...deps({}), db })
+
+  assert.deepEqual(result.empty, [])
+  assert.deepEqual(result.processed, ['42150'])
+})
