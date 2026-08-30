@@ -322,3 +322,52 @@ test('그룹이 실패하면 소속 시군구 전부가 사유와 함께 남는�
   ])
   assert.equal(marked.length, 0)
 })
+
+test('그룹 중간에 markIngested가 실패해도 성공한 코드는 실패로 되돌리지 않는다', async () => {
+  const upserted: Attraction[] = []
+  const marked: string[] = []
+  const db: IngestDb = {
+    async upsertAttractions(rows) {
+      upserted.push(...rows)
+    },
+    async markIngested(code) {
+      // 두 번째 코드에서만 터진다.
+      if (code === '31012') throw new Error('regions 갱신 실패(31012)')
+      marked.push(code)
+    },
+  }
+
+  const result = await ingestRegions(
+    [
+      { code: '31011', areaCode: 31, sigunguCode: 13 },
+      { code: '31012', areaCode: 31, sigunguCode: 13 },
+      { code: '31013', areaCode: 31, sigunguCode: 13 },
+    ],
+    {
+      ...deps({}),
+      db,
+      client: {
+        async listByArea(_area, type, regionCode) {
+          return [attraction(`${regionCode}-${type}`, type, regionCode)]
+        },
+        async getOverview() {
+          return null
+        },
+      },
+    },
+  )
+
+  // 성공한 둘은 processed에만, 실패한 하나는 skipped에만 있어야 한다.
+  assert.deepEqual(result.processed, ['31011', '31013'])
+  assert.deepEqual(result.skipped, ['31012'])
+  assert.deepEqual(marked, ['31011', '31013'])
+  assert.equal(result.failures.length, 1)
+  assert.equal(result.failures[0].code, '31012')
+
+  // 같은 코드가 양쪽에 들어가면 이력이 거짓말을 한다.
+  const both = result.processed.filter((c) => result.skipped.includes(c))
+  assert.deepEqual(both, [], 'processed와 skipped에 같은 코드가 있다')
+
+  // upsert는 이미 성공했다. markIngested 실패로 건수를 깎으면 실제보다 적게 보고된다.
+  assert.equal(result.upserted, upserted.length)
+})

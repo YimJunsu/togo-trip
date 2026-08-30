@@ -89,24 +89,15 @@ export async function ingestRegions(
       continue
     }
 
+    let rows: Attraction[]
     try {
-      const rows = await ingestGroup(group, client)
+      rows = await ingestGroup(group, client)
       if (rows.length > 0) await db.upsertAttractions(rows)
-
-      // 한 번 받은 결과를 그룹의 모든 시군구에 쓴다. 건수는 코드마다 같으므로
-      // 복제분을 코드 수로 나눠 원래 건수를 되돌린다.
-      const perCode = group.codes.length
-      const attractions = rows.filter((r) => r.contentTypeId === 12).length / perCode
-      const restaurants = rows.filter((r) => r.contentTypeId === 39).length / perCode
-      const overviews = rows.filter((r) => r.overview !== null).length / perCode
-      for (const code of group.codes) {
-        await db.markIngested(code, { attractions, restaurants, overviews })
-        processed.push(code)
-      }
+      // 쓰기가 끝난 시점에 센다. 아래 markIngested가 실패해도 이미 들어간 행은
+      // 남아 있으므로, 여기서 세지 않으면 실제보다 적게 보고하게 된다.
       upserted += rows.length
     } catch (error) {
-      // 한 그룹이 실패해도 나머지는 계속 처리한다. 실패한 지역만 ingested_at이
-      // 비어 다음 실행 대상으로 남는다.
+      // 그룹 전체가 실패했다. 소속 시군구 전부가 미처리로 남아 다음 실행 대상이 된다.
       const message = error instanceof Error ? error.message : String(error)
       for (const code of group.codes) {
         skipped.push(code)
@@ -115,6 +106,29 @@ export async function ingestRegions(
       }
       if (error instanceof TourApiError && error.limitExceeded) {
         limitExceeded = true
+      }
+      continue
+    }
+
+    // 한 번 받은 결과를 그룹의 모든 시군구에 쓴다. 건수는 코드마다 같으므로
+    // 복제분을 코드 수로 나눠 원래 건수를 되돌린다.
+    const perCode = group.codes.length
+    const attractions = rows.filter((r) => r.contentTypeId === 12).length / perCode
+    const restaurants = rows.filter((r) => r.contentTypeId === 39).length / perCode
+    const overviews = rows.filter((r) => r.overview !== null).length / perCode
+
+    // 코드마다 따로 잡는다. 하나가 실패했다고 이미 성공한 코드를 실패로 되돌리면
+    // processed와 skipped에 같은 코드가 함께 들어가 이력이 거짓말을 한다.
+    for (const code of group.codes) {
+      try {
+        await db.markIngested(code, { attractions, restaurants, overviews })
+        processed.push(code)
+      } catch (error) {
+        skipped.push(code)
+        failures.push({
+          code,
+          message: error instanceof Error ? error.message : String(error),
+        })
       }
     }
   }
