@@ -122,6 +122,12 @@ export interface AuthRepository {
    */
   isEmailTaken(email: string): Promise<boolean>
   /**
+   * 온보딩 완료. birthDate를 쓰고 onboardedAt을 찍는다.
+   * 이미 완료한 사용자를 다시 부르면 시각을 덮어쓰지 않는다 —
+   * 덮어쓰면 "언제 동의했나"의 답이 바뀐다.
+   */
+  completeOnboarding(userId: string, birthDate: string): Promise<Profile>
+  /**
    * 현재 비밀번호가 맞을 때만 바꾼다. 틀리면 InvalidCredentialsError를 던진다.
    * 세션만으로 바꾸게 두면 자리를 비운 사이 남이 비밀번호를 갈아 계정을 통째로
    * 가져갈 수 있다 — 로그인 상태여도 본인 확인을 다시 받는다.

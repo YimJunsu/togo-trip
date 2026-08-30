@@ -25,7 +25,12 @@ type SeedAccount = Omit<Account, 'passwordHash'> & { password: string }
  * 5건이라 로드 시 한 번 드는 비용이 무시할 만하다.
  */
 const accounts: Account[] = (seed as SeedAccount[]).map(
-  ({ password, ...rest }) => ({ ...rest, passwordHash: hashPasswordSync(password) }),
+  ({ password, ...rest }) => ({
+    ...rest,
+    passwordHash: hashPasswordSync(password),
+    // seed 계정은 가입 폼을 거친 것으로 본다. JSON에는 이 값이 없다.
+    onboardedAt: rest.createdAt,
+  }),
 )
 
 /** 자격증명을 뗀 공개 프로필. 밖으로 나가는 건 항상 이것뿐이다. */
@@ -50,6 +55,8 @@ export const mockAuthRepo: AuthRepository = {
       phone: input.phone,
       birthDate: input.birthDate,
       provider: 'email',
+      // 가입 폼에서 약관·개인정보 동의를 이미 받았다.
+      onboardedAt: new Date().toISOString(),
       completedTripCount: 0,
       createdAt: new Date().toISOString(),
       passwordHash: await hashPassword(input.password),
@@ -71,6 +78,17 @@ export const mockAuthRepo: AuthRepository = {
   async findById(id) {
     const found = accounts.find((a) => a.id === id)
     return found ? toProfile(found) : null
+  },
+
+  async completeOnboarding(userId, birthDate) {
+    const account = accounts.find((a) => a.id === userId)
+    if (!account) throw new Error('그런 사용자가 없습니다.')
+
+    account.birthDate = birthDate
+    // 이미 동의한 사람의 시각은 그대로 둔다 — 덮어쓰면 "언제 동의했나"가 바뀐다.
+    account.onboardedAt ??= new Date().toISOString()
+
+    return toProfile(account)
   },
 
   async isEmailTaken(email) {
