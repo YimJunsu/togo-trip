@@ -96,6 +96,8 @@ Thumbs.db
 **/*.md
 !README.md
 !**/README.md
+# 설계 스펙은 추적한다. 이 규칙 때문에 DESIGN_SYSTEM.md 원본이 유실된 적이 있다.
+!docs/superpowers/specs/*.md
 
 # 서비스 계정 키 등 로컬 자격증명 (절대 커밋 금지)
 etc/

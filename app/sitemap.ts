@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { travelStyleRepo } from '@/lib/data'
+import { attractionRepo, travelStyleRepo } from '@/lib/data'
 import { absoluteUrl } from '@/lib/seo/site'
 
 /**
@@ -28,7 +28,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date()
 
   // 성향 결과 16개는 각자 고유한 본문·이미지를 가진 공유용 랜딩이라 개별로 올린다.
-  const styles = await travelStyleRepo.list()
+  // 지역 페이지는 적재된 것만 넣는다 — 미적재 페이지는 목록이 비어 색인 가치가 없고,
+  // 적재가 진행되면 사이트맵이 매주 스스로 자란다.
+  const [styles, regions] = await Promise.all([
+    travelStyleRepo.list(),
+    attractionRepo.listIngestedRegions(),
+  ])
 
   return [
     ...STATIC_ROUTES.map(({ path, priority, changeFrequency }) => ({
@@ -42,6 +47,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
+    })),
+    ...regions.map((region) => ({
+      url: absoluteUrl(`/region/${region.code}`),
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
     })),
   ]
 }

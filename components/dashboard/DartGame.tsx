@@ -12,8 +12,9 @@ import { EmptyState } from '@/components/dashboard/EmptyState'
 import { FilterChip } from '@/components/dashboard/FilterChip'
 import { KoreaMapLayer } from '@/components/dashboard/KoreaMapLayer'
 import { SkeletonBlock } from '@/components/dashboard/Skeleton'
+import { listRegionAttractions } from '@/lib/attractions/actions'
 import { drawDestination } from '@/lib/destinations/actions'
-import type { Destination } from '@/lib/data/types'
+import type { Attraction, Destination } from '@/lib/data/types'
 import { isNorthOfMdl } from '@/lib/geo/dmz'
 import { PROVINCE_TO_REGION } from '@/lib/utils/labels'
 import {
@@ -70,6 +71,9 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
   const [destination, setDestination] = useState<DestinationState>({
     status: 'idle',
   })
+  const [attractions, setAttractions] = useState<Attraction[] | 'pending'>(
+    'pending',
+  )
   const [wind, setWind] = useState<Wind>(initialWind)
 
   const svgRef = useRef<SVGSVGElement>(null)
@@ -158,6 +162,21 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
       })
   }
 
+  /** 꽂힌 시군구의 관광지·맛집. 미적재 지역은 서버가 그 자리에서 적재하므로 몇 초 걸릴 수 있다. */
+  function pickAttractions(region: SigunguRegion) {
+    const throwId = throwIdRef.current
+    setAttractions('pending')
+    listRegionAttractions(region.code, { limit: 5 })
+      .then((rows) => {
+        if (throwId !== throwIdRef.current) return
+        setAttractions(rows)
+      })
+      .catch(() => {
+        if (throwId !== throwIdRef.current) return
+        setAttractions([])
+      })
+  }
+
   function land(target: Vec, chosen: SigunguRegion | null) {
     const region = chosen ?? hitTest(target)
     if (!region) {
@@ -175,6 +194,7 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
     setOutcome({ region, coords, landing: target })
     setPhase('hit')
     pickDestination(region)
+    pickAttractions(region)
     if (chosen) revealRef.current = setTimeout(() => setIsRevealed(true), 450)
   }
 
@@ -421,6 +441,7 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
           <DartResultCard
             region={outcome.region}
             coords={outcome.coords}
+            attractions={attractions}
             onRetry={() => reset()}
           />
           <DestinationSlot

@@ -1,0 +1,122 @@
+{
+  "regions": [
+    {
+      "code": "32030",
+      "name": "강릉시",
+      "province": "강원특별자치도",
+      "ingestedAt": "2026-08-01T03:00:00.000Z",
+      "attractionCount": 3,
+      "restaurantCount": 2
+    },
+    {
+      "code": "11010",
+      "name": "종로구",
+      "province": "서울특별시",
+      "ingestedAt": "2026-08-01T03:00:00.000Z",
+      "attractionCount": 3,
+      "restaurantCount": 2
+    }
+  ],
+  "attractions": [
+    {
+      "contentId": "mock-32030-1",
+      "contentTypeId": 12,
+      "regionCode": "32030",
+      "title": "오죽헌",
+      "addr": "강원특별자치도 강릉시 율곡로3139번길 24",
+      "coords": [37.7794, 128.8784],
+      "imageUrl": null,
+      "overview": "율곡 이이가 태어난 집으로, 조선 초기 주택 양식이 남아 있는 곳이다. 검은 대나무가 집 주위를 둘러싸고 있어 오죽헌이라 부른다."
+    },
+    {
+      "contentId": "mock-32030-2",
+      "contentTypeId": 12,
+      "regionCode": "32030",
+      "title": "경포해변",
+      "addr": "강원특별자치도 강릉시 창해로 514",
+      "coords": [37.8047, 128.9089],
+      "imageUrl": null,
+      "overview": "강릉을 대표하는 백사장으로, 경포호와 소나무 숲을 끼고 있다. 여름 해수욕과 겨울 해돋이 모두 사람이 몰린다."
+    },
+    {
+      "contentId": "mock-32030-3",
+      "contentTypeId": 12,
+      "regionCode": "32030",
+      "title": "안목해변 커피거리",
+      "addr": "강원특별자치도 강릉시 창해로14번길 20-1",
+      "coords": [37.7735, 128.9471],
+      "imageUrl": null,
+      "overview": null
+    },
+    {
+      "contentId": "mock-32030-4",
+      "contentTypeId": 39,
+      "regionCode": "32030",
+      "title": "강릉 초당순두부",
+      "addr": "강원특별자치도 강릉시 초당순두부길 77",
+      "coords": [37.7936, 128.9137],
+      "imageUrl": null,
+      "overview": null
+    },
+    {
+      "contentId": "mock-32030-5",
+      "contentTypeId": 39,
+      "regionCode": "32030",
+      "title": "중앙시장 닭강정",
+      "addr": "강원특별자치도 강릉시 금성로 21",
+      "coords": null,
+      "imageUrl": null,
+      "overview": null
+    },
+    {
+      "contentId": "mock-11010-1",
+      "contentTypeId": 12,
+      "regionCode": "11010",
+      "title": "경복궁",
+      "addr": "서울특별시 종로구 사직로 161",
+      "coords": [37.5761, 126.977],
+      "imageUrl": null,
+      "overview": "조선 왕조의 법궁으로 1395년에 지어졌다. 근정전과 경회루가 남아 있고 광화문에서 수문장 교대 의식을 볼 수 있다."
+    },
+    {
+      "contentId": "mock-11010-2",
+      "contentTypeId": 12,
+      "regionCode": "11010",
+      "title": "북촌한옥마을",
+      "addr": "서울특별시 종로구 계동길 37",
+      "coords": [37.5826, 126.9831],
+      "imageUrl": null,
+      "overview": "경복궁과 창덕궁 사이에 남은 한옥 밀집 지역이다. 사람이 실제로 사는 동네라 골목에서는 목소리를 낮춘다."
+    },
+    {
+      "contentId": "mock-11010-3",
+      "contentTypeId": 12,
+      "regionCode": "11010",
+      "title": "인왕산 자락길",
+      "addr": "서울특별시 종로구 옥인동",
+      "coords": [37.5817, 126.9583],
+      "imageUrl": null,
+      "overview": null
+    },
+    {
+      "contentId": "mock-11010-4",
+      "contentTypeId": 39,
+      "regionCode": "11010",
+      "title": "광장시장 빈대떡",
+      "addr": "서울특별시 종로구 창경궁로 88",
+      "coords": [37.5701, 126.9997],
+      "imageUrl": null,
+      "overview": null
+    },
+    {
+      "contentId": "mock-11010-5",
+      "contentTypeId": 39,
+      "regionCode": "11010",
+      "title": "익선동 골목식당",
+      "addr": "서울특별시 종로구 수표로28길",
+      "coords": null,
+      "imageUrl": null,
+      "overview": null
+    }
+  ]
+}

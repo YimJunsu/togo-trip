@@ -9,6 +9,30 @@ export function formatDate(iso: string): string {
   return `${year}.${month}.${day}`
 }
 
+/**
+ * 적재 이력처럼 시각까지 필요한 자리. YYYY.MM.DD HH:mm
+ *
+ * 유일한 소비처인 /admin/ingest는 KST 03:00에 도는 cron이 실제로 언제
+ * 돌았는지 보여주는 게 목적이다. Vercel 서버리스는 TZ를 지정하지 않으면
+ * UTC로 실행되므로 getHours()/getDate() 같은 로컬 타임존 API를 쓰면
+ * 프로덕션에서 9시간 — 자정 근처면 날짜까지 — 어긋난다. formatDday가
+ * `+09:00`을 명시하는 것과 같은 이유로 Asia/Seoul을 코드에 못박는다.
+ */
+export function formatDateTime(iso: string): string {
+  const d = new Date(iso)
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(d)
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+  return `${get('year')}.${get('month')}.${get('day')} ${get('hour')}:${get('minute')}`
+}
+
 /** 같은 해·같은 달이면 뒤쪽을 줄인다. 2026.08.14 – 16 */
 export function formatDateRange(startIso: string, endIso: string): string {
   const [sy, sm, sd] = startIso.split('-')

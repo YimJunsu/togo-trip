@@ -1,4 +1,5 @@
 import type {
+  Attraction,
   CompatResult,
   Destination,
   DestinationFilter,
@@ -8,6 +9,7 @@ import type {
   Profile,
   Place,
   QuizQuestion,
+  RegionSummary,
   Settlement,
   StyleCode,
   TravelStyle,
@@ -230,4 +232,21 @@ export interface TravelStyleRepository {
   list(): Promise<TravelStyle[]>
   /** 없는 코드면 null. 공유 URL로 아무 값이나 들어올 수 있다. */
   get(code: StyleCode): Promise<TravelStyle | null>
+}
+
+/**
+ * 공공데이터(TourAPI)에서 온 지역별 관광지·맛집. 비회원도 보는 콘텐츠라 userId를 받지 않는다.
+ *
+ * 미적재 지역을 즉석 적재하는 read-through는 supabase 구현 안에 있다.
+ * 화면은 그 존재를 모르고, 느릴 수 있다는 것만 안다.
+ */
+export interface AttractionRepository {
+  listByRegion(
+    code: string,
+    opts?: { type?: 12 | 39; limit?: number },
+  ): Promise<Attraction[]>
+  /** 없는 시군구 코드면 null. 공유 URL로 아무 값이나 들어올 수 있다. */
+  getRegion(code: string): Promise<RegionSummary | null>
+  /** sitemap과 지역 디렉터리용. 적재 완료된 지역만 반환한다. */
+  listIngestedRegions(): Promise<RegionSummary[]>
 }

@@ -5,7 +5,7 @@ import { SITE_URL, absoluteUrl } from '@/lib/seo/site'
  * 로그인이 필요한 화면과 개인 데이터가 뜨는 화면은 크롤러가 아예 들어오지 않게 한다.
  * (로그인 리다이렉트만 계속 긁어 크롤링 예산이 낭비되는 걸 막는 목적도 있다.)
  */
-const PRIVATE_PATHS = ['/trips/', '/join', '/compat/result', '/api/']
+const PRIVATE_PATHS = ['/trips/', '/join', '/compat/result', '/admin', '/api/']
 
 export default function robots(): MetadataRoute.Robots {
   return {

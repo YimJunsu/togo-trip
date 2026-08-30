@@ -200,3 +200,41 @@ export type CompatResult = {
   members: [CompatMember, CompatMember]
   breakdown: CompatAxisBreakdown[]
 }
+
+/** TourAPI에서 온 개별 스팟. Destination(큐레이션된 시도 단위 목적지)과 층위가 다르다. */
+export type Attraction = {
+  contentId: string
+  /** 12 관광지 · 39 음식점 */
+  contentTypeId: 12 | 39
+  /** 통계청 시군구 5자리 */
+  regionCode: string
+  title: string
+  addr: string | null
+  /** 좌표가 없는 건이 있다. 목록 표시에는 지장이 없어 버리지 않는다. */
+  coords: [number, number] | null
+  imageUrl: string | null
+  /** 음식점은 항상 null. detailCommon 호출 비용 때문에 관광지만 채운다. */
+  overview: string | null
+}
+
+export type RegionSummary = {
+  code: string
+  name: string
+  province: string
+  /** null이면 미적재. 지역 페이지의 색인 여부를 이 값이 정한다. */
+  ingestedAt: string | null
+  attractionCount: number
+  restaurantCount: number
+}
+
+/** 적재 이력 한 줄. 실패 원인을 확인하는 유일한 창구다. */
+export type IngestRun = {
+  id: number
+  startedAt: string
+  finishedAt: string | null
+  regionCodes: string[]
+  upserted: number
+  trigger: 'cron' | 'read_through'
+  status: 'running' | 'ok' | 'failed'
+  error: string | null
+}

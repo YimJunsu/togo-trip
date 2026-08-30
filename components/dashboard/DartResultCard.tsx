@@ -4,16 +4,21 @@ import {
   ActionButton,
   actionButtonClass,
 } from '@/components/dashboard/ActionButton'
+import { AttractionList } from '@/components/dashboard/AttractionList'
+import type { Attraction } from '@/lib/data/types'
 import type { SigunguRegion } from '@/lib/geo/koreaMap'
 
 /** 다트가 꽂힌 결과. 레퍼런스처럼 지역명 + 위경도 좌표를 보여준다. */
 export function DartResultCard({
   region,
   coords,
+  attractions,
   onRetry,
 }: {
   region: SigunguRegion
   coords: [number, number]
+  /** 'pending'이면 조회 중. 빈 배열은 "적재됐지만 결과가 없다"와 같다. */
+  attractions: Attraction[] | 'pending'
   onRetry: () => void
 }) {
   const [lat, lng] = coords
@@ -31,15 +36,32 @@ export function DartResultCard({
         북위 {lat.toFixed(3)}° · 동경 {lng.toFixed(3)}°
       </p>
 
+      <div className="mt-5">
+        {attractions === 'pending' ? (
+          <p role="status" aria-live="polite" className="text-muted text-sm">
+            <span className="sr-only">관광지를 불러오는 중입니다.</span>
+            가볼 만한 곳을 찾는 중…
+          </p>
+        ) : (
+          <AttractionList
+            items={attractions}
+            emptyText="이 지역은 아직 준비된 관광지 정보가 없습니다."
+          />
+        )}
+      </div>
+
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
         <ActionButton tone="accent" onClick={onRetry}>
           <ArrowCounterClockwiseIcon size={18} weight="bold" aria-hidden />
           다시 던지기
         </ActionButton>
         <Link
-          href="/trips/new"
+          href={`/region/${region.code}`}
           className={actionButtonClass({ tone: 'quiet' })}
         >
+          {region.name} 가볼만한 곳
+        </Link>
+        <Link href="/trips/new" className={actionButtonClass({ tone: 'quiet' })}>
           이 지역으로 여행방 만들기
         </Link>
       </div>
