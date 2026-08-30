@@ -49,7 +49,7 @@ export function normalizePhone(raw: string): string {
  * `Date.parse`는 '1995-02-30'을 3월 2일로 넘겨 준다.
  * 되돌려 찍어 보고 입력과 같을 때만 실재하는 날짜로 본다.
  */
-function isRealDate(iso: string): boolean {
+export function isRealDate(iso: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false
   const t = Date.parse(`${iso}T00:00:00Z`)
   if (Number.isNaN(t)) return false
@@ -110,6 +110,48 @@ export function validateSignUp(
   }
   if (!fields.agreePrivacy) {
     errors.agreePrivacy = '개인정보 수집·이용에 동의해야 가입할 수 있습니다.'
+  }
+
+  return errors
+}
+
+/**
+ * OAuth로 들어온 사람에게 받는 항목. 구글은 생년월일도 동의도 주지 않으므로
+ * 인증 직후 이 둘만 따로 받는다. 이름·이메일은 구글이 준 값을 그대로 쓴다.
+ */
+export type OnboardingFields = {
+  birthDate: string
+  agreeTerms: boolean
+  agreePrivacy: boolean
+}
+
+export type OnboardingErrors = Partial<Record<keyof OnboardingFields, string>>
+
+/**
+ * 온보딩 입력 검증. 생년월일 규칙은 validateSignUp과 같은 것을 쓴다 —
+ * 로그인 수단이 달라도 만 14세 기준은 같아야 한다.
+ */
+export function validateOnboarding(
+  fields: OnboardingFields,
+  today: Date,
+): OnboardingErrors {
+  const errors: OnboardingErrors = {}
+
+  if (!isRealDate(fields.birthDate)) {
+    errors.birthDate = '생년월일을 정확히 입력하세요.'
+  } else if (fields.birthDate > today.toISOString().slice(0, 10)) {
+    errors.birthDate = '생년월일이 오늘보다 뒤입니다.'
+  } else if (ageOn(fields.birthDate, today) < MIN_SIGNUP_AGE) {
+    // 만 14세 미만은 법정대리인 동의가 있어야 개인정보를 수집할 수 있다.
+    errors.birthDate = `만 ${MIN_SIGNUP_AGE}세 미만은 가입할 수 없습니다.`
+  }
+
+  // 필수 동의는 화면에서 막지만, 그 검증은 우회할 수 있어 여기서 다시 본다.
+  if (!fields.agreeTerms) {
+    errors.agreeTerms = '이용약관에 동의해야 시작할 수 있습니다.'
+  }
+  if (!fields.agreePrivacy) {
+    errors.agreePrivacy = '개인정보 수집·이용에 동의해야 시작할 수 있습니다.'
   }
 
   return errors

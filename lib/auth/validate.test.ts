@@ -1,6 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { ageOn, normalizePhone, validateSignUp } from './validate.ts'
+import {
+  ageOn,
+  normalizePhone,
+  validateOnboarding,
+  validateSignUp,
+} from './validate.ts'
 
 const TODAY = new Date('2026-07-21T00:00:00Z')
 
@@ -122,4 +127,68 @@ test('여러 필드가 동시에 틀리면 모두 보고한다', () => {
 test('normalizePhone은 숫자만 남긴다', () => {
   assert.equal(normalizePhone('010-1234-5678'), '01012345678')
   assert.equal(normalizePhone(' 010 1234 5678 '), '01012345678')
+})
+
+const ONBOARDING_OK = {
+  birthDate: '1995-03-14',
+  agreeTerms: true,
+  agreePrivacy: true,
+}
+
+test('온보딩: 제대로 채우면 오류가 없다', () => {
+  assert.deepEqual(validateOnboarding(ONBOARDING_OK, TODAY), {})
+})
+
+test('온보딩: 만 14세 미만은 막는다', () => {
+  // TODAY가 2026-07-21이므로 2012-07-22생은 아직 만 13세다.
+  const errors = validateOnboarding(
+    { ...ONBOARDING_OK, birthDate: '2012-07-22' },
+    TODAY,
+  )
+  assert.match(errors.birthDate ?? '', /14세/)
+})
+
+test('온보딩: 만 14세 생일 당일은 통과한다', () => {
+  // 경계에서 한 살 잘못 세면 생일 당일이 막힌다.
+  const errors = validateOnboarding(
+    { ...ONBOARDING_OK, birthDate: '2012-07-21' },
+    TODAY,
+  )
+  assert.equal(errors.birthDate, undefined)
+})
+
+test('온보딩: 실재하지 않는 날짜를 막는다', () => {
+  const errors = validateOnboarding(
+    { ...ONBOARDING_OK, birthDate: '2000-02-30' },
+    TODAY,
+  )
+  assert.ok(errors.birthDate)
+})
+
+test('온보딩: 오늘보다 뒤인 생년월일을 막는다', () => {
+  const errors = validateOnboarding(
+    { ...ONBOARDING_OK, birthDate: '2027-01-01' },
+    TODAY,
+  )
+  assert.ok(errors.birthDate)
+})
+
+test('온보딩: 동의를 항목별로 따로 본다', () => {
+  // 개인정보 보호법은 필수 동의를 항목별로 받게 한다. 묶어 검사하면
+  // 한쪽만 체크한 사람을 통과시키거나 둘 다 막게 된다.
+  const noTerms = validateOnboarding({ ...ONBOARDING_OK, agreeTerms: false }, TODAY)
+  assert.ok(noTerms.agreeTerms)
+  assert.equal(noTerms.agreePrivacy, undefined)
+
+  const noPrivacy = validateOnboarding(
+    { ...ONBOARDING_OK, agreePrivacy: false },
+    TODAY,
+  )
+  assert.ok(noPrivacy.agreePrivacy)
+  assert.equal(noPrivacy.agreeTerms, undefined)
+})
+
+test('온보딩: 빈 생년월일을 막는다', () => {
+  const errors = validateOnboarding({ ...ONBOARDING_OK, birthDate: '' }, TODAY)
+  assert.ok(errors.birthDate)
 })
