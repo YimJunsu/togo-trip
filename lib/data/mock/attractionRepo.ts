@@ -1,4 +1,6 @@
-import seed from '@/mocks/attractions.json'
+// 상대 경로로 받는다. '@/' 별칭은 pnpm test(순수 node)가 풀지 못해
+// 이 모듈을 로드하는 테스트가 ERR_MODULE_NOT_FOUND로 죽는다.
+import seed from '../../../mocks/attractions.json' with { type: 'json' }
 import type { AttractionRepository } from '../repositories'
 import type { Attraction, RegionSummary } from '../types'
 
