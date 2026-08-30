@@ -72,8 +72,8 @@ export default async function AdminIngestPage() {
             공공데이터 관광정보 적재 실행 기록입니다.
           </p>
         </div>
-        {/* 라임은 이 화면에서 여기 하나뿐이다 (DESIGN_SYSTEM §1). */}
-        <Link href="/admin/ingest" className={actionButtonClass({ tone: 'lime' })}>
+        {/* 강조색은 이 화면에서 여기 하나뿐이다 (DESIGN_SYSTEM §1). */}
+        <Link href="/admin/ingest" className={actionButtonClass({ tone: 'accent' })}>
           <ArrowClockwiseIcon size={18} weight="bold" aria-hidden />
           새로고침
         </Link>
