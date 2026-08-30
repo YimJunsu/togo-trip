@@ -10,8 +10,12 @@ export const metadata = pageMetadata({
   path: '/login',
 })
 
-export default async function LoginPage() {
+type Props = { searchParams: Promise<{ error?: string }> }
+
+export default async function LoginPage({ searchParams }: Props) {
   if (await getUser()) redirect('/')
+
+  const { error } = await searchParams
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col gap-6">
@@ -23,6 +27,12 @@ export default async function LoginPage() {
           여행방을 만들거나 참여하려면 로그인이 필요합니다.
         </p>
       </header>
+
+      {error === 'oauth' && (
+        <p className="text-danger text-sm">
+          구글 로그인을 마치지 못했습니다. 다시 시도해 주세요.
+        </p>
+      )}
 
       <LoginForm />
     </div>
