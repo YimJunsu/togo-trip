@@ -192,7 +192,18 @@ export const supabaseAttractionRepo: AttractionRepository = {
     const region = await fetchRegionRow(code)
     if (!region || region.ingested_at !== null) return rows
 
-    await ingestNow(region)
+    try {
+      await ingestNow(region)
+    } catch (error) {
+      // read-through는 최적화지 필수 경로가 아니다. service role 키가 없거나
+      // Supabase가 닫혀 있으면 createSupabaseAdminClient()가 던지는데, 그게
+      // 공개 페이지를 500으로 만들면 안 된다. 빈 목록으로 낮춰 앉힌다.
+      console.error(
+        'read-through 적재 실패:',
+        error instanceof Error ? error.message : String(error),
+      )
+      return rows
+    }
     return query(code, opts)
   },
 

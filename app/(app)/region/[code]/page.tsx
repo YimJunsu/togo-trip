@@ -31,10 +31,11 @@ export default async function RegionPage({ params }: Params) {
   const region = await attractionRepo.getRegion(code)
   if (!region) notFound()
 
-  const [spots, restaurants] = await Promise.all([
-    attractionRepo.listByRegion(code, { type: 12, limit: 5 }),
-    attractionRepo.listByRegion(code, { type: 39, limit: 5 }),
-  ])
+  // 타입별로 두 번 부르면 둘 다 빈 결과를 받아 각자 read-through 적재를 돌린다.
+  // 한 번만 받아 코드에서 나눈다 — 조회 수도 절반이 된다.
+  const all = await attractionRepo.listByRegion(code)
+  const spots = all.filter((a) => a.contentTypeId === 12).slice(0, 5)
+  const restaurants = all.filter((a) => a.contentTypeId === 39).slice(0, 5)
 
   // 같은 시도의 큐레이션 여행지. /random으로 나가는 내부 링크를 만든다.
   const provinceKey = PROVINCE_TO_REGION[region.province]
