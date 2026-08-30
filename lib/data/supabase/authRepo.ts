@@ -108,32 +108,18 @@ export const supabaseAuthRepo: AuthRepository = {
   async completeOnboarding(userId: string, birthDate: string): Promise<Profile> {
     const supabase = await createSupabaseServerClient()
 
-    // 이미 완료한 사람의 동의 시각은 지킨다. onboarded_at is null 조건을 걸면
-    // 한 번의 update로 끝나고, 조회 후 갱신하는 사이의 경합도 없다.
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({
-        birth_date: birthDate,
-        onboarded_at: new Date().toISOString(),
-      })
-      .eq('id', userId)
-      .is('onboarded_at', null)
-      .select('*')
-      .maybeSingle<ProfileRow>()
-
+    // 직접 update하지 않는다. profiles의 birth_date·onboarded_at은 컬럼 grant에서
+    // 빠져 있다 — RLS가 행만 제한하고 컬럼은 제한하지 못해서, 열어 두면 사용자가
+    // PostgREST로 자기 onboarded_at을 직접 찍어 동의 게이트를 스스로 열 수 있다.
+    // security definer 함수가 만 14세 검증까지 한 번 더 하고 쓴다.
+    const { error } = await supabase.rpc('complete_onboarding', {
+      birth_date_input: birthDate,
+    })
     if (error) throw new Error(`온보딩 저장 실패: ${error.message}`)
-    if (data) return toProfile(data)
 
-    // 0건이 고쳐졌다 — 이미 완료한 사용자다. 생년월일만 따로 쓴다.
-    const { error: birthError } = await supabase
-      .from('profiles')
-      .update({ birth_date: birthDate })
-      .eq('id', userId)
-    if (birthError) throw new Error(`생년월일 저장 실패: ${birthError.message}`)
-
-    const existing = await fetchProfile(supabase, userId)
-    if (!existing) throw new Error('그런 사용자가 없습니다.')
-    return existing
+    const profile = await fetchProfile(supabase, userId)
+    if (!profile) throw new Error('그런 사용자가 없습니다.')
+    return profile
   },
 
   async isEmailTaken(email: string): Promise<boolean> {
