@@ -23,6 +23,7 @@ type ProfileRow = {
   phone: string
   birth_date: string | null
   provider: string
+  onboarded_at: string | null
   completed_trip_count: number
   created_at: string
 }
@@ -35,6 +36,7 @@ function toProfile(row: ProfileRow): Profile {
     phone: row.phone,
     birthDate: row.birth_date ?? '',
     provider: row.provider as AuthProvider,
+    onboardedAt: row.onboarded_at,
     completedTripCount: row.completed_trip_count,
     createdAt: row.created_at,
   }
@@ -101,6 +103,37 @@ export const supabaseAuthRepo: AuthRepository = {
   async findById(id: string): Promise<Profile | null> {
     const supabase = await createSupabaseServerClient()
     return fetchProfile(supabase, id)
+  },
+
+  async completeOnboarding(userId: string, birthDate: string): Promise<Profile> {
+    const supabase = await createSupabaseServerClient()
+
+    // 이미 완료한 사람의 동의 시각은 지킨다. onboarded_at is null 조건을 걸면
+    // 한 번의 update로 끝나고, 조회 후 갱신하는 사이의 경합도 없다.
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        birth_date: birthDate,
+        onboarded_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+      .is('onboarded_at', null)
+      .select('*')
+      .maybeSingle<ProfileRow>()
+
+    if (error) throw new Error(`온보딩 저장 실패: ${error.message}`)
+    if (data) return toProfile(data)
+
+    // 0건이 고쳐졌다 — 이미 완료한 사용자다. 생년월일만 따로 쓴다.
+    const { error: birthError } = await supabase
+      .from('profiles')
+      .update({ birth_date: birthDate })
+      .eq('id', userId)
+    if (birthError) throw new Error(`생년월일 저장 실패: ${birthError.message}`)
+
+    const existing = await fetchProfile(supabase, userId)
+    if (!existing) throw new Error('그런 사용자가 없습니다.')
+    return existing
   },
 
   async isEmailTaken(email: string): Promise<boolean> {

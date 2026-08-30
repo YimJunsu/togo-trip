@@ -12,9 +12,13 @@ alter table public.profiles
 -- ── 2. 기존 사용자 백필 ─────────────────────────────────────────────────────
 -- 이메일로 가입한 사람들은 가입 폼에서 이미 동의를 마쳤다. 비워 두면 아래 앱
 -- 규칙(미완료 = 로그아웃)에 걸려 기존 사용자 전원이 로그인에서 막힌다.
+-- provider = 'email' 로 좁힌다. onboarded_at is null 만 보면, 구글 로그인이 나간
+-- 뒤 이 파일을 다시 돌렸을 때 온보딩 중이던 OAuth 사용자에게까지 동의 시각이
+-- 찍힌다 — 동의 화면을 본 적 없는 사람을 동의한 것으로 기록하게 된다.
 update public.profiles
    set onboarded_at = created_at
- where onboarded_at is null;
+ where onboarded_at is null
+   and provider = 'email';
 
 -- ── 3. 트리거: provider에 따라 갈라진다 ─────────────────────────────────────
 -- 이메일 가입은 동의 화면을 이미 거쳤으므로 바로 찍는다.
