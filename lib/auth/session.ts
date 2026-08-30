@@ -42,7 +42,27 @@ export async function destroySession(): Promise<void> {
   store.delete(SESSION_COOKIE)
 }
 
+/**
+ * 로그인한 사용자. 온보딩을 마치지 않았으면 null이다 — 앱 전체가 그 사람을
+ * 로그인하지 않은 것으로 본다.
+ *
+ * 구글은 생년월일도 동의도 주지 않으므로 인증만으로는 서비스를 쓸 수 없다.
+ * 여기서 한 번 거르면 화면마다 온보딩 여부를 따질 필요가 없다.
+ *
+ * 온보딩 페이지 자신은 이 함수를 쓰면 안 된다 — /login으로 튕겨 무한 루프가 된다.
+ * 그 페이지는 getPendingUser()를 쓴다.
+ */
 export async function getUser(): Promise<Profile | null> {
+  const user = await getPendingUser()
+  if (!user) return null
+  return user.onboardedAt ? user : null
+}
+
+/**
+ * 인증은 됐지만 온보딩은 아직일 수 있는 사용자. 온보딩 페이지와 그 액션만 쓴다.
+ * 다른 곳에서 쓰면 동의하지 않은 사람에게 서비스를 열어 주게 된다 — getUser()를 쓸 것.
+ */
+export async function getPendingUser(): Promise<Profile | null> {
   if (useSupabase) {
     const supabase = await createSupabaseServerClient()
     const {
