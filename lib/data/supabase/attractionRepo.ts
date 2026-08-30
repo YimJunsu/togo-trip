@@ -219,7 +219,10 @@ export const supabaseAttractionRepo: AttractionRepository = {
       .select(
         'code, name, province, tour_area_code, tour_sigungu_code, ingested_at, attraction_count, restaurant_count',
       )
-      .not('ingested_at', 'is', null)
+      // "적재를 시도했다"가 아니라 "내용이 있다"로 거른다. 둘이 갈라지는 순간
+      // (TourAPI가 0건을 준 지역 등) 본문 없는 페이지가 sitemap에 올라간다.
+      // 맛집만 있는 지역은 본문이 얇아 색인 가치가 없으므로 관광지 기준으로 본다.
+      .gt('attraction_count', 0)
       .order('priority')
       .order('code')
     if (error) throw new Error(`적재 지역 조회 실패: ${error.message}`)

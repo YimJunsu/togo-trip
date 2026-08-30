@@ -22,7 +22,9 @@ export async function generateMetadata({ params }: Params) {
       `맛집 ${region.restaurantCount}곳. 한국관광공사 공공데이터로 만든 목록입니다. 로그인 없이 바로 봅니다.`,
     path: `/region/${region.code}`,
     // 미적재 지역은 목록이 비어 있어 색인 가치가 없다. 적재되면 다음 배포에서 자동으로 열린다.
-    noIndex: region.ingestedAt === null,
+    // 내용이 없으면 색인에서 뺀다. ingestedAt은 "시도했다"만 알려줘서,
+    // TourAPI가 0건을 준 지역이 빈 페이지로 색인될 수 있다.
+    noIndex: region.attractionCount === 0,
   })
 }
 
