@@ -14,7 +14,7 @@ export function EmptyState({
 }) {
   return (
     <div className="rounded-card border-line flex flex-col items-center gap-3 border border-dashed p-10 text-center">
-      <span className="bg-lime-soft text-ink rounded-full p-3">
+      <span className="bg-accent-soft text-ink rounded-full p-3">
         <Glyph size={22} weight="regular" aria-hidden />
       </span>
       <h3 className="font-display text-lg font-semibold tracking-tight">

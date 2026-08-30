@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Outfit, Space_Mono } from 'next/font/google'
+import { Onest, Space_Mono } from 'next/font/google'
 import { JsonLd, siteGraph } from '@/lib/seo/JsonLd'
 import {
   GOOGLE_SITE_VERIFICATION,
@@ -15,10 +15,10 @@ import {
 } from '@/lib/seo/site'
 import './globals.css'
 
-const outfit = Outfit({
-  variable: '--font-outfit',
+const onest = Onest({
+  variable: '--font-onest',
   subsets: ['latin'],
-  weight: ['500', '600', '700'],
+  weight: ['400', '500', '700'],
 })
 
 const spaceMono = Space_Mono({
@@ -92,7 +92,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${outfit.variable} ${spaceMono.variable} h-full antialiased`}
+      className={`${onest.variable} ${spaceMono.variable} h-full antialiased`}
     >
       <head>
         {/*

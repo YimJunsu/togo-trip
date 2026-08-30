@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test \"lib/**/*.test.ts\"",
+    "test": "node --experimental-strip-types --import ./scripts/test-alias-hook.mjs --test \"lib/**/*.test.ts\"",
     "format": "prettier --write ."
   },
   "dependencies": {

@@ -143,7 +143,7 @@ export function RandomDrawer({
         )}
 
         <ActionButton
-          tone="lime"
+          tone="accent"
           size="lg"
           className="mt-5 w-full"
           disabled={phase === 'spinning'}

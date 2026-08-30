@@ -20,7 +20,12 @@ export type Profile = {
   phone: string
   birthDate: string
   provider: AuthProvider
-  /** 정산 완료 시 +1. 증가 로직은 아직 없다. */
+  /**
+   * 정산 완료 시 +1, 취소 시 -1(0 미만으로는 내려가지 않는다). Supabase에서는
+   * settle_trip/unsettle_trip(schema.sql)이 트랜잭션 안에서 증감시킨다.
+   * mock(lib/data/mock)은 이 값을 건드리지 않는다 — 아직 어느 화면도 렌더링하지
+   * 않는 값이라 지금은 두 구현이 갈려도 눈에 띄지 않는다는 걸 알려 둔다.
+   */
   completedTripCount: number
   createdAt: string
   travelStyle?: QuizResult
@@ -42,6 +47,10 @@ export type Trip = {
   inviteCode: string
   createdBy: string
   coverTheme: DestinationTheme
+  /** 운전자 할인율. 0 ~ 0.5. 계산 입력이므로 확정 시 지출과 함께 잠긴다. */
+  driverDiscountRate: number
+  /** null이면 진행 중. 값이 있으면 잠겨서 지출을 고칠 수 없다. */
+  settledAt: string | null
 }
 
 export type Member = {
@@ -64,6 +73,22 @@ export type Expense = {
   createdAt: string
 }
 
+/**
+ * 날짜별 일정 한 줄. 돈 계산에 들어가지 않아 정산 확정과 무관하다 —
+ * 확정된 방에서도 계속 넣고 지울 수 있다.
+ */
+export type ItineraryItem = {
+  id: string
+  tripId: string
+  /** YYYY-MM-DD. 여행 기간 안이어야 한다 (lib/itinerary/actions.ts가 본다). */
+  day: string
+  /** HH:MM. 시간을 안 정한 일정도 있어 비어 있을 수 있다. */
+  at: string | null
+  title: string
+  memo: string
+  createdAt: string
+}
+
 export type Place = {
   id: string
   name: string
@@ -80,11 +105,19 @@ export type QuizResult = {
   scores: Record<QuizAxis, number>
 }
 
-/** 계산 결과. 저장하지 않는다. 지금은 mock seed에 미리 담긴 값을 그대로 쓴다. */
+/**
+ * 확정된 송금 리스트. 이것만 저장한다 — 각자의 부담액·할인액(SettleShare)은
+ * 저장하지 않고 lib/settle/로 매번 재계산한다. 확정 시 계산 입력이 전부 잠기므로
+ * 출력도 불변이고, 저장하면 같은 값을 두 곳에 두게 된다.
+ */
 export type Settlement = {
+  id: string
+  tripId: string
   from: string
   to: string
   amount: number
+  /** 실제로 송금했는지. 계산으로 알 수 없는 유일한 값이라 저장이 필요하다. */
+  isPaid: boolean
 }
 
 export type Destination = {

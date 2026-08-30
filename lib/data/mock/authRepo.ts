@@ -77,6 +77,15 @@ export const mockAuthRepo: AuthRepository = {
     const target = normalizeEmail(email)
     return accounts.some((a) => normalizeEmail(a.email) === target)
   },
+
+  async changePassword(userId, currentPassword, newPassword) {
+    const found = accounts.find((a) => a.id === userId)
+    // "계정이 없다"와 "비밀번호가 틀리다"를 구분해 알리지 않는다 (signIn과 동일).
+    if (!found || !(await verifyPassword(currentPassword, found.passwordHash))) {
+      throw new InvalidCredentialsError()
+    }
+    found.passwordHash = await hashPassword(newPassword)
+  },
 }
 
 /** 궁합 결과가 두 사람의 프로필을 동기적으로 필요로 한다. */

@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 /**
  * iOS 홈 화면·공유 시트에 뜨는 아이콘. favicon.ico는 16~32px라 여기서 쓰면 뭉갠다.
- * 색은 globals.css @theme의 lime/ink와 같은 값이다.
+ * 색은 globals.css @theme의 accent/ink와 같은 값이다.
  */
 export const size = { width: 180, height: 180 }
 export const contentType = 'image/png'

@@ -1,4 +1,4 @@
-import { ReceiptIcon } from '@phosphor-icons/react/dist/ssr'
+import { ReceiptIcon, TrashIcon } from '@phosphor-icons/react/dist/ssr'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { Avatar } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
@@ -8,9 +8,12 @@ import { formatWon } from '@/lib/utils/format'
 export function ExpenseList({
   expenses,
   members,
+  onRemove,
 }: {
   expenses: Expense[]
   members: Member[]
+  /** 없으면 삭제 버튼이 뜨지 않는다. 확정된 방에서는 넘기지 않는다. */
+  onRemove?: (expenseId: string) => void
 }) {
   if (expenses.length === 0) {
     return (
@@ -44,6 +47,16 @@ export function ExpenseList({
               </p>
               <Badge className="bg-ink/5 text-muted">{expense.category}</Badge>
             </div>
+            {onRemove ? (
+              <button
+                type="button"
+                onClick={() => onRemove(expense.id)}
+                aria-label={`${expense.description} 삭제`}
+                className="text-muted hover:text-ink shrink-0 p-1 transition duration-200 ease-out active:scale-[0.98]"
+              >
+                <TrashIcon size={16} weight="bold" aria-hidden />
+              </button>
+            ) : null}
           </li>
         )
       })}

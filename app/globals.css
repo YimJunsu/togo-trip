@@ -8,50 +8,76 @@
 
 /* 토큰의 원본은 DESIGN_SYSTEM.md §1. 값을 바꾸려면 그 문서를 먼저 고친다. */
 @theme {
-  --color-ink: #101010;
-  --color-muted: #6f6f68;
-  --color-paper: #f4f4ef;
+  --color-ink: #1a1d1a;
+  --color-muted: #6a6f6a;
+  /*
+   * 바탕은 중성 스톤이다. 누런 미색이 아니다 — 채도 높은 강조색을 누런 바탕에
+   * 얹으면 촌스러워진다. 이 조합으로 되돌리지 않는다. (DESIGN_SYSTEM §1.1)
+   */
+  --color-paper: #f1f1ef;
   --color-surface: #ffffff;
-  --color-line: #e6e6df;
+  --color-line: #dedfdb;
 
-  /* 강조색은 라임 하나뿐이다. 색을 늘리고 싶으면 명도·여백으로 먼저 풀어 본다. */
-  --color-lime: #dcfb53;
-  --color-lime-soft: #eefcae;
+  /* 강조색은 숲 초록 하나뿐이다. 색을 늘리고 싶으면 명도·여백으로 먼저 풀어 본다. */
+  --color-accent: #2f6b4f;
+  --color-accent-soft: #e4ede8;
 
-  /* 기능색. 강조색이 아니라 상태를 알리는 용도로만 쓴다. */
-  --color-danger: #c8372d;
+  /*
+   * 기능색. 강조색이 아니라 상태를 알리는 용도로만 쓴다.
+   * 채도를 낮췄다 — 채도 63%짜리 빨강은 채도 39%짜리 초록 옆에서 혼자 튄다.
+   */
+  --color-danger: #a8443a;
+
+  /*
+   * 극장 배치 전용. 사진 위 스크림 안에서만 쓴다. (DESIGN_SYSTEM §3)
+   * 어두움은 테마가 아니라 사진에 덮는 막이다. 그래서 다크 팔레트가 따로 없다.
+   * 초록은 어두운 사진 위에서 대비가 안 나와, 스크림 안에서만 앰버로 바꾼다 (§4).
+   */
+  --color-cine-base: #101410;
+  --color-cine-ink: #eceae4;
+  --color-cine-accent: #d9a45b;
 
   /*
    * 소셜 로그인 브랜드 색. 카카오·구글이 규정한 값이라 우리가 고를 수 없다.
-   * 범위는 로그인·가입 화면의 해당 버튼뿐이다. (DESIGN_SYSTEM §7)
+   * 범위는 로그인·가입 화면의 해당 버튼뿐이다. (DESIGN_SYSTEM §10)
    */
   --color-kakao: #fee500;
 
   /*
    * 지도 전용 팔레트. 지도는 UI가 아니라 콘텐츠(일러스트)라 자체 색을 갖는다.
-   * 범위는 지도 svg 안뿐이다 — 버튼·카드·배지는 여전히 라임 하나. (DESIGN_SYSTEM §6)
-   * 채도를 낮춰 미색 배경과 붙고, 명중 지역의 라임이 그 위에서 튀게 했다.
+   * 범위는 지도 svg 안뿐이다 — 버튼·카드·배지는 여전히 초록 하나. (DESIGN_SYSTEM §9)
+   * 채도를 낮춰 스톤 배경과 붙는다.
    */
   --color-terrain-sea: #d9e6e8;
   --color-terrain-sea-deep: #c2d5da;
   --color-terrain-low: #e7e9d6;
   --color-terrain-mid: #cfd9b6;
   --color-terrain-high: #a8b98d;
+  /*
+   * 명중 지역. 강조색(#2f6b4f)을 그대로 쓰면 지형의 올리브(#a8b98d)와 겹쳐
+   * 어디가 맞았는지 안 보인다. 지도 안에서만 한 단계 밝은 초록을 쓴다.
+   */
+  --color-map-hit: #4ea87a;
 
   --color-pass-navy: #1b2a4a;
   --color-pass-cream: #f3ecdd;
   --color-pass-stamp: #c1440e;
   --color-pass-line: #9b8f76;
 
-  --radius-card: 1.75rem;
-  --radius-inner: 1.25rem;
+  /*
+   * 카드와 여행권의 모서리를 같은 값으로 맞췄다. 값이 다르면 여행방 상세에서
+   * 두 갈래가 서로 다른 물건처럼 어긋나 보인다. (DESIGN_SYSTEM §1.2)
+   */
+  --radius-card: 14px;
+  --radius-inner: 8px;
+  --radius-btn: 10px;
   --radius-pass: 14px;
 
-  /* 넓게 퍼지는 옅은 그림자. 카드를 띄우되 존재를 드러내지 않는다. */
-  --shadow-soft: 0 18px 40px -18px rgba(16, 16, 16, 0.14);
-  --shadow-lift: 0 24px 50px -18px rgba(16, 16, 16, 0.2);
+  /* 배경 색조로 tint한다. 밝은 바탕에 순검정 그림자를 쓰지 않는다. */
+  --shadow-soft: 0 14px 32px -16px rgba(26, 29, 26, 0.12);
+  --shadow-lift: 0 20px 42px -16px rgba(26, 29, 26, 0.18);
 
-  --font-display: var(--font-outfit), sans-serif;
+  --font-display: var(--font-onest), sans-serif;
   --font-body: 'Pretendard Variable', sans-serif;
   --font-mono: var(--font-space-mono), monospace;
 

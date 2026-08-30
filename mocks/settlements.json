@@ -1,13 +1,42 @@
-{
-  "_comment": "계산 결과 mock. lib/settle/ 순수 함수는 아직 없다. PROJECT_SPEC §1.3 규칙(엔빵 → 운전자 20% 할인 → 송금 최소화)을 mocks/expenses.json에 손으로 적용한 값이며, 나중에 lib/settle/ 단위 테스트의 기대값으로 그대로 쓸 수 있다. 반올림 오차는 채권자 쪽에서 흡수한다(CONVENTIONS §5).",
-  "trp-gangneung": [
-    { "from": "usr-4", "to": "usr-2", "amount": 108427 },
-    { "from": "usr-4", "to": "usr-3", "amount": 4747 },
-    { "from": "usr-1", "to": "usr-3", "amount": 3680 }
-  ],
-  "trp-jeju": [
-    { "from": "usr-1", "to": "usr-5", "amount": 34909 },
-    { "from": "usr-2", "to": "usr-5", "amount": 34909 }
-  ],
-  "trp-gyeongju": []
-}
+[
+  {
+    "id": "stl-1",
+    "tripId": "trp-gangneung",
+    "from": "usr-4",
+    "to": "usr-2",
+    "amount": 108427,
+    "isPaid": true
+  },
+  {
+    "id": "stl-2",
+    "tripId": "trp-gangneung",
+    "from": "usr-4",
+    "to": "usr-3",
+    "amount": 4747,
+    "isPaid": false
+  },
+  {
+    "id": "stl-3",
+    "tripId": "trp-gangneung",
+    "from": "usr-1",
+    "to": "usr-3",
+    "amount": 3680,
+    "isPaid": false
+  },
+  {
+    "id": "stl-4",
+    "tripId": "trp-jeju",
+    "from": "usr-2",
+    "to": "usr-5",
+    "amount": 35200,
+    "isPaid": true
+  },
+  {
+    "id": "stl-5",
+    "tripId": "trp-jeju",
+    "from": "usr-1",
+    "to": "usr-5",
+    "amount": 35200,
+    "isPaid": true
+  }
+]

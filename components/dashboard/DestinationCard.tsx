@@ -6,10 +6,11 @@ import { BUDGET_LABEL, SEASON_LABEL } from '@/lib/utils/labels'
 export function DestinationCard({ destination }: { destination: Destination }) {
   return (
     <article className="rounded-card border-line bg-surface shadow-soft animate-rise overflow-hidden border">
-      <div className="bg-lime flex items-end justify-between px-6 pt-5 pb-6">
+      <div className="bg-accent text-surface flex items-end justify-between px-6 pt-5 pb-6">
+        {/* 초록 위 흰 글자의 투명도 하한은 75다. 60이면 작은 글자가 3.5:1로 떨어진다. */}
         <div>
-          <p className="font-mono text-xs tracking-widest opacity-60">당첨</p>
-          <p className="text-muted mt-3 font-mono text-xs tracking-widest">
+          <p className="font-mono text-xs tracking-widest opacity-75">당첨</p>
+          <p className="mt-3 font-mono text-xs tracking-widest opacity-75">
             {destination.region}
           </p>
           <h2 className="font-display mt-1 text-3xl font-semibold tracking-tight">

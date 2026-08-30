@@ -23,42 +23,54 @@ function sideOf(code: string, axis: QuizAxis, i: number) {
   return code[i] === meta.high.letter ? meta.high : meta.low
 }
 
-/** 결과의 얼굴. 이미지 한 장과 이름, 그리고 네 축 요약까지가 첫 화면에 들어온다. */
+/**
+ * 결과의 얼굴. 극장 배치다 (DESIGN_SYSTEM §3) — 그림이 카드를 끝까지 채우고
+ * 글자가 그 위에 얹힌다. 이 화면은 그림 한 장이 곧 메시지라 테두리를 두지 않는다.
+ *
+ * 어두운 건 테마가 아니라 사진에 덮은 막이다. 그래서 cine-* 토큰은 이 블록 밖으로
+ * 나가지 않고, 아래의 축 그리드·설명 패널은 그대로 밝은 기본 언어다.
+ */
 export function StyleResultHero({ style }: { style: TravelStyle }) {
   return (
-    <section className="rounded-card border-line bg-surface shadow-soft animate-rise border p-6 text-center sm:p-8">
-      <div className="rounded-inner bg-paper relative mx-auto aspect-square w-full max-w-xs overflow-hidden">
+    <section className="rounded-card bg-cine-base text-cine-ink shadow-soft animate-rise overflow-hidden">
+      <div className="relative aspect-square w-full sm:aspect-[5/4]">
         <Image
           src={`/images/style/${style.code}.webp`}
           alt={`${style.name} 여행 유형을 표현한 쿼카 일러스트`}
           fill
-          sizes="(max-width: 640px) 90vw, 320px"
+          sizes="(max-width: 640px) 100vw, 640px"
           className="object-cover"
           priority
         />
+        {/* 위를 살짝 눌러 상단이 뜨게 하고, 아래는 본문 색으로 완전히 잠근다. */}
+        <div className="from-cine-base/45 absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b to-transparent" />
+        <div className="to-cine-base absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-b from-transparent" />
+
+        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+          <p className="text-cine-accent font-mono text-xs font-bold tracking-widest">
+            {style.code}
+          </p>
+          <h1 className="font-display mt-1.5 text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl">
+            {style.name} 여행
+          </h1>
+        </div>
       </div>
 
-      <p className="text-muted mt-6 text-sm font-medium">나의 여행 스타일은?</p>
-      <h1 className="font-display mt-1 text-3xl leading-tight font-semibold tracking-tight">
-        {style.name} 여행
-      </h1>
-      <p className="text-muted mx-auto mt-2 max-w-sm text-sm leading-relaxed">
-        {style.tagline}
-      </p>
+      <div className="px-6 pb-6 sm:px-8 sm:pb-8">
+        <p className="text-cine-ink/75 text-sm leading-relaxed">
+          {style.tagline}
+        </p>
 
-      <ul className="mt-4 flex flex-wrap justify-center gap-1.5">
-        {AXIS_ORDER.map((axis, i) => (
-          <li key={axis}>
-            <Badge className="bg-lime-soft text-ink">
-              {sideOf(style.code, axis, i).label}
-            </Badge>
-          </li>
-        ))}
-      </ul>
-
-      <p className="text-muted mt-4 font-mono text-xs tracking-widest">
-        {style.code} · 16유형 중 하나
-      </p>
+        <ul className="mt-4 flex flex-wrap gap-1.5">
+          {AXIS_ORDER.map((axis, i) => (
+            <li key={axis}>
+              <Badge className="bg-cine-ink/15 text-cine-ink">
+                {sideOf(style.code, axis, i).label}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   )
 }

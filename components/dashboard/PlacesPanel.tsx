@@ -90,13 +90,13 @@ export function PlacesPanel({
                       {place.category}
                     </Badge>
                     {place.isChakan ? (
-                      <Badge className="bg-lime text-ink">착한가격업소</Badge>
+                      <Badge className="bg-accent text-surface">착한가격업소</Badge>
                     ) : null}
                   </div>
                 </div>
                 <ActionButton
                   size="sm"
-                  tone={isSaved ? 'lime' : 'quiet'}
+                  tone={isSaved ? 'accent' : 'quiet'}
                   aria-pressed={isSaved}
                   onClick={() => toggleSave(place.id)}
                 >

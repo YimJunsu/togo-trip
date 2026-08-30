@@ -1,9 +1,13 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { requireUser } from '@/lib/auth/session'
-import { InvalidInviteCodeError, tripRepo } from '@/lib/data'
-import type { DestinationTheme, Trip } from '@/lib/data/types'
+import { requireHost, requireUser } from '@/lib/auth/session'
+import {
+  InvalidInviteCodeError,
+  TripAlreadySettledError,
+  tripRepo,
+} from '@/lib/data'
+import type { DestinationTheme, Member, Trip } from '@/lib/data/types'
 import { THEME_ORDER } from '@/lib/utils/labels'
 
 export type TripFormState = {
@@ -78,6 +82,54 @@ export async function joinTripAction(
     if (error instanceof InvalidInviteCodeError) {
       return { message: '그런 코드는 없습니다. 방장에게 다시 물어보세요.' }
     }
+    if (error instanceof TripAlreadySettledError) {
+      return { message: '이미 정산이 끝난 여행방입니다.' }
+    }
     throw error
   }
+}
+
+/** 운전자 지정. 방장만. 여러 명일 수 있다 — 장거리 여행은 교대 운전이 흔하다. */
+export async function setDriverAction(
+  tripId: string,
+  userId: string,
+  isDriver: boolean,
+): Promise<Member[]> {
+  await requireHost(tripId)
+  return tripRepo.setDriver(tripId, userId, isDriver)
+}
+
+/** 할인율 조정. 방장만. rate는 0 ~ 0.5. 검증은 repo가 한 번 더 한다. */
+export async function setDiscountRateAction(
+  tripId: string,
+  rate: number,
+): Promise<Trip> {
+  await requireHost(tripId)
+  return tripRepo.setDiscountRate(tripId, rate)
+}
+
+/*
+ * 나가기와 내보내기는 repo에서 같은 메서드지만 액션은 둘로 나눈다.
+ * 하나로 합쳐 userId 유무로 분기하면 requireUser냐 requireHost냐가 런타임 값에
+ * 달리게 된다 — 보안 경계가 조건문 안으로 들어가면, 나중에 그 분기를 잘못 고쳐
+ * 아무나 남을 내보낼 수 있게 되는 종류의 사고가 난다. 이름으로 갈라 둔다.
+ */
+
+/** 본인이 나간다. 방장은 못 나간다(repo가 HostCannotLeaveError). */
+export async function leaveTripAction(tripId: string): Promise<void> {
+  const user = await requireUser()
+  await tripRepo.leaveTrip(tripId, user.id)
+  // 나가는 순간 requireMemberPage가 notFound()를 부른다. 리다이렉트가 없으면
+  // 방금까지 보던 화면이 404로 바뀌는 것을 사용자가 그대로 본다.
+  redirect('/')
+}
+
+/** 방장이 멤버를 내보낸다. 갱신된 멤버 목록을 돌려준다. */
+export async function removeMemberAction(
+  tripId: string,
+  userId: string,
+): Promise<Member[]> {
+  await requireHost(tripId)
+  await tripRepo.leaveTrip(tripId, userId)
+  return tripRepo.listMembers(tripId)
 }

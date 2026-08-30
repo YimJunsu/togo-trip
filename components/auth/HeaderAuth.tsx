@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useSession } from '@/components/auth/SessionProvider'
-import { signOutAction } from '@/lib/auth/actions'
+import { SignOutButton } from '@/components/auth/SignOutButton'
 
 const LINK_CLASS =
   'text-muted hover:text-ink block shrink-0 rounded-full px-3 py-1.5 text-sm font-medium whitespace-nowrap transition duration-200'
@@ -29,14 +29,14 @@ export function HeaderAuth() {
     )
   }
 
+  // 이름은 내 정보로 들어가는 문이다. 로그아웃은 거기 한 번 더 있고, 헤더에도 남긴다 —
+  // 자주 쓰는 동작을 한 단계 안으로 숨기지 않는다.
   return (
-    <form action={signOutAction} className="flex shrink-0 items-center gap-1">
-      <span className="text-muted hidden px-2 text-sm font-medium sm:block">
+    <span className="flex shrink-0 items-center gap-1">
+      <Link href="/settings" className={LINK_CLASS}>
         {name}
-      </span>
-      <button type="submit" className={LINK_CLASS}>
-        로그아웃
-      </button>
-    </form>
+      </Link>
+      <SignOutButton className={LINK_CLASS}>로그아웃</SignOutButton>
+    </span>
   )
 }

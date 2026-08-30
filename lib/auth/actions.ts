@@ -6,11 +6,12 @@ import {
   DuplicateEmailError,
   InvalidCredentialsError,
 } from '@/lib/data'
-import { createSession, destroySession } from './session'
+import { createSession, destroySession, requireUser } from './session'
 import {
   isEmailShape,
   normalizePhone,
   validateSignUp,
+  MIN_PASSWORD_LENGTH,
   type FieldErrors,
 } from './validate'
 
@@ -95,6 +96,44 @@ export async function signInAction(
 export async function signOutAction(): Promise<void> {
   await destroySession()
   redirect('/')
+}
+
+export type PasswordFormState = AuthFormState & {
+  /** 성공 문구는 따로 둔다. message는 실패를 알리는 자리로 이미 쓰고 있다. */
+  done?: boolean
+}
+
+export async function changePasswordAction(
+  _prev: PasswordFormState,
+  formData: FormData,
+): Promise<PasswordFormState> {
+  // 로그인 여부는 화면 게이트에 맡기지 않는다 — Server Action은 직접 호출될 수 있다.
+  const user = await requireUser()
+
+  const current = field(formData, 'currentPassword')
+  const next = field(formData, 'password')
+  const confirm = field(formData, 'passwordConfirm')
+
+  // 규칙은 가입과 같은 곳(validate.ts)에서 온다. 두 화면이 갈리지 않게 한다.
+  const errors: FieldErrors = {}
+  if (next.length < MIN_PASSWORD_LENGTH) {
+    errors.password = `비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 합니다.`
+  }
+  if (next !== confirm) {
+    errors.passwordConfirm = '비밀번호가 일치하지 않습니다.'
+  }
+  if (Object.keys(errors).length > 0) return { errors }
+
+  try {
+    await authRepo.changePassword(user.id, current, next)
+  } catch (error) {
+    if (error instanceof InvalidCredentialsError) {
+      return { message: '현재 비밀번호가 맞지 않습니다.' }
+    }
+    throw error
+  }
+
+  return { done: true }
 }
 
 export type EmailCheck = 'idle' | 'checking' | 'available' | 'taken'
