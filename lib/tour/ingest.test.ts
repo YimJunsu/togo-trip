@@ -32,7 +32,12 @@ function attraction(id: string, type: 12 | 39, regionCode: string): Attraction {
 /** 호출 기록을 남기는 가짜 DB. */
 function fakeDb() {
   const upserted: Attraction[] = []
-  const marked: { code: string; attractions: number; restaurants: number }[] = []
+  const marked: {
+    code: string
+    attractions: number
+    restaurants: number
+    overviews: number
+  }[] = []
   const db: IngestDb = {
     async upsertAttractions(rows) {
       upserted.push(...rows)
@@ -92,7 +97,7 @@ test('관광지 건수와 음식점 건수를 따로 센다', async () => {
   const { db, marked } = fakeDb()
   await ingestRegions([TARGETS[0]], { ...deps({}), db })
 
-  assert.deepEqual(marked[0], { code: '42150', attractions: 1, restaurants: 1 })
+  assert.deepEqual(marked[0], { code: '42150', attractions: 1, restaurants: 1, overviews: 1 })
 })
 
 test('관광지에만 overview를 채운다 — 음식점은 detailCommon을 부르지 않는다', async () => {
@@ -245,4 +250,75 @@ test('대상이 없으면 아무것도 하지 않는다', async () => {
 
   assert.deepEqual(result.processed, [])
   assert.equal(upserted.length, 0)
+})
+
+test('같은 TourAPI 지역을 공유하는 시군구는 한 번만 호출하고 결과를 전부에 쓴다', async () => {
+  const { db, upserted, marked } = fakeDb()
+  let listCalls = 0
+  const result = await ingestRegions(
+    [
+      { code: '31011', areaCode: 31, sigunguCode: 13 },
+      { code: '31012', areaCode: 31, sigunguCode: 13 },
+      { code: '31013', areaCode: 31, sigunguCode: 13 },
+    ],
+    {
+      ...deps({}),
+      db,
+      client: {
+        async listByArea(_area, type, regionCode) {
+          listCalls += 1
+          return [attraction(`${regionCode}-${type}`, type, regionCode)]
+        },
+        async getOverview() {
+          return null
+        },
+      },
+    },
+  )
+
+  // 관광지 목록 1 + 음식점 목록 1 = 2콜. 시군구 수와 무관하다.
+  assert.equal(listCalls, 2)
+  assert.deepEqual(result.processed, ['31011', '31012', '31013'])
+  // 관광지 1 + 맛집 1 을 시군구 3개에 복제 = 6행
+  assert.equal(upserted.length, 6)
+  assert.deepEqual([...new Set(upserted.map((a) => a.regionCode))].sort(), [
+    '31011',
+    '31012',
+    '31013',
+  ])
+  // 건수는 코드마다 같아야 한다 — 복제분을 그대로 세면 3배가 된다.
+  assert.deepEqual(marked, [
+    { code: '31011', attractions: 1, restaurants: 1, overviews: 0 },
+    { code: '31012', attractions: 1, restaurants: 1, overviews: 0 },
+    { code: '31013', attractions: 1, restaurants: 1, overviews: 0 },
+  ])
+})
+
+test('그룹이 실패하면 소속 시군구 전부가 사유와 함께 남는다', async () => {
+  const { db, marked } = fakeDb()
+  const result = await ingestRegions(
+    [
+      { code: '31011', areaCode: 31, sigunguCode: 13 },
+      { code: '31012', areaCode: 31, sigunguCode: 13 },
+    ],
+    {
+      ...deps({}),
+      db,
+      client: {
+        async listByArea() {
+          throw new Error('수원 그룹 실패')
+        },
+        async getOverview() {
+          return null
+        },
+      },
+    },
+  )
+
+  assert.deepEqual(result.skipped, ['31011', '31012'])
+  assert.deepEqual(result.failures, [
+    { code: '31011', message: '수원 그룹 실패' },
+    { code: '31012', message: '수원 그룹 실패' },
+  ])
+  assert.equal(marked.length, 0)
 })
