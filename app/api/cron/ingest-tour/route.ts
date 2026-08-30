@@ -3,9 +3,14 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin'
 import { ingestRegions } from '@/lib/tour/ingest'
 import type { IngestResult } from '@/lib/tour/ingest'
 import { createIngestDeps } from '@/lib/tour/ingestDeps'
+import { selectQueue } from '@/lib/tour/queue'
 
-/** 한 번에 처리할 시군구 수. 하루 3건 × 7일 = 주 21건, 250건 완주까지 약 12주. */
-const BATCH = 3
+/**
+ * 한 번에 처리할 시군구 수. 실측 지역당 0.5초라 60초 제한은 제약이 아니고,
+ * 진짜 제약은 TourAPI 일일 한도(1,000)다. 10건이면 70콜로 한도의 7%만 쓴다.
+ * 250개를 한 바퀴 도는 데 25일 — 관광 정보 갱신 주기로 충분하다.
+ */
+const BATCH = 10
 
 /** Vercel Hobby 함수 실행시간 상한에서 안전 여유를 뺀 값. */
 const BUDGET_MS = 45_000
@@ -28,22 +33,20 @@ export async function GET(request: Request) {
 
   const admin = createSupabaseAdminClient()
 
-  const { data: pending, error: pendingError } = await admin
-    .from('regions')
-    .select('code, tour_area_code, tour_sigungu_code')
-    .is('ingested_at', null)
-    .order('priority')
-    .order('code')
-    .limit(BATCH)
-
-  if (pendingError) {
-    return NextResponse.json({ error: pendingError.message }, { status: 500 })
-  }
-  if (!pending || pending.length === 0) {
-    return NextResponse.json({ done: true, message: '적재할 지역이 없다' })
+  let targets
+  try {
+    targets = await selectQueue(admin, BATCH)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 
-  const codes = pending.map((r) => r.code)
+  if (targets.length === 0) {
+    // 3순위(갱신)가 항상 공급되므로 여기 오는 건 regions가 비었을 때뿐이다.
+    return NextResponse.json({ done: true, message: '처리할 지역이 없다' })
+  }
+
+  const codes = targets.map((t) => t.code)
   const { data: run, error: runError } = await admin
     .from('ingest_runs')
     .insert({ region_codes: codes, trigger: 'cron', status: 'running' })
@@ -57,13 +60,33 @@ export async function GET(request: Request) {
 
   try {
     const result = await ingestRegions(
-      pending.map((r) => ({
-        code: r.code,
-        areaCode: r.tour_area_code,
-        sigunguCode: r.tour_sigungu_code,
+      targets.map((t) => ({
+        code: t.code,
+        areaCode: t.areaCode,
+        sigunguCode: t.sigunguCode,
       })),
       createIngestDeps(BUDGET_MS),
     )
+
+    // 실패한 지역만 카운터를 올린다. 임계를 넘으면 큐에서 뒤로 밀린다 —
+    // 영원히 실패하는 지역이 매일 배치를 갉아먹는 것을 막는다.
+    for (const failure of result.failures) {
+      const { data: row } = await admin
+        .from('regions')
+        .select('attempt_count')
+        .eq('code', failure.code)
+        .maybeSingle()
+      const { error: bumpError } = await admin
+        .from('regions')
+        .update({
+          attempt_count: (row?.attempt_count ?? 0) + 1,
+          last_error: failure.message,
+        })
+        .eq('code', failure.code)
+      if (bumpError) {
+        console.error(`attempt_count 갱신 실패(${failure.code}):`, bumpError.message)
+      }
+    }
 
     // 전부 실패했으면 실패로 남긴다. 일부라도 됐으면 성공이다 —
     // 남은 지역은 ingested_at이 비어 다음 실행이 자동으로 다시 집는다.
@@ -86,7 +109,11 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.json(result)
+    // 어떤 이유로 뽑힌 배치였는지 남긴다 — 큐가 의도대로 도는지 눈으로 볼 유일한 창구다.
+    return NextResponse.json({
+      ...result,
+      reasons: targets.map((t) => `${t.code}:${t.reason}`),
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     if (run) {
