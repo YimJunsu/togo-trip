@@ -13,10 +13,10 @@ export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-const INK = '#101010'
-const PAPER = '#f4f4ef'
-const LIME = '#dcfb53'
-const MUTED = '#6f6f68'
+const INK = '#1a1d1a'
+const PAPER = '#f1f1ef'
+const ACCENT = '#2f6b4f'
+const MUTED = '#6a6f6a'
 
 const FEATURES = '여행지 뽑기 · 여행방 · 엔빵 정산 · 성향 분석'
 const KOREAN_TEXT = `${SITE_NAME}${SITE_TAGLINE}${FEATURES}`
@@ -37,14 +37,14 @@ export default async function OpengraphImage() {
         fontFamily: font ? 'Noto Sans KR' : 'sans-serif',
       }}
     >
-      {/* 라임 한 덩어리가 브랜드의 유일한 강조색이다. (DESIGN_SYSTEM §1) */}
+      {/* 강조색 한 덩어리. 숲 초록 하나뿐이다. (DESIGN_SYSTEM §1) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
         <div
           style={{
             width: 28,
             height: 28,
             borderRadius: 999,
-            background: LIME,
+            background: ACCENT,
             display: 'flex',
           }}
         />

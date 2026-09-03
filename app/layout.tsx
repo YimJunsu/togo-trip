@@ -80,7 +80,10 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#f4f4ef',
+  // globals.css @theme의 --color-paper와 같은 값. 모바일 브라우저가 주소창을
+  // 이 색으로 칠하므로 어긋나면 화면 위쪽에 경계선이 생긴다.
+  // 여기도 CSS 변수를 못 써서 값을 복사해 둔다 — 토큰이 바뀌면 같이 바꾼다.
+  themeColor: '#f1f1ef',
   colorScheme: 'light',
 }
 
