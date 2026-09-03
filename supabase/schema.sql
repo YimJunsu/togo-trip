@@ -22,12 +22,18 @@ create table if not exists public.profiles (
   phone                text not null default '',
   birth_date           date,
   provider             text not null default 'email',
+  -- 약관·개인정보에 동의한 시각. null이면 온보딩 미완료다.
+  -- OAuth는 인증 직후 아래 트리거가 행을 만들어 버려서, 행이 있는 것만으로는
+  -- 동의 여부를 알 수 없다. 이 값이 그 구분을 맡는다.
+  onboarded_at         timestamptz,
   completed_trip_count int  not null default 0,
   created_at           timestamptz not null default now()
 );
 
--- 동의 항목은 저장하지 않는다. 이용약관·개인정보 동의는 가입의 전제라 행이 있다는 것
--- 자체가 동의를 뜻하고, 마케팅 수신은 보낼 계획이 없어 받지 않기로 했다.
+-- 동의 항목 자체는 저장하지 않고 동의한 "시각"만 onboarded_at에 남긴다.
+-- 예전에는 "행이 있다는 것 자체가 동의를 뜻한다"고 봤지만, OAuth가 그 전제를 깼다 —
+-- 트리거가 인증 직후 행을 만들어서 동의 화면을 본 적 없는 행이 생긴다.
+-- 마케팅 수신은 보낼 계획이 없어 받지 않기로 했다.
 -- 나중에 발송을 시작하려면 그때 컬럼과 동의 UI를 함께 되살린다.
 
 -- 2) RLS --------------------------------------------------------------------
@@ -44,6 +50,59 @@ drop   policy if exists "본인 프로필 수정" on public.profiles;
 create policy "본인 프로필 수정" on public.profiles
   for update using (auth.uid() = id) with check (auth.uid() = id);
 
+-- RLS는 어느 행인지만 제한할 뿐 어느 컬럼인지는 제한하지 못한다. 위 정책은 본인
+-- 행 전체를 열어 두므로, 잠그지 않으면 로그인한 사용자가 공개 anon 키로 PostgREST를
+-- 직접 불러 자기 onboarded_at을 찍고 동의 게이트를 스스로 열 수 있다. is_admin도
+-- 마찬가지다. 사용자가 직접 쓸 수 있는 타임스탬프는 동의 기록으로서 값이 없다.
+revoke update on public.profiles from authenticated, anon;
+grant  update (name, phone) on public.profiles to authenticated;
+
+-- 온보딩 여부. 앱의 세션 게이트는 Next.js를 거치는 요청에만 적용되고,
+-- PostgREST는 두 번째 정문이라 DB 쪽에서도 같은 판정이 필요하다.
+create or replace function public.is_onboarded()
+returns boolean
+language sql security definer stable set search_path = ''
+as $$
+  select exists (
+    select 1 from public.profiles
+     where id = auth.uid() and onboarded_at is not null
+  );
+$$;
+
+grant execute on function public.is_onboarded() to authenticated, anon;
+
+-- 온보딩 저장. birth_date·onboarded_at이 컬럼 grant에서 빠져 있으므로 이 함수로만
+-- 쓴다. 만 14세 검증을 여기서 한 번 더 하는 이유는, 이 함수가 화면을 거치지 않고
+-- 네트워크에서 직접 불릴 수 있기 때문이다.
+create or replace function public.complete_onboarding(birth_date_input date)
+returns void
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  target uuid := auth.uid();
+begin
+  if target is null then
+    raise exception '로그인이 필요합니다.';
+  end if;
+
+  if birth_date_input is null or birth_date_input > current_date then
+    raise exception '생년월일이 올바르지 않습니다.';
+  end if;
+
+  if birth_date_input > (current_date - interval '14 years') then
+    raise exception '만 14세 미만은 가입할 수 없습니다.';
+  end if;
+
+  update public.profiles
+     set birth_date = birth_date_input,
+         -- 이미 동의한 사람의 시각은 덮어쓰지 않는다.
+         onboarded_at = coalesce(onboarded_at, now())
+   where id = target;
+end;
+$$;
+
+grant execute on function public.complete_onboarding(date) to authenticated;
+
 -- 3) 가입 트리거 -------------------------------------------------------------
 -- auth.users에 행이 생기면 profiles에 짝을 만든다. 부가정보는 가입 시
 -- options.data(raw_user_meta_data)로 넘어온 값을 읽는다.
@@ -54,14 +113,26 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, name, email, phone, birth_date, provider)
+  insert into public.profiles (id, name, email, phone, birth_date, provider, onboarded_at)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'name', ''),
+    coalesce(
+      new.raw_user_meta_data->>'name',
+      -- 구글은 name 대신 full_name으로 주기도 한다.
+      new.raw_user_meta_data->>'full_name',
+      ''
+    ),
     new.email,
     coalesce(new.raw_user_meta_data->>'phone', ''),
     nullif(new.raw_user_meta_data->>'birthDate', '')::date,
-    coalesce(new.raw_app_meta_data->>'provider', 'email')
+    coalesce(new.raw_app_meta_data->>'provider', 'email'),
+    -- 이메일 가입은 동의 화면을 이미 거쳤으므로 바로 찍는다.
+    -- OAuth는 비워 두고 앱의 온보딩 화면이 채운다.
+    case
+      when coalesce(new.raw_app_meta_data->>'provider', 'email') = 'email'
+      then now()
+      else null
+    end
   );
   return new;
 end;
@@ -328,7 +399,7 @@ create policy "멤버 또는 생성자만 여행방 읽기" on public.trips
 
 drop   policy if exists "본인 명의로만 여행방 생성" on public.trips;
 create policy "본인 명의로만 여행방 생성" on public.trips
-  for insert with check (created_by = auth.uid());
+  for insert with check (created_by = auth.uid() and public.is_onboarded());
 
 -- 확정된 방은 방장도 못 고친다. driver_discount_rate가 계산 입력이라서다 —
 -- 확정 화면은 부담 내역을 저장하지 않고 매번 다시 계산하므로(설계 §3), 확정 뒤에
@@ -455,13 +526,13 @@ create policy "멤버만 일정 읽기" on public.itinerary_items
 
 drop   policy if exists "멤버만 일정 추가" on public.itinerary_items;
 create policy "멤버만 일정 추가" on public.itinerary_items
-  for insert with check (public.is_trip_member(trip_id));
+  for insert with check (public.is_trip_member(trip_id) and public.is_onboarded());
 
 -- 넣은 사람만이 아니라 멤버면 지울 수 있다. 일정은 같이 짜는 것이고, 넣은 사람이
 -- 자리에 없다고 잘못 들어간 줄을 아무도 못 지우면 그게 더 불편하다.
 drop   policy if exists "멤버만 일정 삭제" on public.itinerary_items;
 create policy "멤버만 일정 삭제" on public.itinerary_items
-  for delete using (public.is_trip_member(trip_id));
+  for delete using (public.is_trip_member(trip_id) and public.is_onboarded());
 
 -- 12) RPC -------------------------------------------------------------------
 
@@ -480,6 +551,12 @@ declare
 begin
   if auth.uid() is null then
     raise exception 'NOT_AUTHENTICATED';
+  end if;
+
+  -- 동의하지 않은 사람이 멤버가 되면 그 순간부터 개인데이터가 쌓인다.
+  -- 나머지 쓰기 RPC는 전부 멤버십을 요구하므로, 이 두 입구만 막으면 된다.
+  if not public.is_onboarded() then
+    raise exception 'NOT_ONBOARDED';
   end if;
 
   -- unique 인덱스는 대소문자를 구분해 동일 코드가 두 벌 있을 수 있다. order by +
@@ -638,6 +715,12 @@ declare
 begin
   if auth.uid() is null then
     raise exception 'NOT_AUTHENTICATED';
+  end if;
+
+  -- 동의하지 않은 사람이 멤버가 되면 그 순간부터 개인데이터가 쌓인다.
+  -- 나머지 쓰기 RPC는 전부 멤버십을 요구하므로, 이 두 입구만 막으면 된다.
+  if not public.is_onboarded() then
+    raise exception 'NOT_ONBOARDED';
   end if;
 
   -- trips_date_order 체크와 upper(invite_code) 유니크 인덱스는 표 자체의 제약이라

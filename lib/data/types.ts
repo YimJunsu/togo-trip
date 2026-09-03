@@ -19,7 +19,20 @@ export type Profile = {
   /** 숫자만. 하이픈은 저장하지 않는다. */
   phone: string
   birthDate: string
+  /**
+   * 처음 가입할 때 쓴 수단. "지금 쓰는 로그인 수단"이 아니다 —
+   * 이메일로 가입한 뒤 같은 주소의 구글 계정을 연결해도 이 값은 'email'로 남는다
+   * (profiles insert 트리거가 가입 시점에 한 번만 쓴다).
+   */
   provider: AuthProvider
+  /**
+   * 약관·개인정보에 동의한 시각. null이면 온보딩 미완료다.
+   *
+   * OAuth는 인증 직후 트리거가 profiles 행을 만들어 버려서, 행이 있는 것만으로는
+   * 동의 여부를 알 수 없다. 이 값이 그 구분을 맡는다. birthDate처럼 ''로 눌러
+   * 담지 않는다 — null 여부가 로그인 판정 기준이라 그대로 드러나야 한다.
+   */
+  onboardedAt: string | null
   /**
    * 정산 완료 시 +1, 취소 시 -1(0 미만으로는 내려가지 않는다). Supabase에서는
    * settle_trip/unsettle_trip(schema.sql)이 트랜잭션 안에서 증감시킨다.

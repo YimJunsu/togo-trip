@@ -23,6 +23,7 @@ type ProfileRow = {
   phone: string
   birth_date: string | null
   provider: string
+  onboarded_at: string | null
   completed_trip_count: number
   created_at: string
 }
@@ -35,6 +36,7 @@ function toProfile(row: ProfileRow): Profile {
     phone: row.phone,
     birthDate: row.birth_date ?? '',
     provider: row.provider as AuthProvider,
+    onboardedAt: row.onboarded_at,
     completedTripCount: row.completed_trip_count,
     createdAt: row.created_at,
   }
@@ -101,6 +103,23 @@ export const supabaseAuthRepo: AuthRepository = {
   async findById(id: string): Promise<Profile | null> {
     const supabase = await createSupabaseServerClient()
     return fetchProfile(supabase, id)
+  },
+
+  async completeOnboarding(userId: string, birthDate: string): Promise<Profile> {
+    const supabase = await createSupabaseServerClient()
+
+    // 직접 update하지 않는다. profiles의 birth_date·onboarded_at은 컬럼 grant에서
+    // 빠져 있다 — RLS가 행만 제한하고 컬럼은 제한하지 못해서, 열어 두면 사용자가
+    // PostgREST로 자기 onboarded_at을 직접 찍어 동의 게이트를 스스로 열 수 있다.
+    // security definer 함수가 만 14세 검증까지 한 번 더 하고 쓴다.
+    const { error } = await supabase.rpc('complete_onboarding', {
+      birth_date_input: birthDate,
+    })
+    if (error) throw new Error(`온보딩 저장 실패: ${error.message}`)
+
+    const profile = await fetchProfile(supabase, userId)
+    if (!profile) throw new Error('그런 사용자가 없습니다.')
+    return profile
   },
 
   async isEmailTaken(email: string): Promise<boolean> {
