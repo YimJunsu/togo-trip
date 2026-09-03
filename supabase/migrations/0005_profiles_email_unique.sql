@@ -1,0 +1,25 @@
+-- profiles.email 유니크 (2026-09-03)
+-- 최종 리뷰 Important 9.
+--
+-- auth.users는 이메일을 유일하게 지키지만 public.profiles.email은 트리거가 복사해 둔
+-- 사본이라 아무 제약이 없었다.
+--
+-- 같은 이메일의 구글 계정은 보통 기존 계정에 붙는다(identity 연결). 그런데 붙지 못하는
+-- 경우 — 기존 계정의 이메일이 확인되지 않았다거나 Supabase 설정이 바뀐 경우 —
+-- auth.users에 두 번째 행이 생기고 트리거가 profiles에도 두 번째 행을 만든다.
+-- 그러면 한 사람의 여행방·정산·동의 기록이 두 계정으로 갈라지고, 어느 쪽이 진짜인지
+-- 알 방법이 없어 되돌릴 수도 없다. 조용히 벌어지는 것이 가장 나쁘다.
+--
+-- 제약이 걸리면 트리거의 insert가 23505로 실패하고, 그 insert는 auth.users의 insert와
+-- 같은 트랜잭션이라 통째로 롤백된다. 어중간한 계정이 남지 않고 로그인이 눈에 띄게
+-- 실패한다 — 우리가 원하는 쪽이다.
+--
+-- 대소문자는 무시한다. 이메일 가입은 소문자로 내려 저장하지만
+-- (supabaseAuthRepo.signUp의 toLowerCase) OAuth가 주는 값은 그렇지 않을 수 있어,
+-- 원문 그대로 비교하면 A@x.com과 a@x.com이 서로 다른 값으로 통과한다.
+--
+-- 인덱스가 만들어지지 않으면 이미 중복이 있다는 뜻이다. 아래 쿼리로 확인한다.
+--   select lower(email), count(*) from public.profiles
+--    group by 1 having count(*) > 1;
+create unique index if not exists profiles_email_unique
+  on public.profiles (lower(email));

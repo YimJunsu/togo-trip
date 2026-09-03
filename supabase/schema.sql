@@ -30,6 +30,13 @@ create table if not exists public.profiles (
   created_at           timestamptz not null default now()
 );
 
+-- 이메일은 auth.users에서 복사해 온 사본이라 그쪽 유일성이 여기까지 따라오지 않는다.
+-- 같은 이메일의 OAuth 계정이 기존 계정에 붙지 못하면 profiles에 두 번째 행이 생기고,
+-- 한 사람의 여행방·정산·동의 기록이 두 계정으로 갈라진다. 대소문자는 무시한다 —
+-- 이메일 가입은 소문자로 내려 저장하지만 OAuth가 주는 값은 그렇지 않을 수 있다.
+create unique index if not exists profiles_email_unique
+  on public.profiles (lower(email));
+
 -- 동의 항목 자체는 저장하지 않고 동의한 "시각"만 onboarded_at에 남긴다.
 -- 예전에는 "행이 있다는 것 자체가 동의를 뜻한다"고 봤지만, OAuth가 그 전제를 깼다 —
 -- 트리거가 인증 직후 행을 만들어서 동의 화면을 본 적 없는 행이 생긴다.
