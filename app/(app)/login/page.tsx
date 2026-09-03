@@ -34,6 +34,17 @@ export default async function LoginPage({ searchParams }: Props) {
         </p>
       )}
 
+      {/*
+        oauth와 나눠 둔 이유는 안내가 달라야 해서다. 이쪽은 다시 눌러도 같은 결과가
+        나온다 — 인증은 되는데 계정 행이 없는 상태라 재시도로 풀리지 않는다.
+        구체적인 사유는 서버 로그에만 남긴다.
+      */}
+      {error === 'profile' && (
+        <p className="text-danger text-sm">
+          계정 준비를 마치지 못했습니다. 다시 시도해도 같다면 문의해 주세요.
+        </p>
+      )}
+
       <LoginForm />
     </div>
   )

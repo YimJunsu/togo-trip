@@ -1,5 +1,8 @@
+import { SignOutIcon } from '@phosphor-icons/react/dist/ssr'
 import { redirect } from 'next/navigation'
 import { OnboardingForm } from '@/components/auth/OnboardingForm'
+import { SignOutButton } from '@/components/auth/SignOutButton'
+import { actionButtonClass } from '@/components/dashboard/ActionButton'
 import { getPendingUser } from '@/lib/auth/session'
 import { pageMetadata } from '@/lib/seo/metadata'
 
@@ -34,6 +37,25 @@ export default async function OnboardingPage() {
       </header>
 
       <OnboardingForm />
+
+      {/*
+        나가는 문. 이게 없으면 이 화면은 막다른 골목이 된다 — 헤더는 이 사람을
+        비로그인으로 보므로(/api/session이 getUser()를 쓴다) 로그아웃 링크가
+        나타나지 않고, 온보딩을 마치지 못하는 사람은 화면에서 빠져나갈 수단이 없다.
+        만 14세 미만이 그렇다. 검증에 막혀 시작할 수도, 나갈 수도 없게 된다.
+      */}
+      <footer className="border-line flex flex-col gap-3 border-t pt-6">
+        <p className="text-muted text-xs leading-relaxed">
+          지금 그만두면 아무것도 저장하지 않습니다. 다음에 구글로 다시 로그인하면
+          이 화면부터 이어서 진행합니다.
+        </p>
+        <SignOutButton
+          className={actionButtonClass({ tone: 'quiet', className: 'w-full' })}
+        >
+          <SignOutIcon size={16} weight="bold" aria-hidden />
+          로그아웃
+        </SignOutButton>
+      </footer>
     </div>
   )
 }
