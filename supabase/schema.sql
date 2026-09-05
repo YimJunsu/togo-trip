@@ -1102,3 +1102,65 @@ create policy "관리자만 적재 이력 읽기" on public.ingest_runs
 --
 -- 네 표 모두 insert/update 정책이 없다. 쓰기는 RLS를 우회하는 service role 키로만
 -- 가능하고, 그 키는 lib/supabase/admin.ts 한 파일에 갇힌다.
+
+-- 14) RLS 안전망 (이벤트 트리거) ----------------------------------------------
+--
+-- public 스키마에 표가 새로 생기면 RLS를 자동으로 켠다.
+--
+-- 위 절들이 표마다 enable row level security를 명시하고 있으므로 이건 이중 방어다.
+-- 막는 것은 "나중에 표를 추가하는 사람이 그 한 줄을 잊는 경우"이고, 그때 그 표는
+-- anon 키로 전부 읽히는 상태로 열린다. 사람이 기억해야 하는 규칙을 DB가 대신 지킨다.
+--
+-- 이 함수와 트리거는 오랫동안 어느 파일에도 없이 운영 DB에만 있었다(SQL Editor에서
+-- 직접 만든 것으로 보인다). 이 파일로 세운 환경에는 그물이 없다는 뜻이라 옮겨 둔다.
+-- 로직은 운영에 있는 것을 그대로 옮겼고 들여쓰기만 이 파일 형식에 맞췄다.
+--
+-- 주의: 이벤트 트리거 생성에는 보통 상위 권한이 필요하다. Supabase의 SQL Editor가
+-- 쓰는 postgres 역할에는 허용돼 있지만, 권한이 없는 환경에서는 이 절만 실패한다.
+-- 그래서 파일 맨 뒤에 둔다 — 앞의 표·정책·함수는 이미 다 만들어진 뒤다.
+
+create or replace function public.rls_auto_enable()
+returns event_trigger
+language plpgsql
+security definer
+set search_path to 'pg_catalog'
+as $function$
+declare
+  cmd record;
+begin
+  for cmd in
+    select *
+      from pg_event_trigger_ddl_commands()
+     where command_tag in ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+       and object_type in ('table', 'partitioned table')
+  loop
+    -- public만 대상으로 한다. 뒤의 세 조건은 앞의 IN ('public')에 이미 걸러지지만
+    -- 원본 그대로 둔다 — 나중에 대상 스키마를 늘릴 때 그 방어가 살아 있어야 한다.
+    if cmd.schema_name is not null
+       and cmd.schema_name in ('public')
+       and cmd.schema_name not in ('pg_catalog', 'information_schema')
+       and cmd.schema_name not like 'pg_toast%'
+       and cmd.schema_name not like 'pg_temp%' then
+      begin
+        execute format('alter table if exists %s enable row level security', cmd.object_identity);
+        raise log 'rls_auto_enable: enabled RLS on %', cmd.object_identity;
+      exception
+        -- 삼킨다. RLS를 못 켰다고 표 생성 자체를 실패시키지 않는다 —
+        -- 마이그레이션 한복판에서 DDL이 죽는 편이 더 나쁘다. 로그로만 알린다.
+        when others then
+          raise log 'rls_auto_enable: failed to enable RLS on %', cmd.object_identity;
+      end;
+    else
+      raise log 'rls_auto_enable: skip % (either system schema or not in enforced list: %.)',
+        cmd.object_identity, cmd.schema_name;
+    end if;
+  end loop;
+end;
+$function$;
+
+-- create event trigger에는 if not exists가 없다. 재실행 가능하게 drop을 앞세운다.
+drop event trigger if exists ensure_rls;
+create event trigger ensure_rls
+  on ddl_command_end
+  when tag in ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+  execute function public.rls_auto_enable();
