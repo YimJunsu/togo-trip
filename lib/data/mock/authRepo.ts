@@ -106,6 +106,43 @@ export const mockAuthRepo: AuthRepository = {
   },
 }
 
+/**
+ * OAuth로 막 인증했지만 온보딩은 아직인 계정을 만든다.
+ *
+ * **mock 전용이라 AuthRepository에 없다.** 실서버에서는 Supabase의
+ * on_auth_user_created 트리거가 이 일을 하고, 앱 코드가 부르는 자리가 없다.
+ * 인터페이스에 넣으면 supabase 구현이 영영 쓰이지 않을 메서드를 갖게 된다.
+ *
+ * 이게 없으면 mock으로는 onboardedAt이 null인 계정을 만들 방법이 아예 없었다.
+ * 그래서 이 기능의 핵심 전환(null → 타임스탬프)이 한 번도 검증되지 않았다 —
+ * completeOnboarding 테스트가 이미 완료된 seed 계정을 써서, 아래 ??= 가 한 번도
+ * 실행되지 않는데도 통과하고 있었다.
+ */
+export function createPendingAccount(input: {
+  name: string
+  email: string
+}): Profile {
+  const account: Account = {
+    // Date.now()만 쓰면 같은 밀리초에 두 번 부를 때 id가 겹친다.
+    id: `usr-pending-${Date.now()}-${accounts.length}`,
+    name: input.name.trim(),
+    email: normalizeEmail(input.email),
+    // 구글은 전화번호도 생년월일도 주지 않는다. 온보딩에서 받는다.
+    phone: '',
+    birthDate: '',
+    provider: 'google',
+    // 동의를 아직 받지 않았다. 이 null이 이 기능의 전부다.
+    onboardedAt: null,
+    completedTripCount: 0,
+    createdAt: new Date().toISOString(),
+    // 비밀번호가 없는 계정이다. verifyPassword는 망가진 저장값에 false를 돌려주므로
+    // (던지지 않는다) 이 계정으로는 비밀번호 로그인이 성립하지 않는다.
+    passwordHash: '',
+  }
+  accounts.push(account)
+  return toProfile(account)
+}
+
 /** 궁합 결과가 두 사람의 프로필을 동기적으로 필요로 한다. */
 export function findProfile(id: string): Profile | undefined {
   const found = accounts.find((a) => a.id === id)
