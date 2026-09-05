@@ -8,6 +8,7 @@ import {
   AUTO_COLLECTED,
   MIN_SIGNUP_AGE,
   OPERATOR,
+  PENDING_ACCOUNT_RETENTION_TEXT,
   POLICY_EFFECTIVE_DATE,
   PROCESSORS,
 } from '@/lib/legal/policy'
@@ -48,6 +49,13 @@ export default function PrivacyPage() {
           회원 탈퇴 시까지 보유하며, 탈퇴하면 지체 없이 파기합니다. 다만 관계
           법령이 별도 보관을 요구하는 경우 그 기간 동안 다른 정보와 분리해
           보관합니다.
+        </p>
+        <p className="text-muted">
+          소셜 로그인은 인증이 끝나는 시점에 이름과 이메일이 먼저 전달됩니다.
+          이어지는 가입 절차(생년월일 확인과 약관 동의)를 마치지 않은 계정은
+          가입이 완료되지 않은 것으로 보아 {PENDING_ACCOUNT_RETENTION_TEXT} 안에
+          모두 삭제합니다. 만 {MIN_SIGNUP_AGE}세 미만이어서 가입이 제한된 경우도
+          같습니다.
         </p>
         <p className="text-muted">
           접속 로그는 통신비밀보호법에 따라 3개월간 보관합니다.
@@ -115,7 +123,7 @@ export default function PrivacyPage() {
         <p className="text-muted">
           보유 기간이 지나거나 처리 목적이 달성되면 지체 없이 파기합니다. 전자적
           파일은 복구할 수 없는 방법으로 삭제하고, 출력물이 있는 경우 분쇄하거나
-          소각합니다.
+          소각합니다. 가입을 마치지 않은 계정의 삭제는 매일 자동으로 이루어집니다.
         </p>
       </LegalSection>
 

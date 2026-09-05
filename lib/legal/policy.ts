@@ -10,7 +10,7 @@
  * 방침 변경 시 이 날짜를 올린다. 내용을 고치고 날짜를 그대로 두면
  * 이용자가 무엇이 언제 바뀌었는지 알 수 없다.
  */
-export const POLICY_EFFECTIVE_DATE = '2026.07.25'
+export const POLICY_EFFECTIVE_DATE = '2026.09.04'
 
 /**
  * 운영자 정보. 개인정보 보호법은 개인정보처리자와 보호책임자를 밝히도록 한다.
@@ -93,3 +93,19 @@ export const PROCESSORS = [
  * 방침에 적힌 나이와 코드가 막는 나이가 갈라지면 방침이 거짓말이 된다.
  */
 export { MIN_SIGNUP_AGE } from '@/lib/auth/validate'
+
+/**
+ * 온보딩을 마치지 않은 계정의 보관 기간.
+ *
+ * 소셜 로그인은 인증이 끝나는 순간 프로필 행이 생긴다 — 우리 동의 화면을 보여주기
+ * 전이다. 그래서 "동의를 받지 않았는데 이름·이메일은 갖고 있는" 상태가 존재하고,
+ * 방침 §3·§8이 그 상태를 언제 끝내는지 말해야 한다.
+ *
+ * 실제로 지우는 코드는 app/api/cron/cleanup-pending이고 같은 상수를 쓴다.
+ * 여기서 다시 내보내기만 하는 이유는 MIN_SIGNUP_AGE와 같다 — 방침에 적은 기간과
+ * 실제로 지우는 기간이 갈라지면 방침이 거짓말이 된다.
+ */
+export {
+  PENDING_ACCOUNT_RETENTION_HOURS,
+  PENDING_ACCOUNT_RETENTION_TEXT,
+} from '@/lib/auth/retention'
