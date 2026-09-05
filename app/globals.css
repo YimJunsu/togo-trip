@@ -39,13 +39,13 @@
 
   /*
    * 소셜 로그인 브랜드 색. 카카오·구글이 규정한 값이라 우리가 고를 수 없다.
-   * 범위는 로그인·가입 화면의 해당 버튼뿐이다. (DESIGN_SYSTEM §10)
+   * 범위는 로그인·가입 화면의 해당 버튼뿐이다. (DESIGN_SYSTEM §7)
    */
   --color-kakao: #fee500;
 
   /*
    * 지도 전용 팔레트. 지도는 UI가 아니라 콘텐츠(일러스트)라 자체 색을 갖는다.
-   * 범위는 지도 svg 안뿐이다 — 버튼·카드·배지는 여전히 초록 하나. (DESIGN_SYSTEM §9)
+   * 범위는 지도 svg 안뿐이다 — 버튼·카드·배지는 여전히 초록 하나. (DESIGN_SYSTEM §6)
    * 채도를 낮춰 스톤 배경과 붙는다.
    */
   --color-terrain-sea: #d9e6e8;
@@ -83,7 +83,7 @@
 
   /* 참여 확정 시 도장이 쿵 찍히는 연출. (DESIGN_SYSTEM §5) */
   --animate-stamp: stamp 280ms cubic-bezier(0.2, 0, 0.2, 1) forwards;
-  /* 목록·그리드가 순서대로 올라오는 등장. index를 --i로 넘겨 지연을 준다. */
+  /* 목록·그리드가 순서대로 올라오는 등장. 지연은 animationDelay 인라인 스타일이다. */
   --animate-rise: rise 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
