@@ -1,5 +1,4 @@
 -- 공공데이터 관광정보 적재 (feat/tour-api-ingest)
--- 설계: docs/superpowers/specs/2026-07-27-tour-api-ingest-design.md §5
 
 -- 시군구 마스터 250건. seed로 한 번 채우고 이후엔 상태만 바뀐다.
 create table if not exists public.regions (

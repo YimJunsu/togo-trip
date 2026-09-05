@@ -1,5 +1,4 @@
 -- 전량 선적재와 상시 갱신 (2026-08-03)
--- 설계: docs/superpowers/specs/2026-08-03-bulk-ingest-redesign-design.md
 
 -- ── 1. regions: 갱신 주기와 실패 추적 ───────────────────────────────────────
 alter table public.regions

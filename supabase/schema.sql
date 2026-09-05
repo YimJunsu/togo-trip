@@ -1,6 +1,15 @@
 -- togo-trip 전체 스키마. Supabase 대시보드 > SQL Editor에 통째로 붙여 실행한다.
--- 회원(profiles) · 여행방 · 멤버 · 지출 · 정산 전부가 이 파일 하나에 들어 있다.
--- lib/data/types.ts 의 타입들을 테이블로 승격한 것.
+-- 회원(profiles) · 여행방 · 멤버 · 지출 · 참여자 · 정산 · 일정 · 지역 콘텐츠까지
+-- 표 열한 개가 전부 이 파일 하나에 들어 있다. lib/data/types.ts 의 타입들을
+-- 테이블로 승격한 것이다.
+--
+-- 새 환경(DR·이관)을 세우는 절차:
+--   1. 이 파일을 통째로 실행한다.
+--   2. supabase/seed/regions.sql 로 시군구 250건을 채운다.
+--   3. Authentication > Providers 에서 Email(Confirm email 끔) · Google 을 켜고,
+--      URL Configuration > Redirect URLs 에 <origin>/auth/callback 을 등록한다.
+--   4. 환경변수를 채운다 (.env.local.example 참고).
+-- supabase/migrations/ 는 이 절차에 필요 없다 — 아래 참고를 볼 것.
 --
 -- 사전 조건: Auth > Providers > Email 에서 "Confirm email"을 끈다.
 --   (지금은 이메일 인증 플로우가 없어, 켜져 있으면 가입 직후 세션이 생기지 않는다.)
@@ -11,8 +20,15 @@
 --   (drop 없이 create policy만 두면 두 번째 실행이 42710 "already exists"로 죽는다.
 --    한 번 겪으면 "어디까지 들어갔지?"를 손으로 되짚어야 해서, 재실행 가능하게 둔다.)
 --
--- 이미 운영 중인 DB에 변경분만 얹은 기록은 supabase/migrations/ 에 있다.
--- 두 곳의 내용이 어긋나면 이 파일이 원본이다.
+-- supabase/migrations/ 는 **이미 돌아가는 DB에 얹은 변경분의 기록**이지 설치
+-- 스크립트가 아니다. 빈 DB에서 순서대로 돌리면 0001이 아직 없는 expenses 표의
+-- 정책을 고치려다 즉시 죽는다. 새 환경에는 이 파일만 쓴다.
+--
+-- 두 곳의 내용이 어긋나면 이 파일이 원본이다. 스키마를 바꾸면 새 마이그레이션
+-- 파일과 이 파일을 **함께** 고친다. 한동안 그 규칙이 지켜지지 않아 지역 콘텐츠
+-- 표 네 개(regions·attractions·ingest_runs·heartbeats)와 profiles.is_admin 이
+-- 마이그레이션에만 있었다 — 이 파일로 세운 환경에는 지역 페이지가 통째로
+-- 없었다는 뜻이다. 2026-09-05에 §13으로 되찾았다.
 
 -- 1) profiles ---------------------------------------------------------------
 create table if not exists public.profiles (
@@ -27,8 +43,17 @@ create table if not exists public.profiles (
   -- 동의 여부를 알 수 없다. 이 값이 그 구분을 맡는다.
   onboarded_at         timestamptz,
   completed_trip_count int  not null default 0,
+  -- 관리자 플래그. /admin/** 접근 판정의 원본이고 적재 이력 읽기 정책이 이걸 본다(§13).
+  -- 사용자가 스스로 켤 수 없도록 아래 컬럼 잠금에서 제외돼 있다.
+  is_admin             boolean not null default false,
   created_at           timestamptz not null default now()
 );
+
+-- 이미 만들어진 표에 나중에 추가된 컬럼들. create table은 표가 있으면 통째로 건너뛰므로
+-- 여기서 따로 보강한다. 새 환경에서는 위 정의에 이미 들어 있어 아무 일도 하지 않는다.
+alter table public.profiles
+  add column if not exists onboarded_at timestamptz,
+  add column if not exists is_admin     boolean not null default false;
 
 -- 이메일은 auth.users에서 복사해 온 사본이라 그쪽 유일성이 여기까지 따라오지 않는다.
 -- 같은 이메일의 OAuth 계정이 기존 계정에 붙지 못하면 profiles에 두 번째 행이 생기고,
@@ -172,7 +197,6 @@ grant execute on function public.email_taken(text) to anon, authenticated;
 -- =============================================================================
 -- 여행방 · 멤버 · 지출 · 정산
 -- lib/data/types.ts 의 Trip / Member / Expense / Settlement 를 테이블로 승격한 것.
--- 설계: docs/superpowers/specs/2026-07-28-invite-and-settlement-design.md
 -- =============================================================================
 
 -- 5) trips ------------------------------------------------------------------
@@ -953,3 +977,128 @@ grant execute on function public.create_trip(text, text, date, date, text, text,
 grant execute on function public.settle_trip(uuid, jsonb)     to authenticated;
 grant execute on function public.unsettle_trip(uuid)          to authenticated;
 grant execute on function public.leave_trip(uuid, uuid)       to authenticated;
+
+-- 13) 공공데이터 지역 콘텐츠 ---------------------------------------------------
+--
+-- 공공데이터포털 TourAPI에서 시군구 단위로 받아 온 관광지·음식점.
+-- 이 절이 오랫동안 이 파일에 없었다 — 표 네 개가 supabase/migrations/에만 있어서
+-- "이 파일 하나면 새 환경이 선다"는 위 머리말이 사실이 아니었다. DR·이관 때
+-- 지역 페이지가 통째로 빠진 DB가 만들어진다.
+
+-- 시군구 마스터 250건. seed(supabase/seed/regions.sql)로 한 번 채우고 이후엔 상태만 바뀐다.
+create table if not exists public.regions (
+  code               text primary key,          -- korea-sigungu.json의 5자리
+  name               text not null,
+  province           text not null,
+  tour_area_code     int  not null,
+  tour_sigungu_code  int,                       -- 세종은 null
+  priority           int  not null default 999, -- 적재 순서. 낮을수록 먼저
+  ingested_at        timestamptz,               -- null이면 미적재
+  refreshed_at       timestamptz,
+  attraction_count   int  not null default 0,
+  restaurant_count   int  not null default 0,
+  -- cron 2순위(overview 부족한 지역)가 이 값만 보면 되게 한다. attractions를 조인해
+  -- 세면 PostgREST 임베디드 쿼리가 되어 취약하다.
+  overview_count     int  not null default 0,
+  attempt_count      int  not null default 0,
+  last_error         text
+);
+
+alter table public.regions
+  add column if not exists refreshed_at   timestamptz,
+  add column if not exists attempt_count  int not null default 0,
+  add column if not exists last_error     text,
+  add column if not exists overview_count int not null default 0;
+
+-- cron 1순위(미적재)가 이 인덱스를 탄다.
+create index if not exists regions_pending_idx
+  on public.regions (priority, code) where ingested_at is null;
+-- cron 3순위(가장 오래 갱신 안 된 지역).
+create index if not exists regions_refresh_idx
+  on public.regions (attempt_count, refreshed_at nulls first, priority);
+
+-- 관광지(contentTypeId 12)와 음식점(39)을 한 표에 담는다. TourAPI 공통 필드가 같고
+-- 지역 페이지가 둘을 함께 읽기 때문이다.
+--
+-- 기본키가 (content_id, region_code) 복합인 것이 중요하다. TourAPI는 수원·성남·안양·
+-- 안산·고양·용인·청주·천안·전주·포항·창원을 통째로 하나로 보는데, 시군구 30개가 그
+-- 12개 지역을 공유한다. content_id 단독 기본키로는 같은 그룹의 뒤에 적재된 구가 앞선
+-- 구의 행을 가져가, 약 17개 지역 페이지가 건수만 표시하고 빈 목록을 렌더한다.
+create table if not exists public.attractions (
+  content_id       text not null,               -- TourAPI contentid
+  content_type_id  int  not null,
+  region_code      text not null references public.regions(code),
+  title            text not null,
+  addr             text,
+  lat              double precision,
+  lng              double precision,
+  image_url        text,
+  cat1 text, cat2 text, cat3 text,
+  overview         text,                        -- 지역 페이지 본문의 재료. 음식점은 항상 null
+  -- overview 유무를 정렬 키로 쓴다. overview 본문으로 정렬하면 한국어 문단 사전순이
+  -- 되어 버려 의미가 없고, mock 구현이 같은 순서를 재현할 수도 없다.
+  has_overview     boolean generated always as (overview is not null) stored,
+  tel              text,
+  updated_at       timestamptz not null default now(),
+  constraint attractions_pkey primary key (content_id, region_code)
+);
+
+create index if not exists attractions_region_type_idx
+  on public.attractions (region_code, content_type_id, has_overview desc, title);
+
+-- 적재 이력. 실패 원인을 나중에 확인할 유일한 창구다.
+create table if not exists public.ingest_runs (
+  id           bigserial primary key,
+  started_at   timestamptz not null default now(),
+  finished_at  timestamptz,
+  region_codes text[],
+  upserted     int not null default 0,
+  trigger      text not null default 'cron',    -- cron | read_through
+  status       text not null default 'running', -- running | ok | failed
+  error        text
+);
+
+-- read-through 일일 상한을 세는 쿼리가 이 인덱스를 탄다.
+create index if not exists ingest_runs_trigger_started_idx
+  on public.ingest_runs (trigger, started_at desc);
+
+-- 무료 플랜 정지 방지용 keepalive.
+--
+-- 적재 cron도 쓰기를 만들지만 그쪽은 TourAPI에 의존한다. 외부 API 장애나 한도 소진이
+-- 일주일 이어지면 쓰기가 0이 되어 프로젝트가 정지한다. 이 표는 Postgres만 건드리므로
+-- 그 실패 경로를 끊는다. 중복이 아니라 보험이다.
+create table if not exists public.heartbeats (
+  id      smallint primary key default 1,
+  beat_at timestamptz not null default now(),
+  constraint heartbeats_single_row check (id = 1)
+);
+
+insert into public.heartbeats (id) values (1) on conflict (id) do nothing;
+
+-- ── RLS ─────────────────────────────────────────────────────────────────────
+alter table public.regions     enable row level security;
+alter table public.attractions enable row level security;
+alter table public.ingest_runs enable row level security;
+alter table public.heartbeats  enable row level security;
+
+-- 공개 콘텐츠. 읽기만 연다.
+drop policy if exists "지역 공개 읽기" on public.regions;
+create policy "지역 공개 읽기" on public.regions
+  for select using (true);
+
+drop policy if exists "관광지 공개 읽기" on public.attractions;
+create policy "관광지 공개 읽기" on public.attractions
+  for select using (true);
+
+-- 적재 이력은 관리자만. 권한 판정의 원본이 여기다 — 페이지의 notFound()는 두 번째 방어선.
+drop policy if exists "관리자만 적재 이력 읽기" on public.ingest_runs;
+create policy "관리자만 적재 이력 읽기" on public.ingest_runs
+  for select using (
+    exists (select 1 from public.profiles p
+            where p.id = auth.uid() and p.is_admin)
+  );
+
+-- heartbeats에는 읽기 정책도 두지 않는다 — 어느 화면도 쓰지 않는다.
+--
+-- 네 표 모두 insert/update 정책이 없다. 쓰기는 RLS를 우회하는 service role 키로만
+-- 가능하고, 그 키는 lib/supabase/admin.ts 한 파일에 갇힌다.
