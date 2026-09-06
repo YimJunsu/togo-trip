@@ -152,6 +152,65 @@ export type DestinationFilter = {
   season?: Season
 }
 
+/**
+ * 음식 종류. CSV의 한글 라벨과의 대응은 scripts/build-food-data.mjs가,
+ * 화면 라벨은 lib/utils/labels.ts가 갖는다.
+ */
+export type FoodCategory =
+  | 'korean'
+  | 'chinese'
+  | 'japanese'
+  | 'western'
+  | 'bunsik'
+  | 'fastfood'
+  | 'asian'
+  | 'salad'
+  | 'dessert'
+  | 'beverage'
+
+/**
+ * "지금 어떤 상태냐"로 음식을 고르는 태그. 날씨·몸 상태·상황이 섞여 있지만
+ * 판정은 한 덩어리 OR이다 — 무리 나누기는 화면의 표시 방식일 뿐이다.
+ * 메뉴당 태그가 2~3개뿐이라 무리끼리 AND로 걸면 후보가 즉시 0이 된다.
+ */
+export type FoodCondition =
+  | 'cold'
+  | 'hot'
+  | 'tired'
+  | 'stress'
+  | 'hangover'
+  | 'sick'
+  | 'alcohol'
+  | 'cheap'
+  | 'diet'
+  | 'special'
+
+/** 1인분 기준 영양성분. 원 단위 통화처럼 정수로만 다룬다. */
+export type Nutrition = {
+  kcal: number
+  carbsG: number
+  proteinG: number
+  fatG: number
+  sodiumMg: number
+}
+
+export type Food = {
+  id: string
+  name: string
+  category: FoodCategory
+  conditions: FoodCondition[]
+  /** 카드·목록에 세우는 표정. 팔레트 채도를 낮게 잡은 대신 원색을 이게 맡는다. (DESIGN_SYSTEM §8) */
+  emoji: string
+  nutrition: Nutrition
+}
+
+export type FoodFilter = {
+  /** 종류는 하나만 고른다. 여러 종류를 동시에 원하면 아예 안 고르는 것과 같다. */
+  category?: FoodCategory
+  /** 하나라도 걸리면 후보다. 고를수록 후보가 늘어난다. */
+  conditions?: FoodCondition[]
+}
+
 export type QuizQuestion = {
   id: string
   axis: QuizAxis

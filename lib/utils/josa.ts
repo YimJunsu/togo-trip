@@ -8,6 +8,7 @@ const PAIRS = {
   '은/는': ['은', '는'],
   '을/를': ['을', '를'],
   '과/와': ['과', '와'],
+  '이나/나': ['이나', '나'],
 } as const
 
 export type JosaPair = keyof typeof PAIRS
