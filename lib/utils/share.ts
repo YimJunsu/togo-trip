@@ -13,10 +13,19 @@ export async function shareOrCopy({
   text,
   /** 상대 경로면 지금 origin 기준으로 푼다. 없으면 보고 있는 주소 그대로. */
   path,
+  /**
+   * 복사로 떨어졌을 때 text까지 함께 담을지. 기본은 주소만이다.
+   *
+   * Web Share 시트는 text와 url을 둘 다 넘겨받지만 클립보드는 문자열 하나뿐이라,
+   * 문구가 공유의 핵심인 자리(음식 뽑기의 말투)에서는 주소만 복사하면 정작 하고 싶은
+   * 말이 사라진다. 반대로 초대 링크처럼 주소가 전부인 자리는 문구가 붙으면 거추장스럽다.
+   */
+  copiesText = false,
 }: {
   title: string
   text: string
   path?: string
+  copiesText?: boolean
 }): Promise<ShareResult> {
   const url = new URL(path ?? window.location.href, window.location.href).href
 
@@ -30,7 +39,12 @@ export async function shareOrCopy({
   }
 
   try {
-    await navigator.clipboard.writeText(url)
+    await navigator.clipboard.writeText(
+      copiesText
+        ? `${text}
+${url}`
+        : url,
+    )
     return 'copied'
   } catch {
     return 'failed'

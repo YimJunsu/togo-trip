@@ -7,6 +7,7 @@ import { NoticeProvider } from '@/components/ui/Notice'
 const NAV = [
   { href: '/', label: '홈' },
   { href: '/random', label: '뽑기' },
+  { href: '/food', label: '음식' },
   { href: '/style', label: '성향' },
   { href: '/join', label: '참여' },
   { href: '/compat', label: '궁합' },

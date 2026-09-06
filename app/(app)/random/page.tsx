@@ -1,7 +1,8 @@
+import Link from 'next/link'
 import { DartGame } from '@/components/dashboard/DartGame'
+import { ModeTabs } from '@/components/dashboard/ModeTabs'
 import { DestinationDirectory } from '@/components/dashboard/DestinationDirectory'
 import { RandomDrawer } from '@/components/dashboard/RandomDrawer'
-import { RandomModeTabs } from '@/components/dashboard/RandomModeTabs'
 import { RegionDirectory } from '@/components/dashboard/RegionDirectory'
 import { attractionRepo, destinationRepo } from '@/lib/data'
 import { rollWind } from '@/lib/geo/dart'
@@ -32,14 +33,41 @@ export default async function RandomPage() {
           </p>
         </header>
 
-        <RandomModeTabs
-          dartPanel={<DartGame initialWind={rollWind()} />}
-          slotPanel={<RandomDrawer initialCandidates={candidates} />}
+        <ModeTabs
+          modes={[
+            {
+              id: 'dart',
+              label: '다트 던지기',
+              panel: <DartGame initialWind={rollWind()} />,
+            },
+            {
+              id: 'slot',
+              label: '조건으로 뽑기',
+              panel: <RandomDrawer initialCandidates={candidates} />,
+            },
+          ]}
         />
       </div>
 
       <DestinationDirectory destinations={candidates} />
       <RegionDirectory regions={regions} />
+
+      <section aria-labelledby="random-more-heading">
+        <h2
+          id="random-more-heading"
+          className="font-display text-lg font-semibold tracking-tight"
+        >
+          먹을 것도 못 정했다면
+        </h2>
+        <p className="text-muted mt-1 text-sm leading-relaxed">
+          여행지를 정하고 나면 다음 고민은 늘 끼니입니다.{' '}
+          <Link href="/food" className="text-ink underline underline-offset-4">
+            음식 뽑기
+          </Link>
+          에서 종류와 컨디션을 걸어 메뉴를 뽑고, 열량·탄단지·나트륨까지 함께 볼
+          수 있습니다.
+        </p>
+      </section>
     </div>
   )
 }
