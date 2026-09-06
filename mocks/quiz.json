@@ -106,5 +106,113 @@
       { "label": "사진으로 남기면 된다", "score": 0 },
       { "label": "여기서 못 사면 못 산다. 산다", "score": 100 }
     ]
+  },
+  {
+    "id": "q13",
+    "axis": "plan",
+    "text": "숙소 예약은 언제 하나?",
+    "options": [
+      { "label": "출발 한 달 전엔 끝낸다", "score": 0 },
+      { "label": "당일에도 방은 있다", "score": 100 }
+    ]
+  },
+  {
+    "id": "q14",
+    "axis": "plan",
+    "text": "여행 가방을 쌀 때.",
+    "options": [
+      { "label": "체크리스트 보고 하나씩 담는다", "score": 0 },
+      { "label": "전날 밤에 대충 쓸어 담는다", "score": 100 }
+    ]
+  },
+  {
+    "id": "q15",
+    "axis": "plan",
+    "text": "친구가 \"어디 갈까?\" 하고 물었다.",
+    "options": [
+      { "label": "후보 세 곳이랑 이유까지 정리해 뒀다", "score": 0 },
+      { "label": "일단 가서 정하자", "score": 100 }
+    ]
+  },
+  {
+    "id": "q16",
+    "axis": "morning",
+    "text": "첫날 출발 시간을 고른다면.",
+    "options": [
+      { "label": "첫차. 하루를 통으로 쓴다", "score": 0 },
+      { "label": "느지막이. 잠은 자야지", "score": 100 }
+    ]
+  },
+  {
+    "id": "q17",
+    "axis": "morning",
+    "text": "조식이 포함된 숙소다.",
+    "options": [
+      { "label": "그거 보고 골랐는데 당연히 먹는다", "score": 0 },
+      { "label": "돈은 아깝지만 못 일어난다", "score": 100 }
+    ]
+  },
+  {
+    "id": "q18",
+    "axis": "morning",
+    "text": "여행지에서의 새벽 2시.",
+    "options": [
+      { "label": "자는 중이다", "score": 0 },
+      { "label": "아직 밖에 있다", "score": 100 }
+    ]
+  },
+  {
+    "id": "q19",
+    "axis": "activity",
+    "text": "전망대까지 계단 300개, 옆에 엘리베이터가 있다.",
+    "options": [
+      { "label": "계단. 올라가는 맛이 있다", "score": 0 },
+      { "label": "엘리베이터. 왜 걸어", "score": 100 }
+    ]
+  },
+  {
+    "id": "q20",
+    "axis": "activity",
+    "text": "하루 걸음 수는.",
+    "options": [
+      { "label": "2만 보는 찍어야 여행이지", "score": 0 },
+      { "label": "5천 보면 충분하다", "score": 100 }
+    ]
+  },
+  {
+    "id": "q21",
+    "axis": "activity",
+    "text": "둘째 날 아침부터 비가 온다.",
+    "options": [
+      { "label": "우비 입고 그냥 나간다", "score": 0 },
+      { "label": "오늘은 숙소에서 쉰다", "score": 100 }
+    ]
+  },
+  {
+    "id": "q22",
+    "axis": "budget",
+    "text": "유명한데 비싼 식당, 그 옆에 로컬 식당.",
+    "options": [
+      { "label": "로컬. 거기가 진짜다", "score": 0 },
+      { "label": "비싼 데. 여기까지 왔는데", "score": 100 }
+    ]
+  },
+  {
+    "id": "q23",
+    "axis": "budget",
+    "text": "공항에서 숙소까지 가는 길.",
+    "options": [
+      { "label": "지하철 갈아타면 반값이다", "score": 0 },
+      { "label": "택시. 짐 끌기 싫다", "score": 100 }
+    ]
+  },
+  {
+    "id": "q24",
+    "axis": "budget",
+    "text": "여행 경비를 짤 때.",
+    "options": [
+      { "label": "한도를 먼저 정하고 거기 맞춘다", "score": 0 },
+      { "label": "쓰다 보면 나오는 거지", "score": 100 }
+    ]
   }
 ]

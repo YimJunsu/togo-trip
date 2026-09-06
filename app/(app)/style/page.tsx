@@ -6,6 +6,7 @@ import { StyleAxisIntro } from '@/components/dashboard/StyleAxisIntro'
 import { StyleDirectory } from '@/components/dashboard/StyleDirectory'
 import { travelStyleRepo } from '@/lib/data'
 import { pageMetadata } from '@/lib/seo/metadata'
+import { QUIZ_LENGTH } from '@/lib/style/pick'
 import { cn } from '@/lib/utils/cn'
 
 export const metadata = pageMetadata({
@@ -45,7 +46,8 @@ export default async function StylePage() {
               여행 성향 분석
             </h1>
             <p className="text-muted mt-1 text-sm leading-relaxed">
-              당신의 여행 성향을 분석해보세요!<br />
+              당신의 여행 성향을 분석해보세요!
+              <br />
               분석이 끝나면 친구들과 공유해 볼 수도 있어요!
             </p>
           </div>
@@ -54,10 +56,9 @@ export default async function StylePage() {
         {/* 기존 텍스트 감성을 유지하되, 박스와 볼드 처리로 가독성(스캐닝) 향상 */}
         <div className="rounded-card border-line bg-surface border p-5">
           <p className="text-muted text-sm leading-relaxed">
-            <strong className="text-ink">{questions.length}문항</strong>이면 네
-            축이 엇갈려{' '}
-            <strong className="text-ink">{styles.length}가지</strong> 중 하나의
-            결과가 나옵니다. <br className="hidden sm:block" />
+            <strong className="text-ink">{QUIZ_LENGTH}문항</strong>이면 네 축이
+            엇갈려 <strong className="text-ink">{styles.length}가지</strong> 중
+            하나의 결과가 나옵니다. <br className="hidden sm:block" />
             가입도 로그인도 필요 없고, 결과는 링크 하나로 친구에게 바로 넘길 수
             있어요.
           </p>
@@ -109,7 +110,7 @@ export default async function StylePage() {
       <hr className="border-line" />
 
       {/* 공유하기 영역: 목적성을 부여하여 클릭률을 높이는 배치 */}
-      <div className="flex flex-col gap-4 items-center justify-center pt-2">
+      <div className="flex flex-col items-center justify-center gap-4 pt-2">
         <h2 className="text-lg font-semibold tracking-tight">
           같이 여행 갈 친구가 있나요?
         </h2>
