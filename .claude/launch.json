@@ -7,6 +7,14 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],
       "port": 3000
+    },
+    {
+      "//": "pnpm build 결과를 확인용으로 띄운다. dev 서버가 이미 3000을 쓰고 있어도 겹치지 않도록 autoPort로 포트를 할당받는다(포트 플래그를 주지 않아야 PORT 환경변수가 먹는다).",
+      "name": "togo-trip-prod",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["start"],
+      "port": 3100,
+      "autoPort": true
     }
   ]
 }
