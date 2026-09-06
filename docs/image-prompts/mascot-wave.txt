@@ -1,0 +1,8 @@
+Pose: the quokka stands upright on both feet, body turned three-quarters toward the viewer,
+one paw raised in a friendly wave, the other resting on its belly. It wears its woven straw sun
+hat. Head tilted very slightly, eyes bright, the species' natural smile.
+
+Framing: full body from the feet up, the figure fills about 85% of the square frame and is
+optically centred with a small even margin.
+
+Background: one flat solid colour #f8e7c9, completely even, no gradient, no props.

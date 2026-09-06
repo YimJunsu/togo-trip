@@ -1,0 +1,16 @@
+Design a minimal app-icon MARK of this character, built to survive being shrunk to 16x16 pixels.
+This one asset is a FLAT VECTOR MARK, not a toy photograph — ignore the render-style block above.
+
+Show only the head of the quokka wearing its woven straw sun hat, seen straight on, smiling.
+Crop tightly: the hat brim nearly touches the left and right edges and the head fills about 88%
+of the square frame. Nothing else — no broom, no pouch, no sparkles, no scenery, no body.
+
+Style: bold flat vector shapes, chunky forms, very few internal details, at most three fur tones.
+A thick uniform very dark outline around the outer silhouette only. No gradients, no textures,
+no drop shadows, one simple catchlight per eye. Strong value separation between the straw hat,
+the face and the background so the mark still reads as a tiny thumbnail.
+
+Background: one flat solid colour #2f6b4f (a deep forest green) filling the entire square edge
+to edge. The green must be clearly darker than the straw hat.
+
+No text, no letters, no border, no watermark.
