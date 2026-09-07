@@ -1,0 +1,10 @@
+Pose: the quokka wears a woven straw sun hat tilted slightly and straddles a small wooden broom
+as if flying, leaning forward with the delight of setting off. One paw grips the broom handle,
+the other holds the hat brim so it will not blow off. A tiny cloth travel pouch hangs from the
+broom shaft.
+
+Framing: three-quarter view, the figure fills about 88% of the square frame and is optically
+centred, with only a small even margin. Keep the shapes chunky — the silhouette must still read
+when the image is reduced to 64x64 pixels.
+
+Background: one flat solid colour #f8e7c9, completely even, no gradient, no props.

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Onest, Space_Mono } from 'next/font/google'
+import { ServiceWorkerRegistrar } from '@/components/layout/ServiceWorkerRegistrar'
 import { JsonLd, siteGraph } from '@/lib/seo/JsonLd'
 import {
   GOOGLE_SITE_VERIFICATION,
@@ -39,6 +40,16 @@ export const metadata: Metadata = {
   keywords: SITE_KEYWORDS,
   applicationName: SITE_NAME,
   category: 'travel',
+  /**
+   * iOS는 manifest의 display를 읽지 않는다. 홈 화면에서 주소창 없이 뜨게 하려면
+   * 이 메타가 따로 있어야 한다. statusBarStyle은 상단 바를 반투명으로 두어
+   * themeColor(paper)가 그대로 비치게 한다.
+   */
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: 'default',
+  },
   alternates: { canonical: '/' },
   // 날짜·금액이 전화번호로 오인돼 자동 링크가 걸리는 걸 막는다.
   formatDetection: { telephone: false, address: false, email: false },
@@ -117,6 +128,7 @@ export default function RootLayout({
           {SITE_NAME} ({SITE_NAME_EN})
         </span>
         {children}
+        <ServiceWorkerRegistrar />
       </body>
     </html>
   )
