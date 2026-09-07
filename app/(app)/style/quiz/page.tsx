@@ -3,6 +3,15 @@ import { EmptyState } from '@/components/dashboard/EmptyState'
 import { StyleQuiz } from '@/components/dashboard/StyleQuiz'
 import { travelStyleRepo } from '@/lib/data'
 import { pageMetadata } from '@/lib/seo/metadata'
+import { pickQuizQuestions } from '@/lib/style/pick'
+
+/**
+ * 방문할 때마다 문항을 새로 뽑으므로 정적으로 굳히지 않는다. 정적 생성이면
+ * 빌드 시점의 한 조합이 모두에게 영원히 나가고, 문항을 24개로 늘린 의미가 사라진다.
+ *
+ * 채점은 브라우저에서 하고 서버에 남는 것이 없어 이 페이지에는 캐시할 값도 없다.
+ */
+export const dynamic = 'force-dynamic'
 
 /**
  * 문항만 있는 얕은 페이지라 색인하지 않는다. /style 랜딩과 다루는 주제가 같아
@@ -20,7 +29,8 @@ export const metadata = pageMetadata({
 })
 
 export default async function StyleQuizPage() {
-  const questions = await travelStyleRepo.questions()
+  // repo는 문항 풀 전체(축마다 6개)를 준다. 이번에 낼 12개는 여기서 고른다.
+  const questions = pickQuizQuestions(await travelStyleRepo.questions())
 
   return (
     <div className="flex flex-col gap-6">

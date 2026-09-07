@@ -10,20 +10,45 @@ import {
   scoreQuiz,
   toStyleCode,
 } from './score.ts'
+import { pickQuizQuestions, QUESTIONS_PER_AXIS } from './pick.ts'
 
 const QUESTIONS = questions as { id: string; axis: string; text: string }[]
 
 /** 모든 문항에 같은 값으로 답한다. */
 const allAnswers = (score: number) => QUESTIONS.map(() => score)
 
-test('축마다 문항이 홀수 개다 — 짝수면 평균 50 동점이 생긴다', () => {
+/**
+ * 동점(평균 정확히 50)을 막는 것은 "풀"이 아니라 "실제로 낸 문항 수"다.
+ * 풀은 축마다 6개라 짝수이고, 그중 홀수 개(QUESTIONS_PER_AXIS)만 낸다.
+ * 풀 쪽에서 지켜야 할 것은 축 균형이다 — 한 축만 문항이 적으면 그 축은
+ * 늘 같은 문항이 나온다.
+ */
+test('풀은 축마다 같은 수의 문항을 갖는다', () => {
+  const counts = AXIS_ORDER.map(
+    (axis) => QUESTIONS.filter((q) => q.axis === axis).length,
+  )
+  for (const [i, count] of counts.entries()) {
+    assert.ok(count > 0, `${AXIS_ORDER[i]} 문항이 없다`)
+  }
+  assert.equal(
+    new Set(counts).size,
+    1,
+    `축별 문항 수가 갈린다: ${AXIS_ORDER.map((a, i) => `${a} ${counts[i]}`).join(', ')}`,
+  )
+  assert.ok(
+    counts[0]! >= QUESTIONS_PER_AXIS,
+    '풀이 한 번에 낼 문항 수보다 적다',
+  )
+})
+
+test('출제분은 축마다 홀수 개다 — 짝수면 평균 50 동점이 생긴다', () => {
+  const picked = pickQuizQuestions(QUESTIONS as never)
   for (const axis of AXIS_ORDER) {
-    const count = QUESTIONS.filter((q) => q.axis === axis).length
-    assert.ok(count > 0, `${axis} 문항이 없다`)
+    const count = picked.filter((q) => q.axis === axis).length
     assert.equal(
       count % 2,
       1,
-      `${axis} 문항이 ${count}개(짝수)라 동점이 날 수 있다`,
+      `${axis} 출제분이 ${count}개(짝수)라 동점이 날 수 있다`,
     )
   }
 })
