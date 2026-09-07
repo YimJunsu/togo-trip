@@ -1,12 +1,37 @@
-CHARACTER IDENTITY — "투고트립" mascot quokka (must stay identical across every asset).
+CHARACTER IDENTITY — "투고트립" mascot quokka.
 
-A young quokka with the species' signature permanent smile. Warm caramel-brown fur with a
-soft cream belly and cream muzzle. Rounded, slightly oversized head. Large round dark eyes
-with a single bright catchlight. Small rounded ears with dusty-rose inner ears. Round dark
-button nose. Two soft coral blush patches on the cheeks. Short arms, plump pear-shaped body,
-short stubby feet, and a long tapering tail.
+FIXED — these never change, in any picture. This is what makes it the same character.
+Warm caramel-brown fur with a soft cream belly and cream muzzle. Rounded, slightly oversized
+head, roughly 45% of total height. Large round dark eyes set wide, with a bright catchlight.
+Small rounded ears with dusty-rose inner ears. Round dark button nose. Two soft coral blush
+patches on the cheeks. Short arms, plump pear-shaped body, short stubby feet, long tapering tail.
+Chibi proportions but not deformed. Readable silhouette.
 
-Personality: cheerful, unbothered, always looks like it is about to go somewhere fun.
-Never grumpy, never sharp-browed, never smug. The eyebrows stay soft or absent.
+The muzzle is SHORT and BLUNT — it barely projects from the face, like a soft rounded pad with
+the nose sitting on its front. It is never pointed, never snout-like, never pushed forward. If
+the muzzle sticks out, the animal stops reading as a quokka and becomes a squirrel or a mouse.
 
-Proportions: head roughly 45% of total height. Chibi but not deformed. Readable silhouette.
+The straw hat is WIDE. Its brim is clearly wider than the head — roughly one and a half times
+the head's width — and it sits down on the head so the brim passes just above the eyes and
+extends well past the ears on both sides. A small hat perched on top of the skull is wrong.
+
+The head is always large relative to the body and the face is always plainly visible. Never
+narrow the head, never lengthen the face, never shrink the eyes.
+
+ACTING — these MUST change from picture to picture. The scene says which.
+The mouth, the eyelids, the direction of the gaze, the tilt of the head, the line of the
+shoulders and the weight of the stance are all performance, not identity. A quokka squinting
+with its cheeks full is the same quokka as one gazing up with its mouth slightly open.
+
+Do not default to the same wide open-mouthed grin every time. That grin is one expression among
+many, and using it everywhere makes sixteen pictures look like one picture with the background
+swapped. Read the scene's acting note and play that, specifically: half-lidded and slack when
+the note says tired, mouth closed and eyes forward when the note says focused, eyes shut when
+the note says savouring.
+
+The one limit: this animal is never mean, never smug, never angry. No sharp or furrowed brows,
+ever. When an acting note asks for focus, determination or seriousness, play it with a CLOSED
+MOUTH and a STEADY FORWARD GAZE — never by lowering, angling or knitting the brows. A frowning
+quokka is a failed image: this is a mascot that will be sold as merchandise, and it cannot scowl.
+Even its most serious face is soft. Within that, the range is wide — quiet, sleepy, absorbed,
+delighted, determined, wistful, amused are all available and all wanted.
