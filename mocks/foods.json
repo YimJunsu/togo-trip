@@ -1,0 +1,3446 @@
+[
+  {
+    "id": "food-e67a764b",
+    "name": "김치찌개",
+    "category": "korean",
+    "conditions": ["alcohol", "cold"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 456,
+      "carbsG": 25,
+      "proteinG": 28,
+      "fatG": 26,
+      "sodiumMg": 1962
+    }
+  },
+  {
+    "id": "food-ef7fda97",
+    "name": "된장찌개",
+    "category": "korean",
+    "conditions": ["cheap", "cold"],
+    "emoji": "🥘",
+    "nutrition": {
+      "kcal": 311,
+      "carbsG": 32,
+      "proteinG": 18,
+      "fatG": 13,
+      "sodiumMg": 1850
+    }
+  },
+  {
+    "id": "food-56e7d0ee",
+    "name": "비빔밥",
+    "category": "korean",
+    "conditions": ["cheap", "diet"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 560,
+      "carbsG": 95,
+      "proteinG": 19,
+      "fatG": 12,
+      "sodiumMg": 1120
+    }
+  },
+  {
+    "id": "food-cbab6e27",
+    "name": "불고기",
+    "category": "korean",
+    "conditions": ["special", "tired"],
+    "emoji": "🥩",
+    "nutrition": {
+      "kcal": 395,
+      "carbsG": 15,
+      "proteinG": 34,
+      "fatG": 22,
+      "sodiumMg": 980
+    }
+  },
+  {
+    "id": "food-d2eb632a",
+    "name": "삼겹살",
+    "category": "korean",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🥓",
+    "nutrition": {
+      "kcal": 650,
+      "carbsG": 2,
+      "proteinG": 35,
+      "fatG": 55,
+      "sodiumMg": 320
+    }
+  },
+  {
+    "id": "food-16d3cd11",
+    "name": "삼계탕",
+    "category": "korean",
+    "conditions": ["sick", "hot"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 918,
+      "carbsG": 42,
+      "proteinG": 88,
+      "fatG": 44,
+      "sodiumMg": 1420
+    }
+  },
+  {
+    "id": "food-8cc81067",
+    "name": "육개장",
+    "category": "korean",
+    "conditions": ["hangover", "cold"],
+    "emoji": "🌶️",
+    "nutrition": {
+      "kcal": 440,
+      "carbsG": 28,
+      "proteinG": 31,
+      "fatG": 24,
+      "sodiumMg": 2450
+    }
+  },
+  {
+    "id": "food-09cc0fb7",
+    "name": "미역국",
+    "category": "korean",
+    "conditions": ["sick", "special"],
+    "emoji": "🥣",
+    "nutrition": {
+      "kcal": 258,
+      "carbsG": 15,
+      "proteinG": 18,
+      "fatG": 14,
+      "sodiumMg": 1200
+    }
+  },
+  {
+    "id": "food-1292e7a1",
+    "name": "제육볶음",
+    "category": "korean",
+    "conditions": ["stress", "cheap"],
+    "emoji": "🍖",
+    "nutrition": {
+      "kcal": 528,
+      "carbsG": 22,
+      "proteinG": 38,
+      "fatG": 32,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-e896077c",
+    "name": "떡국",
+    "category": "korean",
+    "conditions": ["cold", "special"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 460,
+      "carbsG": 88,
+      "proteinG": 18,
+      "fatG": 4,
+      "sodiumMg": 1350
+    }
+  },
+  {
+    "id": "food-163196d3",
+    "name": "냉면",
+    "category": "korean",
+    "conditions": ["hot", "hangover"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 520,
+      "carbsG": 105,
+      "proteinG": 16,
+      "fatG": 4,
+      "sodiumMg": 1550
+    }
+  },
+  {
+    "id": "food-586d9131",
+    "name": "콩국수",
+    "category": "korean",
+    "conditions": ["hot", "tired"],
+    "emoji": "🥛",
+    "nutrition": {
+      "kcal": 548,
+      "carbsG": 82,
+      "proteinG": 28,
+      "fatG": 12,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-0a16a122",
+    "name": "북어국",
+    "category": "korean",
+    "conditions": ["hangover", "sick"],
+    "emoji": "🐟",
+    "nutrition": {
+      "kcal": 280,
+      "carbsG": 15,
+      "proteinG": 28,
+      "fatG": 12,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-ce099189",
+    "name": "죽",
+    "category": "korean",
+    "conditions": ["sick", "tired"],
+    "emoji": "🥣",
+    "nutrition": {
+      "kcal": 322,
+      "carbsG": 68,
+      "proteinG": 8,
+      "fatG": 2,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-c2f82266",
+    "name": "전복죽",
+    "category": "korean",
+    "conditions": ["sick", "special"],
+    "emoji": "🐚",
+    "nutrition": {
+      "kcal": 368,
+      "carbsG": 68,
+      "proteinG": 15,
+      "fatG": 4,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-332dec69",
+    "name": "계란찜",
+    "category": "korean",
+    "conditions": ["cheap", "sick"],
+    "emoji": "🥚",
+    "nutrition": {
+      "kcal": 149,
+      "carbsG": 4,
+      "proteinG": 13,
+      "fatG": 9,
+      "sodiumMg": 535
+    }
+  },
+  {
+    "id": "food-98fc6970",
+    "name": "육회비빔밥",
+    "category": "korean",
+    "conditions": ["special", "cheap"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 576,
+      "carbsG": 85,
+      "proteinG": 32,
+      "fatG": 12,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-856d48ac",
+    "name": "순대국",
+    "category": "korean",
+    "conditions": ["hangover", "cold"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 470,
+      "carbsG": 42,
+      "proteinG": 35,
+      "fatG": 18,
+      "sodiumMg": 1200
+    }
+  },
+  {
+    "id": "food-589c983e",
+    "name": "뼈해장국",
+    "category": "korean",
+    "conditions": ["alcohol", "cold"],
+    "emoji": "🍖",
+    "nutrition": {
+      "kcal": 524,
+      "carbsG": 32,
+      "proteinG": 45,
+      "fatG": 24,
+      "sodiumMg": 2200
+    }
+  },
+  {
+    "id": "food-8c49d801",
+    "name": "닭갈비",
+    "category": "korean",
+    "conditions": ["stress", "special"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 636,
+      "carbsG": 45,
+      "proteinG": 42,
+      "fatG": 32,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-955a97ad",
+    "name": "안동찜닭",
+    "category": "korean",
+    "conditions": ["special", "cheap"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 552,
+      "carbsG": 55,
+      "proteinG": 38,
+      "fatG": 20,
+      "sodiumMg": 1350
+    }
+  },
+  {
+    "id": "food-fe1b9847",
+    "name": "수육",
+    "category": "korean",
+    "conditions": ["alcohol", "tired"],
+    "emoji": "🥩",
+    "nutrition": {
+      "kcal": 494,
+      "carbsG": 5,
+      "proteinG": 42,
+      "fatG": 34,
+      "sodiumMg": 650
+    }
+  },
+  {
+    "id": "food-f4e2066e",
+    "name": "콩나물국밥",
+    "category": "korean",
+    "conditions": ["hangover", "cheap"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 356,
+      "carbsG": 65,
+      "proteinG": 15,
+      "fatG": 4,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-e489e42d",
+    "name": "칼국수",
+    "category": "korean",
+    "conditions": ["cold", "cheap"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 435,
+      "carbsG": 88,
+      "proteinG": 14,
+      "fatG": 3,
+      "sodiumMg": 1850
+    }
+  },
+  {
+    "id": "food-eec0dc81",
+    "name": "바지락칼국수",
+    "category": "korean",
+    "conditions": ["cold", "hangover"],
+    "emoji": "🦪",
+    "nutrition": {
+      "kcal": 460,
+      "carbsG": 88,
+      "proteinG": 18,
+      "fatG": 4,
+      "sodiumMg": 1950
+    }
+  },
+  {
+    "id": "food-4d124467",
+    "name": "수제비",
+    "category": "korean",
+    "conditions": ["cold", "cheap"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 386,
+      "carbsG": 82,
+      "proteinG": 10,
+      "fatG": 2,
+      "sodiumMg": 1600
+    }
+  },
+  {
+    "id": "food-350493aa",
+    "name": "감자탕",
+    "category": "korean",
+    "conditions": ["alcohol", "cold"],
+    "emoji": "🥘",
+    "nutrition": {
+      "kcal": 663,
+      "carbsG": 35,
+      "proteinG": 52,
+      "fatG": 35,
+      "sodiumMg": 2600
+    }
+  },
+  {
+    "id": "food-0b5d7c94",
+    "name": "아구찜",
+    "category": "korean",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🐟",
+    "nutrition": {
+      "kcal": 404,
+      "carbsG": 35,
+      "proteinG": 48,
+      "fatG": 8,
+      "sodiumMg": 1950
+    }
+  },
+  {
+    "id": "food-b526da5f",
+    "name": "닭발",
+    "category": "korean",
+    "conditions": ["stress", "alcohol"],
+    "emoji": "🌶️",
+    "nutrition": {
+      "kcal": 262,
+      "carbsG": 12,
+      "proteinG": 22,
+      "fatG": 14,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-cfda651a",
+    "name": "곱창",
+    "category": "korean",
+    "conditions": ["alcohol", "stress"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 584,
+      "carbsG": 6,
+      "proteinG": 32,
+      "fatG": 48,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-fd4c60c0",
+    "name": "막창",
+    "category": "korean",
+    "conditions": ["alcohol", "cheap"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 524,
+      "carbsG": 4,
+      "proteinG": 28,
+      "fatG": 44,
+      "sodiumMg": 680
+    }
+  },
+  {
+    "id": "food-2dd1b61d",
+    "name": "대창",
+    "category": "korean",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 641,
+      "carbsG": 2,
+      "proteinG": 12,
+      "fatG": 65,
+      "sodiumMg": 580
+    }
+  },
+  {
+    "id": "food-f848159c",
+    "name": "보쌈",
+    "category": "korean",
+    "conditions": ["alcohol", "tired"],
+    "emoji": "🥬",
+    "nutrition": {
+      "kcal": 820,
+      "carbsG": 8,
+      "proteinG": 62,
+      "fatG": 60,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-52b621f7",
+    "name": "갈비탕",
+    "category": "korean",
+    "conditions": ["alcohol", "cold", "hangover"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 458,
+      "carbsG": 25,
+      "proteinG": 40,
+      "fatG": 22,
+      "sodiumMg": 1500
+    }
+  },
+  {
+    "id": "food-5e8289af",
+    "name": "설렁탕",
+    "category": "korean",
+    "conditions": ["hangover", "cold"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 412,
+      "carbsG": 35,
+      "proteinG": 32,
+      "fatG": 16,
+      "sodiumMg": 1400
+    }
+  },
+  {
+    "id": "food-f0556b5e",
+    "name": "추어탕",
+    "category": "korean",
+    "conditions": ["sick", "cold"],
+    "emoji": "🥣",
+    "nutrition": {
+      "kcal": 352,
+      "carbsG": 22,
+      "proteinG": 30,
+      "fatG": 16,
+      "sodiumMg": 1600
+    }
+  },
+  {
+    "id": "food-26ff1eca",
+    "name": "갈비찜",
+    "category": "korean",
+    "conditions": ["special", "cheap"],
+    "emoji": "🍖",
+    "nutrition": {
+      "kcal": 558,
+      "carbsG": 30,
+      "proteinG": 42,
+      "fatG": 30,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-d1253ca9",
+    "name": "소고기무국",
+    "category": "korean",
+    "conditions": ["sick", "cheap"],
+    "emoji": "🥣",
+    "nutrition": {
+      "kcal": 226,
+      "carbsG": 12,
+      "proteinG": 22,
+      "fatG": 10,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-5679a2ac",
+    "name": "김치볶음밥",
+    "category": "korean",
+    "conditions": ["cheap", "stress"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 578,
+      "carbsG": 88,
+      "proteinG": 16,
+      "fatG": 18,
+      "sodiumMg": 1400
+    }
+  },
+  {
+    "id": "food-79ead8b1",
+    "name": "순두부찌개",
+    "category": "korean",
+    "conditions": ["cold", "hangover"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 330,
+      "carbsG": 18,
+      "proteinG": 24,
+      "fatG": 18,
+      "sodiumMg": 1750
+    }
+  },
+  {
+    "id": "food-55ba1a11",
+    "name": "부대찌개",
+    "category": "korean",
+    "conditions": ["alcohol", "stress"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 596,
+      "carbsG": 45,
+      "proteinG": 32,
+      "fatG": 32,
+      "sodiumMg": 2400
+    }
+  },
+  {
+    "id": "food-a5435433",
+    "name": "청국장",
+    "category": "korean",
+    "conditions": ["sick", "cheap"],
+    "emoji": "🥘",
+    "nutrition": {
+      "kcal": 304,
+      "carbsG": 25,
+      "proteinG": 24,
+      "fatG": 12,
+      "sodiumMg": 1650
+    }
+  },
+  {
+    "id": "food-59f22d48",
+    "name": "낙지볶음",
+    "category": "korean",
+    "conditions": ["stress", "alcohol"],
+    "emoji": "🌶️",
+    "nutrition": {
+      "kcal": 396,
+      "carbsG": 35,
+      "proteinG": 28,
+      "fatG": 16,
+      "sodiumMg": 1750
+    }
+  },
+  {
+    "id": "food-4edef0f7",
+    "name": "쭈꾸미볶음",
+    "category": "korean",
+    "conditions": ["stress", "alcohol"],
+    "emoji": "🌶️",
+    "nutrition": {
+      "kcal": 383,
+      "carbsG": 32,
+      "proteinG": 30,
+      "fatG": 15,
+      "sodiumMg": 1700
+    }
+  },
+  {
+    "id": "food-7b776942",
+    "name": "간장게장",
+    "category": "korean",
+    "conditions": ["special", "cheap"],
+    "emoji": "🦀",
+    "nutrition": {
+      "kcal": 198,
+      "carbsG": 8,
+      "proteinG": 28,
+      "fatG": 6,
+      "sodiumMg": 2100
+    }
+  },
+  {
+    "id": "food-256dde26",
+    "name": "양념게장",
+    "category": "korean",
+    "conditions": ["special", "stress"],
+    "emoji": "🦀",
+    "nutrition": {
+      "kcal": 232,
+      "carbsG": 14,
+      "proteinG": 26,
+      "fatG": 8,
+      "sodiumMg": 2000
+    }
+  },
+  {
+    "id": "food-f49066a1",
+    "name": "고등어구이",
+    "category": "korean",
+    "conditions": ["cheap", "sick"],
+    "emoji": "🐟",
+    "nutrition": {
+      "kcal": 338,
+      "carbsG": 0,
+      "proteinG": 35,
+      "fatG": 22,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-bb5ec784",
+    "name": "갈치조림",
+    "category": "korean",
+    "conditions": ["special", "cheap"],
+    "emoji": "🐟",
+    "nutrition": {
+      "kcal": 310,
+      "carbsG": 14,
+      "proteinG": 32,
+      "fatG": 14,
+      "sodiumMg": 1550
+    }
+  },
+  {
+    "id": "food-d546d0c8",
+    "name": "잡채",
+    "category": "korean",
+    "conditions": ["special", "cheap"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 422,
+      "carbsG": 62,
+      "proteinG": 12,
+      "fatG": 14,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-82ee8aae",
+    "name": "해물파전",
+    "category": "korean",
+    "conditions": ["alcohol", "cheap"],
+    "emoji": "🥞",
+    "nutrition": {
+      "kcal": 462,
+      "carbsG": 48,
+      "proteinG": 18,
+      "fatG": 22,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-6468b4fb",
+    "name": "김치전",
+    "category": "korean",
+    "conditions": ["alcohol", "cheap"],
+    "emoji": "🥞",
+    "nutrition": {
+      "kcal": 400,
+      "carbsG": 45,
+      "proteinG": 10,
+      "fatG": 20,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-fb28c4d1",
+    "name": "두부김치",
+    "category": "korean",
+    "conditions": ["alcohol", "diet"],
+    "emoji": "🥬",
+    "nutrition": {
+      "kcal": 306,
+      "carbsG": 14,
+      "proteinG": 22,
+      "fatG": 18,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-f85363d1",
+    "name": "닭볶음탕",
+    "category": "korean",
+    "conditions": ["stress", "special"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 540,
+      "carbsG": 32,
+      "proteinG": 40,
+      "fatG": 28,
+      "sodiumMg": 1600
+    }
+  },
+  {
+    "id": "food-f652f15c",
+    "name": "오징어볶음",
+    "category": "korean",
+    "conditions": ["stress", "cheap"],
+    "emoji": "🦑",
+    "nutrition": {
+      "kcal": 358,
+      "carbsG": 30,
+      "proteinG": 28,
+      "fatG": 14,
+      "sodiumMg": 1600
+    }
+  },
+  {
+    "id": "food-3af544df",
+    "name": "돼지갈비",
+    "category": "korean",
+    "conditions": ["special", "alcohol"],
+    "emoji": "🍖",
+    "nutrition": {
+      "kcal": 546,
+      "carbsG": 22,
+      "proteinG": 38,
+      "fatG": 34,
+      "sodiumMg": 1300
+    }
+  },
+  {
+    "id": "food-59ffa991",
+    "name": "열무국수",
+    "category": "korean",
+    "conditions": ["hot", "diet"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 387,
+      "carbsG": 78,
+      "proteinG": 12,
+      "fatG": 3,
+      "sodiumMg": 1400
+    }
+  },
+  {
+    "id": "food-1702c3f1",
+    "name": "비빔국수",
+    "category": "korean",
+    "conditions": ["hot", "stress"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 472,
+      "carbsG": 88,
+      "proteinG": 12,
+      "fatG": 8,
+      "sodiumMg": 1500
+    }
+  },
+  {
+    "id": "food-6e31889d",
+    "name": "물회",
+    "category": "korean",
+    "conditions": ["hot", "hangover"],
+    "emoji": "🐟",
+    "nutrition": {
+      "kcal": 324,
+      "carbsG": 35,
+      "proteinG": 28,
+      "fatG": 8,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-5fbbde12",
+    "name": "짜장면",
+    "category": "chinese",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 785,
+      "carbsG": 125,
+      "proteinG": 24,
+      "fatG": 21,
+      "sodiumMg": 2150
+    }
+  },
+  {
+    "id": "food-8183530b",
+    "name": "짬뽕",
+    "category": "chinese",
+    "conditions": ["stress", "hangover"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 696,
+      "carbsG": 110,
+      "proteinG": 28,
+      "fatG": 16,
+      "sodiumMg": 3500
+    }
+  },
+  {
+    "id": "food-97a6910e",
+    "name": "탕수육",
+    "category": "chinese",
+    "conditions": ["special", "stress"],
+    "emoji": "🍖",
+    "nutrition": {
+      "kcal": 558,
+      "carbsG": 65,
+      "proteinG": 25,
+      "fatG": 22,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-619406fc",
+    "name": "마라탕",
+    "category": "chinese",
+    "conditions": ["stress", "hot"],
+    "emoji": "🌶️",
+    "nutrition": {
+      "kcal": 845,
+      "carbsG": 75,
+      "proteinG": 35,
+      "fatG": 45,
+      "sodiumMg": 2800
+    }
+  },
+  {
+    "id": "food-3373dc7b",
+    "name": "마라훠궈",
+    "category": "chinese",
+    "conditions": ["stress", "special"],
+    "emoji": "🔥",
+    "nutrition": {
+      "kcal": 924,
+      "carbsG": 45,
+      "proteinG": 42,
+      "fatG": 64,
+      "sodiumMg": 2950
+    }
+  },
+  {
+    "id": "food-fadeb6eb",
+    "name": "마라샹궈",
+    "category": "chinese",
+    "conditions": ["stress", "alcohol"],
+    "emoji": "🔥",
+    "nutrition": {
+      "kcal": 952,
+      "carbsG": 55,
+      "proteinG": 48,
+      "fatG": 60,
+      "sodiumMg": 2450
+    }
+  },
+  {
+    "id": "food-e8d6db73",
+    "name": "볶음밥",
+    "category": "chinese",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 650,
+      "carbsG": 95,
+      "proteinG": 18,
+      "fatG": 22,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-4f844223",
+    "name": "탄탄면",
+    "category": "chinese",
+    "conditions": ["stress", "cold"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 787,
+      "carbsG": 92,
+      "proteinG": 26,
+      "fatG": 35,
+      "sodiumMg": 2300
+    }
+  },
+  {
+    "id": "food-8dae0efc",
+    "name": "유산슬",
+    "category": "chinese",
+    "conditions": ["special", "sick"],
+    "emoji": "🥘",
+    "nutrition": {
+      "kcal": 344,
+      "carbsG": 22,
+      "proteinG": 28,
+      "fatG": 16,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-7b4a3fd5",
+    "name": "양장피",
+    "category": "chinese",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 424,
+      "carbsG": 38,
+      "proteinG": 32,
+      "fatG": 16,
+      "sodiumMg": 1350
+    }
+  },
+  {
+    "id": "food-8f9ae9dc",
+    "name": "꿔바로우",
+    "category": "chinese",
+    "conditions": ["stress", "special"],
+    "emoji": "🍖",
+    "nutrition": {
+      "kcal": 684,
+      "carbsG": 75,
+      "proteinG": 24,
+      "fatG": 32,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-9238da69",
+    "name": "울면",
+    "category": "chinese",
+    "conditions": ["sick", "cold"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 522,
+      "carbsG": 88,
+      "proteinG": 20,
+      "fatG": 10,
+      "sodiumMg": 2000
+    }
+  },
+  {
+    "id": "food-560ad160",
+    "name": "기스면",
+    "category": "chinese",
+    "conditions": ["sick", "hangover"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 448,
+      "carbsG": 72,
+      "proteinG": 22,
+      "fatG": 8,
+      "sodiumMg": 1750
+    }
+  },
+  {
+    "id": "food-2c85a876",
+    "name": "백짬뽕",
+    "category": "chinese",
+    "conditions": ["alcohol", "cold"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 658,
+      "carbsG": 98,
+      "proteinG": 26,
+      "fatG": 18,
+      "sodiumMg": 3100
+    }
+  },
+  {
+    "id": "food-ea3c03eb",
+    "name": "간짜장",
+    "category": "chinese",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 802,
+      "carbsG": 118,
+      "proteinG": 24,
+      "fatG": 26,
+      "sodiumMg": 2050
+    }
+  },
+  {
+    "id": "food-60577ff4",
+    "name": "삼선짜장",
+    "category": "chinese",
+    "conditions": ["special", "cheap"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 758,
+      "carbsG": 112,
+      "proteinG": 28,
+      "fatG": 22,
+      "sodiumMg": 2100
+    }
+  },
+  {
+    "id": "food-e6cdbe68",
+    "name": "팔보채",
+    "category": "chinese",
+    "conditions": ["special", "diet"],
+    "emoji": "🦐",
+    "nutrition": {
+      "kcal": 342,
+      "carbsG": 22,
+      "proteinG": 32,
+      "fatG": 14,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-44d9c1a1",
+    "name": "깐풍기",
+    "category": "chinese",
+    "conditions": ["alcohol", "stress"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 564,
+      "carbsG": 48,
+      "proteinG": 30,
+      "fatG": 28,
+      "sodiumMg": 1300
+    }
+  },
+  {
+    "id": "food-741d29ca",
+    "name": "라조기",
+    "category": "chinese",
+    "conditions": ["stress", "special"],
+    "emoji": "🌶️",
+    "nutrition": {
+      "kcal": 542,
+      "carbsG": 45,
+      "proteinG": 32,
+      "fatG": 26,
+      "sodiumMg": 1400
+    }
+  },
+  {
+    "id": "food-d5108170",
+    "name": "마파두부덮밥",
+    "category": "chinese",
+    "conditions": ["cheap", "stress"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 644,
+      "carbsG": 92,
+      "proteinG": 24,
+      "fatG": 20,
+      "sodiumMg": 1800
+    }
+  },
+  {
+    "id": "food-df854ccc",
+    "name": "새우볶음밥",
+    "category": "chinese",
+    "conditions": ["cheap", "special"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 636,
+      "carbsG": 92,
+      "proteinG": 22,
+      "fatG": 20,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-18c38919",
+    "name": "중국냉면",
+    "category": "chinese",
+    "conditions": ["hot", "diet"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 498,
+      "carbsG": 82,
+      "proteinG": 20,
+      "fatG": 10,
+      "sodiumMg": 1600
+    }
+  },
+  {
+    "id": "food-69dfe8d4",
+    "name": "고추잡채",
+    "category": "chinese",
+    "conditions": ["diet", "cheap"],
+    "emoji": "🫑",
+    "nutrition": {
+      "kcal": 326,
+      "carbsG": 28,
+      "proteinG": 22,
+      "fatG": 14,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-9b75e665",
+    "name": "초밥",
+    "category": "japanese",
+    "conditions": ["special", "diet"],
+    "emoji": "🍣",
+    "nutrition": {
+      "kcal": 476,
+      "carbsG": 85,
+      "proteinG": 25,
+      "fatG": 4,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-28870d95",
+    "name": "돈가스",
+    "category": "japanese",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍱",
+    "nutrition": {
+      "kcal": 638,
+      "carbsG": 55,
+      "proteinG": 28,
+      "fatG": 34,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-e8c29fa3",
+    "name": "라멘",
+    "category": "japanese",
+    "conditions": ["cold", "alcohol"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 752,
+      "carbsG": 90,
+      "proteinG": 26,
+      "fatG": 32,
+      "sodiumMg": 2400
+    }
+  },
+  {
+    "id": "food-996a8f86",
+    "name": "우동",
+    "category": "japanese",
+    "conditions": ["cold", "cheap"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 402,
+      "carbsG": 82,
+      "proteinG": 14,
+      "fatG": 2,
+      "sodiumMg": 2100
+    }
+  },
+  {
+    "id": "food-62dd7cbc",
+    "name": "규동",
+    "category": "japanese",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 677,
+      "carbsG": 98,
+      "proteinG": 24,
+      "fatG": 21,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-726d0f53",
+    "name": "샤브샤브",
+    "category": "japanese",
+    "conditions": ["diet", "cold"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 454,
+      "carbsG": 35,
+      "proteinG": 38,
+      "fatG": 18,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-acc87acc",
+    "name": "카레라이스",
+    "category": "japanese",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍛",
+    "nutrition": {
+      "kcal": 560,
+      "carbsG": 95,
+      "proteinG": 18,
+      "fatG": 12,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-ed2e61b0",
+    "name": "텐동",
+    "category": "japanese",
+    "conditions": ["special", "stress"],
+    "emoji": "🍤",
+    "nutrition": {
+      "kcal": 870,
+      "carbsG": 110,
+      "proteinG": 22,
+      "fatG": 38,
+      "sodiumMg": 1200
+    }
+  },
+  {
+    "id": "food-43499abb",
+    "name": "사케동",
+    "category": "japanese",
+    "conditions": ["special", "tired"],
+    "emoji": "🍣",
+    "nutrition": {
+      "kcal": 584,
+      "carbsG": 82,
+      "proteinG": 28,
+      "fatG": 16,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-954bd28f",
+    "name": "가츠동",
+    "category": "japanese",
+    "conditions": ["tired", "cheap"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 700,
+      "carbsG": 95,
+      "proteinG": 26,
+      "fatG": 24,
+      "sodiumMg": 1350
+    }
+  },
+  {
+    "id": "food-81506a10",
+    "name": "냉모밀",
+    "category": "japanese",
+    "conditions": ["hot", "cheap"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 366,
+      "carbsG": 75,
+      "proteinG": 12,
+      "fatG": 2,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-694b1e2c",
+    "name": "회덮밥",
+    "category": "japanese",
+    "conditions": ["diet", "hot"],
+    "emoji": "🍣",
+    "nutrition": {
+      "kcal": 484,
+      "carbsG": 78,
+      "proteinG": 25,
+      "fatG": 8,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-2fc05c02",
+    "name": "회",
+    "category": "japanese",
+    "conditions": ["special", "diet"],
+    "emoji": "🐟",
+    "nutrition": {
+      "kcal": 270,
+      "carbsG": 0,
+      "proteinG": 45,
+      "fatG": 10,
+      "sodiumMg": 550
+    }
+  },
+  {
+    "id": "food-9f74e5cf",
+    "name": "미소된장국",
+    "category": "japanese",
+    "conditions": ["sick", "cheap"],
+    "emoji": "🥣",
+    "nutrition": {
+      "kcal": 100,
+      "carbsG": 8,
+      "proteinG": 8,
+      "fatG": 4,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-3723f7a6",
+    "name": "자루소바",
+    "category": "japanese",
+    "conditions": ["hot", "diet"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 362,
+      "carbsG": 72,
+      "proteinG": 14,
+      "fatG": 2,
+      "sodiumMg": 1300
+    }
+  },
+  {
+    "id": "food-32f9accb",
+    "name": "나가사키짬뽕",
+    "category": "japanese",
+    "conditions": ["hangover", "cold"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 618,
+      "carbsG": 88,
+      "proteinG": 26,
+      "fatG": 18,
+      "sodiumMg": 2600
+    }
+  },
+  {
+    "id": "food-90ab6ba9",
+    "name": "미소라멘",
+    "category": "japanese",
+    "conditions": ["cold", "stress"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 750,
+      "carbsG": 92,
+      "proteinG": 28,
+      "fatG": 30,
+      "sodiumMg": 2500
+    }
+  },
+  {
+    "id": "food-b09f9ae3",
+    "name": "츠케멘",
+    "category": "japanese",
+    "conditions": ["special", "stress"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 792,
+      "carbsG": 105,
+      "proteinG": 30,
+      "fatG": 28,
+      "sodiumMg": 2400
+    }
+  },
+  {
+    "id": "food-5b443801",
+    "name": "오야코동",
+    "category": "japanese",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 618,
+      "carbsG": 95,
+      "proteinG": 28,
+      "fatG": 14,
+      "sodiumMg": 1300
+    }
+  },
+  {
+    "id": "food-00469357",
+    "name": "텐푸라",
+    "category": "japanese",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🍤",
+    "nutrition": {
+      "kcal": 550,
+      "carbsG": 52,
+      "proteinG": 18,
+      "fatG": 30,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-78e39739",
+    "name": "야키토리",
+    "category": "japanese",
+    "conditions": ["alcohol", "cheap"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 330,
+      "carbsG": 10,
+      "proteinG": 32,
+      "fatG": 18,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-1a751296",
+    "name": "우나기동",
+    "category": "japanese",
+    "conditions": ["special", "tired"],
+    "emoji": "🍱",
+    "nutrition": {
+      "kcal": 686,
+      "carbsG": 92,
+      "proteinG": 30,
+      "fatG": 22,
+      "sodiumMg": 1400
+    }
+  },
+  {
+    "id": "food-ad98ea24",
+    "name": "오차즈케",
+    "category": "japanese",
+    "conditions": ["hangover", "sick"],
+    "emoji": "🍵",
+    "nutrition": {
+      "kcal": 306,
+      "carbsG": 62,
+      "proteinG": 10,
+      "fatG": 2,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-1ba89fd1",
+    "name": "규카츠",
+    "category": "japanese",
+    "conditions": ["special", "stress"],
+    "emoji": "🥩",
+    "nutrition": {
+      "kcal": 616,
+      "carbsG": 48,
+      "proteinG": 34,
+      "fatG": 32,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-0eab570f",
+    "name": "카이센동",
+    "category": "japanese",
+    "conditions": ["special", "diet"],
+    "emoji": "🍣",
+    "nutrition": {
+      "kcal": 532,
+      "carbsG": 85,
+      "proteinG": 30,
+      "fatG": 8,
+      "sodiumMg": 1050
+    }
+  },
+  {
+    "id": "food-fd8ef731",
+    "name": "까르보나라",
+    "category": "western",
+    "conditions": ["stress", "special"],
+    "emoji": "🍝",
+    "nutrition": {
+      "kcal": 758,
+      "carbsG": 82,
+      "proteinG": 22,
+      "fatG": 38,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-ad939027",
+    "name": "파스타",
+    "category": "western",
+    "conditions": ["special", "diet"],
+    "emoji": "🍝",
+    "nutrition": {
+      "kcal": 519,
+      "carbsG": 78,
+      "proteinG": 18,
+      "fatG": 15,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-a24d3f9e",
+    "name": "스테이크",
+    "category": "western",
+    "conditions": ["special", "tired"],
+    "emoji": "🥩",
+    "nutrition": {
+      "kcal": 654,
+      "carbsG": 5,
+      "proteinG": 55,
+      "fatG": 46,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-9a3af26a",
+    "name": "치즈피자",
+    "category": "western",
+    "conditions": ["stress", "special"],
+    "emoji": "🍕",
+    "nutrition": {
+      "kcal": 617,
+      "carbsG": 72,
+      "proteinG": 26,
+      "fatG": 25,
+      "sodiumMg": 1300
+    }
+  },
+  {
+    "id": "food-a3aa8a3c",
+    "name": "함박 스테이크",
+    "category": "western",
+    "conditions": ["special", "cheap"],
+    "emoji": "🍖",
+    "nutrition": {
+      "kcal": 556,
+      "carbsG": 32,
+      "proteinG": 35,
+      "fatG": 32,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-94db6758",
+    "name": "리조또",
+    "category": "western",
+    "conditions": ["special", "tired"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 628,
+      "carbsG": 85,
+      "proteinG": 18,
+      "fatG": 24,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-c75e03f3",
+    "name": "라자냐",
+    "category": "western",
+    "conditions": ["special", "stress"],
+    "emoji": "🧀",
+    "nutrition": {
+      "kcal": 730,
+      "carbsG": 65,
+      "proteinG": 32,
+      "fatG": 38,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-f6ce1a0a",
+    "name": "에그 베네딕트",
+    "category": "western",
+    "conditions": ["special", "tired"],
+    "emoji": "🍳",
+    "nutrition": {
+      "kcal": 534,
+      "carbsG": 35,
+      "proteinG": 22,
+      "fatG": 34,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-6052ee39",
+    "name": "프렌치 토스트",
+    "category": "western",
+    "conditions": ["stress", "tired"],
+    "emoji": "🍞",
+    "nutrition": {
+      "kcal": 494,
+      "carbsG": 62,
+      "proteinG": 12,
+      "fatG": 22,
+      "sodiumMg": 550
+    }
+  },
+  {
+    "id": "food-3524cc9d",
+    "name": "감바스",
+    "category": "western",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🦐",
+    "nutrition": {
+      "kcal": 522,
+      "carbsG": 12,
+      "proteinG": 24,
+      "fatG": 42,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-8d7b1f15",
+    "name": "두부면 파스타",
+    "category": "western",
+    "conditions": ["diet", "sick"],
+    "emoji": "🍝",
+    "nutrition": {
+      "kcal": 304,
+      "carbsG": 18,
+      "proteinG": 22,
+      "fatG": 16,
+      "sodiumMg": 550
+    }
+  },
+  {
+    "id": "food-1265e2a8",
+    "name": "크림스프",
+    "category": "western",
+    "conditions": ["cold", "sick"],
+    "emoji": "🥣",
+    "nutrition": {
+      "kcal": 270,
+      "carbsG": 28,
+      "proteinG": 8,
+      "fatG": 14,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-26d8ab35",
+    "name": "미네스트로네",
+    "category": "western",
+    "conditions": ["cold", "diet"],
+    "emoji": "🍲",
+    "nutrition": {
+      "kcal": 214,
+      "carbsG": 30,
+      "proteinG": 10,
+      "fatG": 6,
+      "sodiumMg": 1050
+    }
+  },
+  {
+    "id": "food-b93922cf",
+    "name": "어니언 그라탕 수프",
+    "category": "western",
+    "conditions": ["cold", "special"],
+    "emoji": "🧅",
+    "nutrition": {
+      "kcal": 328,
+      "carbsG": 32,
+      "proteinG": 14,
+      "fatG": 16,
+      "sodiumMg": 1300
+    }
+  },
+  {
+    "id": "food-bd2c19c7",
+    "name": "로제 파스타",
+    "category": "western",
+    "conditions": ["stress", "special"],
+    "emoji": "🍝",
+    "nutrition": {
+      "kcal": 650,
+      "carbsG": 84,
+      "proteinG": 20,
+      "fatG": 26,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-6897bbe7",
+    "name": "알리오 올리오",
+    "category": "western",
+    "conditions": ["cheap", "alcohol"],
+    "emoji": "🍝",
+    "nutrition": {
+      "kcal": 632,
+      "carbsG": 88,
+      "proteinG": 16,
+      "fatG": 24,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-12100e84",
+    "name": "봉골레 파스타",
+    "category": "western",
+    "conditions": ["alcohol", "hangover"],
+    "emoji": "🍝",
+    "nutrition": {
+      "kcal": 560,
+      "carbsG": 82,
+      "proteinG": 22,
+      "fatG": 16,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-99915705",
+    "name": "마르게리타 피자",
+    "category": "western",
+    "conditions": ["cheap", "special"],
+    "emoji": "🍕",
+    "nutrition": {
+      "kcal": 548,
+      "carbsG": 68,
+      "proteinG": 24,
+      "fatG": 20,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-18615888",
+    "name": "페퍼로니 피자",
+    "category": "western",
+    "conditions": ["stress", "cheap"],
+    "emoji": "🍕",
+    "nutrition": {
+      "kcal": 636,
+      "carbsG": 70,
+      "proteinG": 26,
+      "fatG": 28,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-db402662",
+    "name": "치킨 스테이크",
+    "category": "western",
+    "conditions": ["diet", "tired"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 410,
+      "carbsG": 8,
+      "proteinG": 45,
+      "fatG": 22,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-ef5e0077",
+    "name": "폭립",
+    "category": "western",
+    "conditions": ["special", "stress"],
+    "emoji": "🍖",
+    "nutrition": {
+      "kcal": 640,
+      "carbsG": 28,
+      "proteinG": 42,
+      "fatG": 40,
+      "sodiumMg": 1500
+    }
+  },
+  {
+    "id": "food-6d7407da",
+    "name": "오믈렛",
+    "category": "western",
+    "conditions": ["sick", "tired"],
+    "emoji": "🍳",
+    "nutrition": {
+      "kcal": 302,
+      "carbsG": 6,
+      "proteinG": 20,
+      "fatG": 22,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-d578d2e6",
+    "name": "감자 그라탕",
+    "category": "western",
+    "conditions": ["cold", "cheap"],
+    "emoji": "🥔",
+    "nutrition": {
+      "kcal": 462,
+      "carbsG": 52,
+      "proteinG": 14,
+      "fatG": 22,
+      "sodiumMg": 1000
+    }
+  },
+  {
+    "id": "food-0ec9084d",
+    "name": "가스파초",
+    "category": "western",
+    "conditions": ["hot", "diet"],
+    "emoji": "🍅",
+    "nutrition": {
+      "kcal": 142,
+      "carbsG": 18,
+      "proteinG": 4,
+      "fatG": 6,
+      "sodiumMg": 700
+    }
+  },
+  {
+    "id": "food-c4df2179",
+    "name": "카프레제",
+    "category": "western",
+    "conditions": ["hot", "special"],
+    "emoji": "🍅",
+    "nutrition": {
+      "kcal": 258,
+      "carbsG": 10,
+      "proteinG": 14,
+      "fatG": 18,
+      "sodiumMg": 650
+    }
+  },
+  {
+    "id": "food-2e251982",
+    "name": "떡볶이",
+    "category": "bunsik",
+    "conditions": ["stress", "cheap"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 452,
+      "carbsG": 92,
+      "proteinG": 12,
+      "fatG": 4,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-a6476857",
+    "name": "김밥",
+    "category": "bunsik",
+    "conditions": ["cheap", "diet"],
+    "emoji": "🍙",
+    "nutrition": {
+      "kcal": 374,
+      "carbsG": 68,
+      "proteinG": 12,
+      "fatG": 6,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-d4cd601a",
+    "name": "모듬튀김",
+    "category": "bunsik",
+    "conditions": ["alcohol", "stress"],
+    "emoji": "🍤",
+    "nutrition": {
+      "kcal": 530,
+      "carbsG": 55,
+      "proteinG": 10,
+      "fatG": 30,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-98fcbeeb",
+    "name": "잔치국수",
+    "category": "bunsik",
+    "conditions": ["cold", "cheap"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 414,
+      "carbsG": 85,
+      "proteinG": 14,
+      "fatG": 2,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-4b917d2e",
+    "name": "라면",
+    "category": "bunsik",
+    "conditions": ["cheap", "hangover"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 495,
+      "carbsG": 80,
+      "proteinG": 10,
+      "fatG": 15,
+      "sodiumMg": 1790
+    }
+  },
+  {
+    "id": "food-3337eb17",
+    "name": "쫄면",
+    "category": "bunsik",
+    "conditions": ["stress", "hot"],
+    "emoji": "🌶️",
+    "nutrition": {
+      "kcal": 482,
+      "carbsG": 95,
+      "proteinG": 12,
+      "fatG": 6,
+      "sodiumMg": 1650
+    }
+  },
+  {
+    "id": "food-20f68d16",
+    "name": "군만두",
+    "category": "bunsik",
+    "conditions": ["cheap", "alcohol"],
+    "emoji": "🥟",
+    "nutrition": {
+      "kcal": 466,
+      "carbsG": 52,
+      "proteinG": 15,
+      "fatG": 22,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-1696c099",
+    "name": "오뎅탕",
+    "category": "bunsik",
+    "conditions": ["alcohol", "cold"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 240,
+      "carbsG": 15,
+      "proteinG": 18,
+      "fatG": 12,
+      "sodiumMg": 1850
+    }
+  },
+  {
+    "id": "food-a7f13a4a",
+    "name": "소떡소떡",
+    "category": "bunsik",
+    "conditions": ["cheap", "stress"],
+    "emoji": "🌭",
+    "nutrition": {
+      "kcal": 382,
+      "carbsG": 65,
+      "proteinG": 8,
+      "fatG": 10,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-1af5155f",
+    "name": "로제떡볶이",
+    "category": "bunsik",
+    "conditions": ["stress", "special"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 606,
+      "carbsG": 95,
+      "proteinG": 16,
+      "fatG": 18,
+      "sodiumMg": 1550
+    }
+  },
+  {
+    "id": "food-5881f5c7",
+    "name": "국물떡볶이",
+    "category": "bunsik",
+    "conditions": ["cold", "cheap"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 454,
+      "carbsG": 88,
+      "proteinG": 12,
+      "fatG": 6,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-a8f9495a",
+    "name": "치즈김밥",
+    "category": "bunsik",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍙",
+    "nutrition": {
+      "kcal": 452,
+      "carbsG": 70,
+      "proteinG": 16,
+      "fatG": 12,
+      "sodiumMg": 1050
+    }
+  },
+  {
+    "id": "food-c4b5a0de",
+    "name": "참치김밥",
+    "category": "bunsik",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍙",
+    "nutrition": {
+      "kcal": 486,
+      "carbsG": 72,
+      "proteinG": 18,
+      "fatG": 14,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-69a4cb1a",
+    "name": "충무김밥",
+    "category": "bunsik",
+    "conditions": ["cheap", "hot"],
+    "emoji": "🍙",
+    "nutrition": {
+      "kcal": 388,
+      "carbsG": 78,
+      "proteinG": 10,
+      "fatG": 4,
+      "sodiumMg": 1300
+    }
+  },
+  {
+    "id": "food-09ed4b19",
+    "name": "순대",
+    "category": "bunsik",
+    "conditions": ["alcohol", "cheap"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 390,
+      "carbsG": 52,
+      "proteinG": 14,
+      "fatG": 14,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-8b9eebf7",
+    "name": "만둣국",
+    "category": "bunsik",
+    "conditions": ["cold", "sick"],
+    "emoji": "🥟",
+    "nutrition": {
+      "kcal": 468,
+      "carbsG": 68,
+      "proteinG": 22,
+      "fatG": 12,
+      "sodiumMg": 1500
+    }
+  },
+  {
+    "id": "food-67160ee8",
+    "name": "떡만둣국",
+    "category": "bunsik",
+    "conditions": ["cold", "sick"],
+    "emoji": "🥟",
+    "nutrition": {
+      "kcal": 536,
+      "carbsG": 85,
+      "proteinG": 22,
+      "fatG": 12,
+      "sodiumMg": 1600
+    }
+  },
+  {
+    "id": "food-48717eb2",
+    "name": "유부초밥",
+    "category": "bunsik",
+    "conditions": ["cheap", "diet"],
+    "emoji": "🍙",
+    "nutrition": {
+      "kcal": 408,
+      "carbsG": 72,
+      "proteinG": 12,
+      "fatG": 8,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-5b700fd3",
+    "name": "라볶이",
+    "category": "bunsik",
+    "conditions": ["stress", "cheap"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 574,
+      "carbsG": 98,
+      "proteinG": 14,
+      "fatG": 14,
+      "sodiumMg": 1700
+    }
+  },
+  {
+    "id": "food-9c8d1867",
+    "name": "치즈라면",
+    "category": "bunsik",
+    "conditions": ["stress", "tired"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 572,
+      "carbsG": 82,
+      "proteinG": 16,
+      "fatG": 20,
+      "sodiumMg": 1850
+    }
+  },
+  {
+    "id": "food-7e16a249",
+    "name": "치즈버거",
+    "category": "fastfood",
+    "conditions": ["tired", "cheap"],
+    "emoji": "🍔",
+    "nutrition": {
+      "kcal": 553,
+      "carbsG": 45,
+      "proteinG": 28,
+      "fatG": 29,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-e1cee567",
+    "name": "후라이드치킨",
+    "category": "fastfood",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 870,
+      "carbsG": 35,
+      "proteinG": 52,
+      "fatG": 58,
+      "sodiumMg": 1500
+    }
+  },
+  {
+    "id": "food-137ece00",
+    "name": "샌드위치",
+    "category": "fastfood",
+    "conditions": ["diet", "tired"],
+    "emoji": "🥪",
+    "nutrition": {
+      "kcal": 348,
+      "carbsG": 42,
+      "proteinG": 18,
+      "fatG": 12,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-14e999b2",
+    "name": "타코",
+    "category": "fastfood",
+    "conditions": ["special", "hot"],
+    "emoji": "🌮",
+    "nutrition": {
+      "kcal": 402,
+      "carbsG": 38,
+      "proteinG": 22,
+      "fatG": 18,
+      "sodiumMg": 1050
+    }
+  },
+  {
+    "id": "food-769ff943",
+    "name": "핫도그",
+    "category": "fastfood",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🌭",
+    "nutrition": {
+      "kcal": 320,
+      "carbsG": 32,
+      "proteinG": 12,
+      "fatG": 16,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-a8c01ca7",
+    "name": "클럽 샌드위치",
+    "category": "fastfood",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🥪",
+    "nutrition": {
+      "kcal": 438,
+      "carbsG": 45,
+      "proteinG": 24,
+      "fatG": 18,
+      "sodiumMg": 1050
+    }
+  },
+  {
+    "id": "food-588f4c9f",
+    "name": "부리또",
+    "category": "fastfood",
+    "conditions": ["cheap", "stress"],
+    "emoji": "🌯",
+    "nutrition": {
+      "kcal": 622,
+      "carbsG": 78,
+      "proteinG": 28,
+      "fatG": 22,
+      "sodiumMg": 1350
+    }
+  },
+  {
+    "id": "food-edb6bb66",
+    "name": "순살치킨",
+    "category": "fastfood",
+    "conditions": ["alcohol", "stress"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 792,
+      "carbsG": 42,
+      "proteinG": 48,
+      "fatG": 48,
+      "sodiumMg": 1350
+    }
+  },
+  {
+    "id": "food-429da254",
+    "name": "퀘사디아",
+    "category": "fastfood",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🫓",
+    "nutrition": {
+      "kcal": 572,
+      "carbsG": 45,
+      "proteinG": 26,
+      "fatG": 32,
+      "sodiumMg": 1150
+    }
+  },
+  {
+    "id": "food-21e33f6f",
+    "name": "불고기버거",
+    "category": "fastfood",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍔",
+    "nutrition": {
+      "kcal": 486,
+      "carbsG": 48,
+      "proteinG": 24,
+      "fatG": 22,
+      "sodiumMg": 1050
+    }
+  },
+  {
+    "id": "food-f2c7e24a",
+    "name": "새우버거",
+    "category": "fastfood",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍔",
+    "nutrition": {
+      "kcal": 454,
+      "carbsG": 46,
+      "proteinG": 18,
+      "fatG": 22,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-1f28d07d",
+    "name": "치킨버거",
+    "category": "fastfood",
+    "conditions": ["stress", "cheap"],
+    "emoji": "🍔",
+    "nutrition": {
+      "kcal": 546,
+      "carbsG": 50,
+      "proteinG": 28,
+      "fatG": 26,
+      "sodiumMg": 1200
+    }
+  },
+  {
+    "id": "food-cfbb8866",
+    "name": "감자튀김",
+    "category": "fastfood",
+    "conditions": ["stress", "alcohol"],
+    "emoji": "🍟",
+    "nutrition": {
+      "kcal": 374,
+      "carbsG": 48,
+      "proteinG": 5,
+      "fatG": 18,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-cc212b68",
+    "name": "어니언링",
+    "category": "fastfood",
+    "conditions": ["alcohol", "stress"],
+    "emoji": "🧅",
+    "nutrition": {
+      "kcal": 380,
+      "carbsG": 44,
+      "proteinG": 6,
+      "fatG": 20,
+      "sodiumMg": 800
+    }
+  },
+  {
+    "id": "food-51c51b41",
+    "name": "치킨너겟",
+    "category": "fastfood",
+    "conditions": ["cheap", "stress"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 382,
+      "carbsG": 26,
+      "proteinG": 20,
+      "fatG": 22,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-89d01cd1",
+    "name": "양념치킨",
+    "category": "fastfood",
+    "conditions": ["alcohol", "stress"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 848,
+      "carbsG": 58,
+      "proteinG": 46,
+      "fatG": 48,
+      "sodiumMg": 1650
+    }
+  },
+  {
+    "id": "food-2f708861",
+    "name": "간장치킨",
+    "category": "fastfood",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 780,
+      "carbsG": 48,
+      "proteinG": 48,
+      "fatG": 44,
+      "sodiumMg": 1800
+    }
+  },
+  {
+    "id": "food-e0837c63",
+    "name": "클램차우더",
+    "category": "fastfood",
+    "conditions": ["cold", "sick"],
+    "emoji": "🥣",
+    "nutrition": {
+      "kcal": 312,
+      "carbsG": 30,
+      "proteinG": 12,
+      "fatG": 16,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-298bb229",
+    "name": "베이컨 에그 머핀",
+    "category": "fastfood",
+    "conditions": ["hangover", "tired"],
+    "emoji": "🥪",
+    "nutrition": {
+      "kcal": 362,
+      "carbsG": 32,
+      "proteinG": 18,
+      "fatG": 18,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-507ce2d3",
+    "name": "랩 샌드위치",
+    "category": "fastfood",
+    "conditions": ["diet", "cheap"],
+    "emoji": "🌯",
+    "nutrition": {
+      "kcal": 390,
+      "carbsG": 44,
+      "proteinG": 22,
+      "fatG": 14,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-1a0ebc26",
+    "name": "쌀국수",
+    "category": "asian",
+    "conditions": ["hangover", "sick"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 458,
+      "carbsG": 88,
+      "proteinG": 22,
+      "fatG": 2,
+      "sodiumMg": 1850
+    }
+  },
+  {
+    "id": "food-b2817fc3",
+    "name": "팟타이",
+    "category": "asian",
+    "conditions": ["stress", "hot"],
+    "emoji": "🍝",
+    "nutrition": {
+      "kcal": 724,
+      "carbsG": 105,
+      "proteinG": 22,
+      "fatG": 24,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-6882f4d9",
+    "name": "나시고랭",
+    "category": "asian",
+    "conditions": ["hot", "tired"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 677,
+      "carbsG": 95,
+      "proteinG": 18,
+      "fatG": 25,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-e77bbf69",
+    "name": "분짜",
+    "category": "asian",
+    "conditions": ["hot", "diet", "stress"],
+    "emoji": "🥢",
+    "nutrition": {
+      "kcal": 538,
+      "carbsG": 80,
+      "proteinG": 23,
+      "fatG": 14,
+      "sodiumMg": 1275
+    }
+  },
+  {
+    "id": "food-3b32f052",
+    "name": "월남쌈",
+    "category": "asian",
+    "conditions": ["diet", "special"],
+    "emoji": "🥬",
+    "nutrition": {
+      "kcal": 405,
+      "carbsG": 70,
+      "proteinG": 20,
+      "fatG": 5,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-429e3916",
+    "name": "똠양꿍",
+    "category": "asian",
+    "conditions": ["alcohol", "sick"],
+    "emoji": "🍤",
+    "nutrition": {
+      "kcal": 334,
+      "carbsG": 25,
+      "proteinG": 18,
+      "fatG": 18,
+      "sodiumMg": 1850
+    }
+  },
+  {
+    "id": "food-7fe38fd8",
+    "name": "연어 포케",
+    "category": "asian",
+    "conditions": ["diet", "tired"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 472,
+      "carbsG": 45,
+      "proteinG": 28,
+      "fatG": 20,
+      "sodiumMg": 650
+    }
+  },
+  {
+    "id": "food-6d9670ea",
+    "name": "참치 포케",
+    "category": "asian",
+    "conditions": ["diet", "hot"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 422,
+      "carbsG": 42,
+      "proteinG": 32,
+      "fatG": 14,
+      "sodiumMg": 580
+    }
+  },
+  {
+    "id": "food-18a64da1",
+    "name": "카오팟",
+    "category": "asian",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 632,
+      "carbsG": 95,
+      "proteinG": 18,
+      "fatG": 20,
+      "sodiumMg": 1200
+    }
+  },
+  {
+    "id": "food-66cd0275",
+    "name": "반미",
+    "category": "asian",
+    "conditions": ["cheap", "hot"],
+    "emoji": "🥖",
+    "nutrition": {
+      "kcal": 454,
+      "carbsG": 62,
+      "proteinG": 20,
+      "fatG": 14,
+      "sodiumMg": 1100
+    }
+  },
+  {
+    "id": "food-5e29d4ac",
+    "name": "분보후에",
+    "category": "asian",
+    "conditions": ["cold", "hangover"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 570,
+      "carbsG": 85,
+      "proteinG": 26,
+      "fatG": 14,
+      "sodiumMg": 1900
+    }
+  },
+  {
+    "id": "food-3c028ec7",
+    "name": "락사",
+    "category": "asian",
+    "conditions": ["cold", "stress"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 678,
+      "carbsG": 78,
+      "proteinG": 24,
+      "fatG": 30,
+      "sodiumMg": 2100
+    }
+  },
+  {
+    "id": "food-fa71139f",
+    "name": "그린커리",
+    "category": "asian",
+    "conditions": ["stress", "special"],
+    "emoji": "🍛",
+    "nutrition": {
+      "kcal": 594,
+      "carbsG": 68,
+      "proteinG": 22,
+      "fatG": 26,
+      "sodiumMg": 1500
+    }
+  },
+  {
+    "id": "food-bf812177",
+    "name": "마살라 커리",
+    "category": "asian",
+    "conditions": ["stress", "cheap"],
+    "emoji": "🍛",
+    "nutrition": {
+      "kcal": 584,
+      "carbsG": 72,
+      "proteinG": 20,
+      "fatG": 24,
+      "sodiumMg": 1450
+    }
+  },
+  {
+    "id": "food-6fb7ec7e",
+    "name": "탄두리 치킨",
+    "category": "asian",
+    "conditions": ["diet", "special"],
+    "emoji": "🍗",
+    "nutrition": {
+      "kcal": 362,
+      "carbsG": 8,
+      "proteinG": 42,
+      "fatG": 18,
+      "sodiumMg": 1050
+    }
+  },
+  {
+    "id": "food-52091d18",
+    "name": "난",
+    "category": "asian",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🫓",
+    "nutrition": {
+      "kcal": 312,
+      "carbsG": 52,
+      "proteinG": 8,
+      "fatG": 8,
+      "sodiumMg": 700
+    }
+  },
+  {
+    "id": "food-50cff5d5",
+    "name": "볶음쌀국수",
+    "category": "asian",
+    "conditions": ["cheap", "stress"],
+    "emoji": "🍜",
+    "nutrition": {
+      "kcal": 634,
+      "carbsG": 98,
+      "proteinG": 20,
+      "fatG": 18,
+      "sodiumMg": 1400
+    }
+  },
+  {
+    "id": "food-2e2060c0",
+    "name": "하이난 치킨라이스",
+    "category": "asian",
+    "conditions": ["cheap", "sick"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 608,
+      "carbsG": 88,
+      "proteinG": 28,
+      "fatG": 16,
+      "sodiumMg": 1250
+    }
+  },
+  {
+    "id": "food-dfa4dfb6",
+    "name": "가파오라이스",
+    "category": "asian",
+    "conditions": ["stress", "cheap"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 670,
+      "carbsG": 92,
+      "proteinG": 26,
+      "fatG": 22,
+      "sodiumMg": 1500
+    }
+  },
+  {
+    "id": "food-272cf3b2",
+    "name": "사테",
+    "category": "asian",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🍢",
+    "nutrition": {
+      "kcal": 330,
+      "carbsG": 12,
+      "proteinG": 30,
+      "fatG": 18,
+      "sodiumMg": 950
+    }
+  },
+  {
+    "id": "food-d04ccd3a",
+    "name": "시저샐러드",
+    "category": "salad",
+    "conditions": ["diet", "sick"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 378,
+      "carbsG": 12,
+      "proteinG": 15,
+      "fatG": 30,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-b5769df0",
+    "name": "연어샐러드",
+    "category": "salad",
+    "conditions": ["diet", "special"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 356,
+      "carbsG": 10,
+      "proteinG": 25,
+      "fatG": 24,
+      "sodiumMg": 450
+    }
+  },
+  {
+    "id": "food-d5a3d5c7",
+    "name": "치킨 샐러드",
+    "category": "salad",
+    "conditions": ["diet", "cheap"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 322,
+      "carbsG": 15,
+      "proteinG": 25,
+      "fatG": 18,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-0aa39822",
+    "name": "스테이크 샐러드",
+    "category": "salad",
+    "conditions": ["diet", "special"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 374,
+      "carbsG": 12,
+      "proteinG": 32,
+      "fatG": 22,
+      "sodiumMg": 650
+    }
+  },
+  {
+    "id": "food-9fd61d01",
+    "name": "콥샐러드",
+    "category": "salad",
+    "conditions": ["diet", "tired"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 402,
+      "carbsG": 14,
+      "proteinG": 28,
+      "fatG": 26,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-3fe43604",
+    "name": "리코타 치즈 샐러드",
+    "category": "salad",
+    "conditions": ["special", "diet"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 350,
+      "carbsG": 22,
+      "proteinG": 16,
+      "fatG": 22,
+      "sodiumMg": 550
+    }
+  },
+  {
+    "id": "food-e52b2065",
+    "name": "부라타 샐러드",
+    "category": "salad",
+    "conditions": ["special", "hot"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 370,
+      "carbsG": 16,
+      "proteinG": 18,
+      "fatG": 26,
+      "sodiumMg": 600
+    }
+  },
+  {
+    "id": "food-d10a9bbc",
+    "name": "닭가슴살 샐러드",
+    "category": "salad",
+    "conditions": ["diet", "tired"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 266,
+      "carbsG": 12,
+      "proteinG": 32,
+      "fatG": 10,
+      "sodiumMg": 700
+    }
+  },
+  {
+    "id": "food-04228991",
+    "name": "두부 샐러드",
+    "category": "salad",
+    "conditions": ["diet", "sick"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 262,
+      "carbsG": 14,
+      "proteinG": 20,
+      "fatG": 14,
+      "sodiumMg": 600
+    }
+  },
+  {
+    "id": "food-e2ecf7b4",
+    "name": "새우 아보카도 샐러드",
+    "category": "salad",
+    "conditions": ["diet", "hot"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 332,
+      "carbsG": 16,
+      "proteinG": 22,
+      "fatG": 20,
+      "sodiumMg": 650
+    }
+  },
+  {
+    "id": "food-c216867b",
+    "name": "콘 샐러드",
+    "category": "salad",
+    "conditions": ["cheap", "stress"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 312,
+      "carbsG": 34,
+      "proteinG": 8,
+      "fatG": 16,
+      "sodiumMg": 700
+    }
+  },
+  {
+    "id": "food-529fd48a",
+    "name": "해초 샐러드",
+    "category": "salad",
+    "conditions": ["hangover", "hot"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 108,
+      "carbsG": 12,
+      "proteinG": 6,
+      "fatG": 4,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-41fdf8d6",
+    "name": "감자 샐러드",
+    "category": "salad",
+    "conditions": ["alcohol", "cheap"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 328,
+      "carbsG": 38,
+      "proteinG": 8,
+      "fatG": 16,
+      "sodiumMg": 750
+    }
+  },
+  {
+    "id": "food-bd54480e",
+    "name": "훈제연어 샐러드",
+    "category": "salad",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 306,
+      "carbsG": 10,
+      "proteinG": 26,
+      "fatG": 18,
+      "sodiumMg": 900
+    }
+  },
+  {
+    "id": "food-e6efd86d",
+    "name": "구운 채소 샐러드",
+    "category": "salad",
+    "conditions": ["cold", "diet"],
+    "emoji": "🥗",
+    "nutrition": {
+      "kcal": 270,
+      "carbsG": 28,
+      "proteinG": 8,
+      "fatG": 14,
+      "sodiumMg": 700
+    }
+  },
+  {
+    "id": "food-b23c4395",
+    "name": "팥빙수",
+    "category": "dessert",
+    "conditions": ["hot", "stress"],
+    "emoji": "🍧",
+    "nutrition": {
+      "kcal": 457,
+      "carbsG": 95,
+      "proteinG": 8,
+      "fatG": 5,
+      "sodiumMg": 150
+    }
+  },
+  {
+    "id": "food-49274260",
+    "name": "조각케이크",
+    "category": "dessert",
+    "conditions": ["stress", "special"],
+    "emoji": "🍰",
+    "nutrition": {
+      "kcal": 398,
+      "carbsG": 45,
+      "proteinG": 5,
+      "fatG": 22,
+      "sodiumMg": 250
+    }
+  },
+  {
+    "id": "food-877ee494",
+    "name": "그릭요거트",
+    "category": "dessert",
+    "conditions": ["diet", "sick"],
+    "emoji": "🍦",
+    "nutrition": {
+      "kcal": 180,
+      "carbsG": 12,
+      "proteinG": 15,
+      "fatG": 8,
+      "sodiumMg": 60
+    }
+  },
+  {
+    "id": "food-b26ab78f",
+    "name": "그릭요거트 볼",
+    "category": "dessert",
+    "conditions": ["diet", "tired"],
+    "emoji": "🍨",
+    "nutrition": {
+      "kcal": 252,
+      "carbsG": 22,
+      "proteinG": 14,
+      "fatG": 12,
+      "sodiumMg": 80
+    }
+  },
+  {
+    "id": "food-084434a9",
+    "name": "크로플",
+    "category": "dessert",
+    "conditions": ["stress", "tired"],
+    "emoji": "🧇",
+    "nutrition": {
+      "kcal": 430,
+      "carbsG": 52,
+      "proteinG": 6,
+      "fatG": 22,
+      "sodiumMg": 350
+    }
+  },
+  {
+    "id": "food-56e33397",
+    "name": "와플",
+    "category": "dessert",
+    "conditions": ["stress", "tired"],
+    "emoji": "🧇",
+    "nutrition": {
+      "kcal": 446,
+      "carbsG": 65,
+      "proteinG": 6,
+      "fatG": 18,
+      "sodiumMg": 450
+    }
+  },
+  {
+    "id": "food-03101d4e",
+    "name": "베이글",
+    "category": "dessert",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🥯",
+    "nutrition": {
+      "kcal": 317,
+      "carbsG": 58,
+      "proteinG": 10,
+      "fatG": 5,
+      "sodiumMg": 520
+    }
+  },
+  {
+    "id": "food-4cfa9419",
+    "name": "과일 도시락",
+    "category": "dessert",
+    "conditions": ["tired", "hot"],
+    "emoji": "🍓",
+    "nutrition": {
+      "kcal": 197,
+      "carbsG": 45,
+      "proteinG": 2,
+      "fatG": 1,
+      "sodiumMg": 10
+    }
+  },
+  {
+    "id": "food-82db266d",
+    "name": "수박화채",
+    "category": "dessert",
+    "conditions": ["hot", "tired"],
+    "emoji": "🍉",
+    "nutrition": {
+      "kcal": 225,
+      "carbsG": 52,
+      "proteinG": 2,
+      "fatG": 1,
+      "sodiumMg": 25
+    }
+  },
+  {
+    "id": "food-ef01fab5",
+    "name": "붕어빵",
+    "category": "dessert",
+    "conditions": ["cold", "cheap"],
+    "emoji": "🐟",
+    "nutrition": {
+      "kcal": 336,
+      "carbsG": 58,
+      "proteinG": 8,
+      "fatG": 8,
+      "sodiumMg": 350
+    }
+  },
+  {
+    "id": "food-2a3ef86a",
+    "name": "호떡",
+    "category": "dessert",
+    "conditions": ["cold", "cheap"],
+    "emoji": "🥞",
+    "nutrition": {
+      "kcal": 380,
+      "carbsG": 62,
+      "proteinG": 6,
+      "fatG": 12,
+      "sodiumMg": 300
+    }
+  },
+  {
+    "id": "food-2a390e87",
+    "name": "군고구마",
+    "category": "dessert",
+    "conditions": ["cold", "diet"],
+    "emoji": "🍠",
+    "nutrition": {
+      "kcal": 273,
+      "carbsG": 62,
+      "proteinG": 4,
+      "fatG": 1,
+      "sodiumMg": 60
+    }
+  },
+  {
+    "id": "food-d1443764",
+    "name": "단팥죽",
+    "category": "dessert",
+    "conditions": ["cold", "sick"],
+    "emoji": "🥣",
+    "nutrition": {
+      "kcal": 348,
+      "carbsG": 68,
+      "proteinG": 10,
+      "fatG": 4,
+      "sodiumMg": 250
+    }
+  },
+  {
+    "id": "food-b076b634",
+    "name": "마카롱",
+    "category": "dessert",
+    "conditions": ["stress", "special"],
+    "emoji": "🍬",
+    "nutrition": {
+      "kcal": 234,
+      "carbsG": 32,
+      "proteinG": 4,
+      "fatG": 10,
+      "sodiumMg": 90
+    }
+  },
+  {
+    "id": "food-b5900bbd",
+    "name": "티라미수",
+    "category": "dessert",
+    "conditions": ["stress", "special"],
+    "emoji": "🍰",
+    "nutrition": {
+      "kcal": 398,
+      "carbsG": 42,
+      "proteinG": 8,
+      "fatG": 22,
+      "sodiumMg": 220
+    }
+  },
+  {
+    "id": "food-d7eef6c0",
+    "name": "초코 브라우니",
+    "category": "dessert",
+    "conditions": ["stress", "tired"],
+    "emoji": "🍫",
+    "nutrition": {
+      "kcal": 414,
+      "carbsG": 48,
+      "proteinG": 6,
+      "fatG": 22,
+      "sodiumMg": 200
+    }
+  },
+  {
+    "id": "food-56def336",
+    "name": "도넛",
+    "category": "dessert",
+    "conditions": ["stress", "tired"],
+    "emoji": "🍩",
+    "nutrition": {
+      "kcal": 412,
+      "carbsG": 52,
+      "proteinG": 6,
+      "fatG": 20,
+      "sodiumMg": 380
+    }
+  },
+  {
+    "id": "food-a103cde8",
+    "name": "아이스크림",
+    "category": "dessert",
+    "conditions": ["hot", "stress"],
+    "emoji": "🍨",
+    "nutrition": {
+      "kcal": 282,
+      "carbsG": 34,
+      "proteinG": 5,
+      "fatG": 14,
+      "sodiumMg": 110
+    }
+  },
+  {
+    "id": "food-b0067bfc",
+    "name": "젤라또",
+    "category": "dessert",
+    "conditions": ["hot", "special"],
+    "emoji": "🍦",
+    "nutrition": {
+      "kcal": 284,
+      "carbsG": 38,
+      "proteinG": 6,
+      "fatG": 12,
+      "sodiumMg": 95
+    }
+  },
+  {
+    "id": "food-60de72d0",
+    "name": "꿀떡",
+    "category": "dessert",
+    "conditions": ["cheap", "tired"],
+    "emoji": "🍡",
+    "nutrition": {
+      "kcal": 284,
+      "carbsG": 58,
+      "proteinG": 4,
+      "fatG": 4,
+      "sodiumMg": 180
+    }
+  },
+  {
+    "id": "food-f226a3d2",
+    "name": "치즈 플레이트",
+    "category": "dessert",
+    "conditions": ["alcohol", "special"],
+    "emoji": "🧀",
+    "nutrition": {
+      "kcal": 390,
+      "carbsG": 8,
+      "proteinG": 22,
+      "fatG": 30,
+      "sodiumMg": 850
+    }
+  },
+  {
+    "id": "food-0275ee27",
+    "name": "배숙",
+    "category": "dessert",
+    "conditions": ["hangover", "cold"],
+    "emoji": "🍐",
+    "nutrition": {
+      "kcal": 148,
+      "carbsG": 36,
+      "proteinG": 1,
+      "fatG": 0,
+      "sodiumMg": 15
+    }
+  },
+  {
+    "id": "food-0fcc11b8",
+    "name": "아이스 아메리카노",
+    "category": "beverage",
+    "conditions": ["tired", "hot"],
+    "emoji": "☕",
+    "nutrition": {
+      "kcal": 8,
+      "carbsG": 1,
+      "proteinG": 1,
+      "fatG": 0,
+      "sodiumMg": 5
+    }
+  },
+  {
+    "id": "food-94d05399",
+    "name": "따뜻한 아메리카노",
+    "category": "beverage",
+    "conditions": ["cold", "tired"],
+    "emoji": "☕",
+    "nutrition": {
+      "kcal": 8,
+      "carbsG": 1,
+      "proteinG": 1,
+      "fatG": 0,
+      "sodiumMg": 5
+    }
+  },
+  {
+    "id": "food-a1df17c1",
+    "name": "카페라떼",
+    "category": "beverage",
+    "conditions": ["tired", "stress"],
+    "emoji": "☕",
+    "nutrition": {
+      "kcal": 202,
+      "carbsG": 18,
+      "proteinG": 10,
+      "fatG": 10,
+      "sodiumMg": 130
+    }
+  },
+  {
+    "id": "food-93b10863",
+    "name": "바닐라 라떼",
+    "category": "beverage",
+    "conditions": ["stress", "tired"],
+    "emoji": "☕",
+    "nutrition": {
+      "kcal": 253,
+      "carbsG": 34,
+      "proteinG": 9,
+      "fatG": 9,
+      "sodiumMg": 140
+    }
+  },
+  {
+    "id": "food-53c25576",
+    "name": "콜드브루",
+    "category": "beverage",
+    "conditions": ["hot", "tired"],
+    "emoji": "☕",
+    "nutrition": {
+      "kcal": 12,
+      "carbsG": 2,
+      "proteinG": 1,
+      "fatG": 0,
+      "sodiumMg": 10
+    }
+  },
+  {
+    "id": "food-aed6c28b",
+    "name": "녹차",
+    "category": "beverage",
+    "conditions": ["diet", "sick"],
+    "emoji": "🍵",
+    "nutrition": {
+      "kcal": 0,
+      "carbsG": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "sodiumMg": 3
+    }
+  },
+  {
+    "id": "food-6c6fc43f",
+    "name": "유자차",
+    "category": "beverage",
+    "conditions": ["cold", "sick"],
+    "emoji": "🍵",
+    "nutrition": {
+      "kcal": 136,
+      "carbsG": 34,
+      "proteinG": 0,
+      "fatG": 0,
+      "sodiumMg": 15
+    }
+  },
+  {
+    "id": "food-ffd2055d",
+    "name": "생강차",
+    "category": "beverage",
+    "conditions": ["cold", "sick"],
+    "emoji": "🍵",
+    "nutrition": {
+      "kcal": 104,
+      "carbsG": 26,
+      "proteinG": 0,
+      "fatG": 0,
+      "sodiumMg": 10
+    }
+  },
+  {
+    "id": "food-93492450",
+    "name": "꿀물",
+    "category": "beverage",
+    "conditions": ["hangover", "tired"],
+    "emoji": "🍯",
+    "nutrition": {
+      "kcal": 128,
+      "carbsG": 32,
+      "proteinG": 0,
+      "fatG": 0,
+      "sodiumMg": 12
+    }
+  },
+  {
+    "id": "food-2f31a964",
+    "name": "헛개차",
+    "category": "beverage",
+    "conditions": ["hangover", "cheap"],
+    "emoji": "🍵",
+    "nutrition": {
+      "kcal": 16,
+      "carbsG": 4,
+      "proteinG": 0,
+      "fatG": 0,
+      "sodiumMg": 20
+    }
+  },
+  {
+    "id": "food-8d9122ce",
+    "name": "토마토 주스",
+    "category": "beverage",
+    "conditions": ["hangover", "diet"],
+    "emoji": "🍅",
+    "nutrition": {
+      "kcal": 64,
+      "carbsG": 14,
+      "proteinG": 2,
+      "fatG": 0,
+      "sodiumMg": 480
+    }
+  },
+  {
+    "id": "food-2817cac9",
+    "name": "오렌지 주스",
+    "category": "beverage",
+    "conditions": ["hot", "tired"],
+    "emoji": "🍊",
+    "nutrition": {
+      "kcal": 112,
+      "carbsG": 26,
+      "proteinG": 2,
+      "fatG": 0,
+      "sodiumMg": 8
+    }
+  },
+  {
+    "id": "food-057dd64c",
+    "name": "스무디",
+    "category": "beverage",
+    "conditions": ["hot", "diet"],
+    "emoji": "🥤",
+    "nutrition": {
+      "kcal": 186,
+      "carbsG": 38,
+      "proteinG": 4,
+      "fatG": 2,
+      "sodiumMg": 60
+    }
+  },
+  {
+    "id": "food-fcf87826",
+    "name": "밀크셰이크",
+    "category": "beverage",
+    "conditions": ["stress", "hot"],
+    "emoji": "🥤",
+    "nutrition": {
+      "kcal": 398,
+      "carbsG": 58,
+      "proteinG": 10,
+      "fatG": 14,
+      "sodiumMg": 220
+    }
+  },
+  {
+    "id": "food-00438bb0",
+    "name": "식혜",
+    "category": "beverage",
+    "conditions": ["cheap", "hot"],
+    "emoji": "🍚",
+    "nutrition": {
+      "kcal": 172,
+      "carbsG": 42,
+      "proteinG": 1,
+      "fatG": 0,
+      "sodiumMg": 60
+    }
+  },
+  {
+    "id": "food-03514e59",
+    "name": "딸기 라떼",
+    "category": "beverage",
+    "conditions": ["special", "stress"],
+    "emoji": "🍓",
+    "nutrition": {
+      "kcal": 280,
+      "carbsG": 44,
+      "proteinG": 8,
+      "fatG": 8,
+      "sodiumMg": 120
+    }
+  },
+  {
+    "id": "food-62920db1",
+    "name": "레몬에이드",
+    "category": "beverage",
+    "conditions": ["hot", "stress"],
+    "emoji": "🍋",
+    "nutrition": {
+      "kcal": 160,
+      "carbsG": 40,
+      "proteinG": 0,
+      "fatG": 0,
+      "sodiumMg": 30
+    }
+  },
+  {
+    "id": "food-ec9d3392",
+    "name": "제로 콜라",
+    "category": "beverage",
+    "conditions": ["alcohol", "diet"],
+    "emoji": "🥤",
+    "nutrition": {
+      "kcal": 0,
+      "carbsG": 0,
+      "proteinG": 0,
+      "fatG": 0,
+      "sodiumMg": 25
+    }
+  }
+]

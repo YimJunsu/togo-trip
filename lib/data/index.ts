@@ -4,6 +4,7 @@ import { supabaseAuthRepo } from './supabase/authRepo'
 import { supabaseAttractionRepo } from './supabase/attractionRepo'
 import { mockCompatRepo } from './mock/compatRepo'
 import { mockDestinationRepo } from './mock/destinationRepo'
+import { mockFoodRepo } from './mock/foodRepo'
 import { mockExpenseRepo } from './mock/expenseRepo'
 import { supabaseExpenseRepo } from './supabase/expenseRepo'
 import { mockItineraryRepo } from './mock/itineraryRepo'
@@ -20,6 +21,7 @@ import type {
   CompatRepository,
   DestinationRepository,
   ExpenseRepository,
+  FoodRepository,
   ItineraryRepository,
   PlaceRepository,
   SettlementRepository,
@@ -41,8 +43,12 @@ import type {
  */
 const useSupabase = process.env.NEXT_PUBLIC_DATA_SOURCE === 'supabase'
 
-export const authRepo: AuthRepository = useSupabase ? supabaseAuthRepo : mockAuthRepo
-export const tripRepo: TripRepository = useSupabase ? supabaseTripRepo : mockTripRepo
+export const authRepo: AuthRepository = useSupabase
+  ? supabaseAuthRepo
+  : mockAuthRepo
+export const tripRepo: TripRepository = useSupabase
+  ? supabaseTripRepo
+  : mockTripRepo
 export const expenseRepo: ExpenseRepository = useSupabase
   ? supabaseExpenseRepo
   : mockExpenseRepo
@@ -53,6 +59,7 @@ export const itineraryRepo: ItineraryRepository = useSupabase
   ? supabaseItineraryRepo
   : mockItineraryRepo
 export const destinationRepo: DestinationRepository = mockDestinationRepo
+export const foodRepo: FoodRepository = mockFoodRepo
 export const placeRepo: PlaceRepository = mockPlaceRepo
 export const compatRepo: CompatRepository = mockCompatRepo
 export const travelStyleRepo: TravelStyleRepository = mockTravelStyleRepo

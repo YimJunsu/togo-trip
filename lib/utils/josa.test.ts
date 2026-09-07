@@ -16,6 +16,14 @@ test('받침이 없으면 뒤쪽 조사가 붙는다', () => {
   assert.equal(withJosa('즉흥형', '과/와'), '즉흥형과')
 })
 
+test('이나/나도 받침을 본다', () => {
+  // 음식 공유 문구가 쓴다. "김밥나 먹으러 가자"가 되면 문장이 깨진다.
+  assert.equal(withJosa('김밥', '이나/나'), '김밥이나')
+  assert.equal(withJosa('순두부찌개', '이나/나'), '순두부찌개나')
+  assert.equal(withJosa('짜장면', '이나/나'), '짜장면이나')
+  assert.equal(withJosa('파스타', '이나/나'), '파스타나')
+})
+
 test('한글이 아니면 받침 없는 쪽으로 붙인다', () => {
   assert.equal(withJosa('PMAS', '이/가'), 'PMAS가')
   assert.equal(withJosa('78', '은/는'), '78는')

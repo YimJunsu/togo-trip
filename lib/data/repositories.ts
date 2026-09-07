@@ -4,6 +4,8 @@ import type {
   Destination,
   DestinationFilter,
   Expense,
+  Food,
+  FoodFilter,
   ItineraryItem,
   Member,
   Profile,
@@ -219,6 +221,12 @@ export interface SettlementRepository {
 export interface DestinationRepository {
   list(filter?: DestinationFilter): Promise<Destination[]>
   draw(filter?: DestinationFilter): Promise<Destination | null>
+}
+
+/** 음식 뽑기. 여행지와 같은 모양이라 화면 쪽 흐름도 그대로 쓴다. */
+export interface FoodRepository {
+  list(filter?: FoodFilter): Promise<Food[]>
+  draw(filter?: FoodFilter): Promise<Food | null>
 }
 
 export interface PlaceRepository {

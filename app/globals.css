@@ -59,6 +59,24 @@
    */
   --color-map-hit: #4ea87a;
 
+  /*
+   * 메뉴판 갈래 전용 팔레트. 범위는 components/menu-board/ 안뿐이다. (DESIGN_SYSTEM §3·§8)
+   * 화면 한 장이 통째로 종이다 — cream이 배경까지 덮고 roast 글자가 그 위에 앉는다.
+   * 이 갈래 안에서는 주 버튼도 roast다. 초록은 소프트 미니멀의 신호라, 크림 종이
+   * 위에 얹으면 그 버튼만 다른 화면에서 날아온 것처럼 뜬다.
+   *
+   * pass-cream(#f3ecdd)을 빌려 쓰지 않는다 — 그 값은 보딩패스 갈래에 못박혀 있고(§3),
+   * 빌려 오면 소프트 미니멀 화면에 그 갈래의 색이 샌다. 두 크림이 같은 색으로
+   * 보이지 않도록 이쪽을 눈에 띄게 노랗게 잡았다.
+   *
+   * amber는 cine-accent(#d9a45b)보다 한 단계 어둡다. 그 값은 어두운 사진 위에서
+   * 읽히도록 잡은 것이라 밝은 크림 위에서는 대비가 2.6:1까지 떨어진다.
+   * 이 값은 크림 위에서 4.9:1이 나와 글자에 쓸 수 있다.
+   */
+  --color-food-cream: #f8e7c9;
+  --color-food-roast: #4a3524;
+  --color-food-amber: #8a5a1c;
+
   --color-pass-navy: #1b2a4a;
   --color-pass-cream: #f3ecdd;
   --color-pass-stamp: #c1440e;
