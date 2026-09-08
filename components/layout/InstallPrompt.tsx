@@ -33,6 +33,8 @@ export function InstallPrompt() {
   /** 아래로 끄는 중의 이동량. 손가락을 따라 배너가 내려간다. */
   const [dragY, setDragY] = useState(0)
   const startYRef = useRef<number | null>(null)
+  /** 손을 뗄 때 읽을 최신 이동량. 상태는 이벤트 핸들러 안에서 아직 옛 값일 수 있다. */
+  const dragYRef = useRef(0)
 
   useEffect(() => {
     if (isStandalone()) return
@@ -81,6 +83,13 @@ export function InstallPrompt() {
           // 끄는 동안에는 전이를 끊어 손가락을 그대로 따라가고, 손을 떼 dragY가 0으로
           // 돌아갈 때만 전이를 켜서 제자리로 미끄러지게 한다.
           transition: dragY === 0 ? 'transform 200ms ease-out' : undefined,
+          /*
+           * 이게 없으면 세로 제스처를 브라우저가 페이지 스크롤로 먼저 가져가 버려
+           * touchmove가 우리에게 오지 않는다 — 실제 폰에서 스와이프가 통째로 먹히지
+           * 않았던 원인이다. none으로 두면 이 배너 위에서 시작한 제스처만 우리가 받고,
+           * 배너 밖에서 시작한 스크롤은 그대로 동작한다.
+           */
+          touchAction: 'none',
         }}
         onTouchStart={(e) => {
           startYRef.current = e.touches[0]?.clientY ?? null
@@ -90,11 +99,14 @@ export function InstallPrompt() {
           const y = e.touches[0]?.clientY
           if (start === null || y === undefined) return
           // 위로 끄는 건 무시한다. 아래로만 따라간다.
-          setDragY(Math.max(0, y - start))
+          const moved = Math.max(0, y - start)
+          dragYRef.current = moved
+          setDragY(moved)
         }}
         onTouchEnd={() => {
           startYRef.current = null
-          if (dragY > SWIPE_CLOSE_PX) dismiss()
+          if (dragYRef.current > SWIPE_CLOSE_PX) dismiss()
+          dragYRef.current = 0
           setDragY(0)
         }}
       >
