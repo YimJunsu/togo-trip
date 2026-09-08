@@ -13,10 +13,10 @@ export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-const INK = '#1a1d1a'
-const PAPER = '#f1f1ef'
-const ACCENT = '#2f6b4f'
-const MUTED = '#6a6f6a'
+const INK = '#0f1633'
+const PAPER = '#f5f6fa'
+const ACCENT = '#2a5bd7'
+const MUTED = '#5f6880'
 
 const FEATURES = '여행지 뽑기 · 여행방 · 엔빵 정산 · 성향 분석'
 const KOREAN_TEXT = `${SITE_NAME}${SITE_TAGLINE}${FEATURES}`
