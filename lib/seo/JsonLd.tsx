@@ -23,6 +23,8 @@ export function JsonLd({ data }: { data: object | object[] }) {
   )
 }
 
+import { OPERATOR } from '@/lib/legal/policy'
+
 const ORGANIZATION_ID = `${SITE_URL}/#organization`
 const WEBSITE_ID = `${SITE_URL}/#website`
 
@@ -40,6 +42,17 @@ export const siteGraph = [
       url: absoluteUrl('/images/mascot.webp'),
       width: 256,
       height: 256,
+    },
+    /*
+     * 연락 가능성은 신뢰 신호다. 답변엔진은 "누가 말하는가"를 보고, 문의 수단이 있는
+     * 사이트를 유령 사이트보다 높게 친다. 이 주소는 /about 화면에도 그대로 적혀 있다 —
+     * 화면에 없는 내용을 구조화 데이터에만 넣으면 스팸으로 취급된다.
+     */
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: OPERATOR.email,
+      availableLanguage: ['ko'],
     },
   },
   {

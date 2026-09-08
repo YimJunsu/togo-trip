@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { pingIndexNow } from '@/lib/seo/indexnow'
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
 import { ingestRegions } from '@/lib/tour/ingest'
 import type { IngestResult } from '@/lib/tour/ingest'
@@ -84,7 +85,10 @@ export async function GET(request: Request) {
         })
         .eq('code', failure.code)
       if (bumpError) {
-        console.error(`attempt_count 갱신 실패(${failure.code}):`, bumpError.message)
+        console.error(
+          `attempt_count 갱신 실패(${failure.code}):`,
+          bumpError.message,
+        )
       }
     }
 
@@ -109,9 +113,22 @@ export async function GET(request: Request) {
       }
     }
 
+    /*
+     * 갱신된 지역 페이지를 IndexNow로 알린다. 사이트맵만으로는 크롤러가 다시 올 때까지
+     * 며칠이 걸리는데, 이 cron은 매일 10개씩 내용을 바꾼다 — 그 시차를 없앤다.
+     * Bing·네이버 계열만 소비한다. 구글은 IndexNow를 지원하지 않아 사이트맵 lastmod로 간다.
+     *
+     * 실패해도 흐름을 막지 않는다. 색인 힌트가 안 갔다고 적재를 실패로 기록하면
+     * 진짜 실패를 못 알아본다.
+     */
+    const pinged = await pingIndexNow(
+      result.processed.map((code) => `/region/${code}`),
+    )
+
     // 어떤 이유로 뽑힌 배치였는지 남긴다 — 큐가 의도대로 도는지 눈으로 볼 유일한 창구다.
     return NextResponse.json({
       ...result,
+      pinged,
       reasons: targets.map((t) => `${t.code}:${t.reason}`),
     })
   } catch (error) {
@@ -119,7 +136,11 @@ export async function GET(request: Request) {
     if (run) {
       const { error: catchUpdateError } = await admin
         .from('ingest_runs')
-        .update({ finished_at: new Date().toISOString(), status: 'failed', error: message })
+        .update({
+          finished_at: new Date().toISOString(),
+          status: 'failed',
+          error: message,
+        })
         .eq('id', run.id)
 
       if (catchUpdateError) {
