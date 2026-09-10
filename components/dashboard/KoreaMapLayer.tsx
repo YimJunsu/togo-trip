@@ -17,8 +17,18 @@ const GRADE_FILL: Record<TerrainGrade, string> = {
 
 export function KoreaMapLayer({
   highlightCode,
+  linkRegions = false,
 }: {
   highlightCode?: string | null
+  /**
+   * 각 지역을 `/region/{code}`로 걸어 준다. 홈의 지도 카드가 쓴다 —
+   * 거기서는 지도가 그림이 아니라 250개 시군구로 들어가는 목차다.
+   *
+   * next/link가 아니라 평범한 `<a>`인 것은 의도다. Link는 화면에 들어온 링크를
+   * 미리 받아 두는데, 여기서는 그게 홈을 열자마자 라우트 250개를 프리페치하는
+   * 뜻이 된다. 지도는 눌러 보는 사람이 소수라 그 값이 전부 낭비다.
+   */
+  linkRegions?: boolean
 }) {
   return (
     <g>
@@ -42,18 +52,39 @@ export function KoreaMapLayer({
 
       {koreaMap.regions.map((region) => {
         const isHit = region.code === highlightCode
+        const shapeClass = cn(
+          'stroke-surface transition-[fill] duration-300',
+          isHit
+            ? 'fill-map-hit'
+            : GRADE_FILL[terrainGrade(region.province, region.name)],
+          // 누를 수 있을 때만 손끝을 따라 색이 바뀐다. (DESIGN_SYSTEM §2)
+          linkRegions &&
+            'group-hover:fill-accent-soft group-focus-visible:fill-accent-soft',
+        )
+
+        if (!linkRegions) {
+          return (
+            <path
+              key={region.code}
+              d={region.path}
+              className={shapeClass}
+              strokeWidth={1}
+            />
+          )
+        }
+
         return (
-          <path
+          // 이름은 aria-label로 준다. 도형만 있는 링크는 스크린리더에 이름 없는
+          // 링크로 읽힌다. svg <title>을 쓰면 안 된다 — React 19가 <title>을 문서
+          // 메타데이터로 보고 끌어올려서, svg 안에 빈 <title>만 250개 남는다.
+          <a
             key={region.code}
-            d={region.path}
-            className={cn(
-              'stroke-surface transition-[fill] duration-300',
-              isHit
-                ? 'fill-map-hit'
-                : GRADE_FILL[terrainGrade(region.province, region.name)],
-            )}
-            strokeWidth={1}
-          />
+            href={`/region/${region.code}`}
+            aria-label={`${region.name} 가볼만한 곳`}
+            className="group outline-none"
+          >
+            <path d={region.path} className={shapeClass} strokeWidth={1} />
+          </a>
         )
       })}
 
