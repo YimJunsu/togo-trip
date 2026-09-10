@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { CaretLeftIcon } from '@phosphor-icons/react'
 import type { QuizQuestion } from '@/lib/data/types'
 import { scoreQuiz } from '@/lib/style/score'
+import { saveMyStyleCode } from '@/lib/style/storage'
 
 /**
  * 성향 테스트 진행부. 채점은 전부 브라우저에서 끝난다 —
@@ -25,7 +26,11 @@ export function StyleQuiz({ questions }: { questions: QuizQuestion[] }) {
     if (next.length < questions.length) return
 
     setIsDone(true)
-    router.push(`/style/${scoreQuiz(questions, next).code}`)
+    const { code } = scoreQuiz(questions, next)
+    // 결과 화면이 «이 사람이 직접 푼 결과인가»를 이걸로 가른다. 목록에서 눌러
+    // 들어온 사람에게 «다시 해보기»를 내밀지 않기 위해서다.
+    saveMyStyleCode(code)
+    router.push(`/style/${code}`)
   }
 
   if (isDone || !question) {

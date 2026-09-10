@@ -1,10 +1,7 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowClockwiseIcon } from '@phosphor-icons/react/dist/ssr'
-import { actionButtonClass } from '@/components/dashboard/ActionButton'
-import { ShareButton } from '@/components/dashboard/ShareButton'
 import { StyleMatchGrid } from '@/components/dashboard/StyleMatchGrid'
+import { StyleResultActions } from '@/components/dashboard/StyleResultActions'
 import {
   StyleAxisGrid,
   StyleNotes,
@@ -71,20 +68,11 @@ export default async function StyleResultPage({ params }: PageProps<Params>) {
     <div className="flex flex-col gap-8">
       <StyleResultHero style={style} />
 
-      <div className="flex flex-col gap-3">
-        <ShareButton
-          title={`나는 ${style.name} 여행이다`}
-          text={`${style.tagline} · 내 여행 성향은 ${style.code}. 너도 해 봐.`}
-        />
-        {/* 재시도이므로 소개 랜딩(/style)이 아니라 문항으로 바로 보낸다. */}
-        <Link
-          href="/style/quiz"
-          className={actionButtonClass({ tone: 'quiet', className: 'w-full' })}
-        >
-          <ArrowClockwiseIcon size={16} weight="bold" aria-hidden />
-          다시 해보기
-        </Link>
-      </div>
+      <StyleResultActions
+        code={style.code}
+        name={style.name}
+        tagline={style.tagline}
+      />
 
       <StyleAxisGrid style={style} />
       <StyleNotes style={style} />

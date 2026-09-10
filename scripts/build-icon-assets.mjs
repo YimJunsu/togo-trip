@@ -9,7 +9,7 @@
 // 왜 모델이 뱉은 그림을 그대로 안 쓰나:
 //  - 이미지 모델은 "프레임의 88%를 채워라"를 거의 지키지 않는다. 실제로는 55% 언저리로
 //    나와서 아이콘으로 쓰면 가운데 점처럼 보인다. 여백은 여기서 잘라 낸다.
-//  - 배경색도 지정한 값 그대로 나오지 않는다. 마크 배경이 #2f6b4f 대신 세이지로 나왔다.
+//  - 배경색도 지정한 값 그대로 나오지 않는다. 마크 배경이 지정색 대신 세이지로 나왔다.
 //    브랜드 색은 눈대중으로 맞출 값이 아니라서 픽셀 단위로 바꿔 칠한다.
 import { mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -20,7 +20,7 @@ const SRC = (name) => join(ROOT, 'public/baseModel', `${name}.webp`)
 
 /** app/globals.css @theme의 값이다. 토큰이 바뀌면 여기도 바꾼다. (DESIGN_SYSTEM §1.1·§8) */
 const CREAM = { r: 0xf8, g: 0xe7, b: 0xc9 }
-const ACCENT = { r: 0x2f, g: 0x6b, b: 0x4f }
+const ACCENT = { r: 0x2a, g: 0x5b, b: 0xd7 }
 const TRANSPARENT = { r: 0, g: 0, b: 0, alpha: 0 }
 
 const hex = ({ r, g, b }) =>
@@ -73,7 +73,7 @@ async function framed(name, { size, coverage, background }) {
  * 배경으로 쓰인 색을 정확한 브랜드 색으로 바꿔 칠하고 raw 버퍼를 돌려준다.
  *
  * 기준색은 왼쪽 위 한 점에서 읽는다 — 모델이 어떤 색을 냈든 그 값이 배경이다.
- * 지정한 색이 그대로 나오는 법이 없어서(마크는 #2f6b4f 대신 세이지, 원화는 #f8e7c9
+ * 지정한 색이 그대로 나오는 법이 없어서(마크는 지정색 대신 세이지, 원화는 #f8e7c9
  * 대신 #ead7bb) 눈대중 대신 픽셀에서 읽는다.
  *
  * 허용 오차는 배경만 잡고 그림자는 남기도록 좁게 잡았다. 넓히면 발밑 그림자까지
