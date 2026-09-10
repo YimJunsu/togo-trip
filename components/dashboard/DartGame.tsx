@@ -57,6 +57,13 @@ const { width: W, height: H, dock: DOCK } = koreaMap
 const HOME: Vec = { x: W / 2, y: H - DOCK / 2 }
 const GRAB_RADIUS = 120
 const RING_R = 64
+/** 결과 카드에 미리 보여 줄 관광지 수. 나머지는 지역 페이지에서 본다. */
+const ATTRACTION_COUNT = 3
+/**
+ * 다트가 꽂히고 결과로 내려가기까지의 뜸. 착지 도장(animate-stamp, 280ms)이
+ * 끝까지 보인 뒤에 움직인다 — 바로 스크롤하면 어디에 꽂혔는지 못 보고 화면이 뜬다.
+ */
+const SCROLL_DELAY_MS = 500
 
 /**
  * 첫 바람은 서버에서 굴려 prop으로 받는다. 클라이언트에서 굴리면 서버 렌더 결과와
@@ -77,6 +84,7 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
   const [wind, setWind] = useState<Wind>(initialWind)
 
   const svgRef = useRef<SVGSVGElement>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
   const dartRef = useRef<SVGGElement>(null)
   const grabRef = useRef<Vec>({ x: 0, y: 0 })
   const rafRef = useRef(0)
@@ -88,6 +96,10 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
     entries: { region: SigunguRegion; path: Path2D }[]
   }>(null)
 
+  // 아래 effect가 읽으므로 여기서 먼저 만든다.
+  const showResult = phase === 'hit' && (mode === 'aim' || isRevealed)
+  const hasResult = showResult || phase === 'miss' || phase === 'north'
+
   useEffect(
     () => () => {
       cancelAnimationFrame(rafRef.current)
@@ -95,6 +107,28 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
     },
     [],
   )
+
+  /**
+   * 결과가 나오면 그 카드로 내려간다.
+   *
+   * 지도가 화면을 거의 다 채우기 때문에, 던지고 나면 어디에 꽂혔는지 보려고
+   * 매번 손으로 스크롤해야 했다. 던진 사람이 알고 싶은 건 지도가 아니라 지역이다.
+   *
+   * 스크롤을 끈 사람에게는 순간이동시킨다 — 움직임을 줄여 달라는 뜻이지
+   * 결과를 보여 주지 말라는 뜻이 아니다.
+   */
+  useEffect(() => {
+    if (!hasResult) return
+    const timer = setTimeout(() => {
+      resultRef.current?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto'
+          : 'smooth',
+        block: 'start',
+      })
+    }, SCROLL_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [hasResult])
 
   function reset(nextMode?: Mode) {
     cancelAnimationFrame(rafRef.current)
@@ -166,7 +200,9 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
   function pickAttractions(region: SigunguRegion) {
     const throwId = throwIdRef.current
     setAttractions('pending')
-    listRegionAttractions(region.code, { limit: 5 })
+    // 세 곳이면 결과 카드가 한 화면에 들어온다. 다섯이면 카드가 화면을 넘겨서
+    // 「이 지역 가볼만한 곳」 버튼까지 또 스크롤해야 했다. 전체 목록은 그 버튼이 맡는다.
+    listRegionAttractions(region.code, { limit: ATTRACTION_COUNT })
       .then((rows) => {
         if (throwId !== throwIdRef.current) return
         setAttractions(rows)
@@ -301,7 +337,6 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
       : HOME
   const dartAngle =
     isAiming && power >= MIN_POWER ? flightAngle(dartPos, aimTip) : 0
-  const showResult = phase === 'hit' && (mode === 'aim' || isRevealed)
   const ringC = 2 * Math.PI * RING_R
 
   return (
@@ -436,22 +471,30 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
         )}
       </div>
 
-      {showResult && outcome?.region && outcome.coords && (
-        <>
-          <DartResultCard
-            region={outcome.region}
-            coords={outcome.coords}
-            attractions={attractions}
-            onRetry={() => reset()}
-          />
-          <DestinationSlot
-            state={destination}
-            province={outcome.region.province}
-          />
-        </>
+      {/*
+        scroll-mt는 sticky 헤더 몫이다. 없으면 결과 카드의 제목이 헤더 밑으로
+        들어가 「여행지 당첨」 배지부터 잘린 채 멈춘다.
+      */}
+      {hasResult && (
+        <div ref={resultRef} className="flex scroll-mt-28 flex-col gap-4">
+          {showResult && outcome?.region && outcome.coords && (
+            <>
+              <DartResultCard
+                region={outcome.region}
+                coords={outcome.coords}
+                attractions={attractions}
+                onRetry={() => reset()}
+              />
+              <DestinationSlot
+                state={destination}
+                province={outcome.region.province}
+              />
+            </>
+          )}
+          {phase === 'miss' && <DartMissCard onRetry={() => reset()} />}
+          {phase === 'north' && <DartNorthCard onRetry={() => reset()} />}
+        </div>
       )}
-      {phase === 'miss' && <DartMissCard onRetry={() => reset()} />}
-      {phase === 'north' && <DartNorthCard onRetry={() => reset()} />}
     </div>
   )
 }
