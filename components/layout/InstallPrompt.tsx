@@ -74,11 +74,18 @@ export function InstallPrompt() {
     <>
       <div
         // 헤더가 z-30, 토스트가 z-40이다. 그 사이에 두면 토스트가 배너를 덮는다.
+        // 탭 바(z-20)보다는 위에 있어야 배너가 탭에 잘리지 않는다.
         className="fixed inset-x-0 bottom-0 z-30 px-4 pt-2"
-        // iOS 사파리의 하단 바와 홈 인디케이터에 가리지 않게 안전 영역만큼 띄운다.
-        // 토큰으로 표현할 수 없는 값이라 여기서만 env()를 쓴다.
         style={{
-          paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+          /*
+           * 아래 여백은 두 몫이다 — 모바일 탭 바(h-14 = 3.5rem)와, iOS 사파리의
+           * 하단 바·홈 인디케이터를 위한 안전 영역. 탭 바 몫을 빼먹으면 배너가
+           * 탭 위에 겹쳐 앉아 「홈」과 「뽑기」를 못 누른다. 이 배너는 모바일에서만
+           * 뜨므로 탭 바가 항상 있다고 봐도 된다.
+           * 토큰으로 표현할 수 없는 값이라 여기서만 env()를 쓴다.
+           */
+          paddingBottom:
+            'calc(3.5rem + max(1rem, env(safe-area-inset-bottom)))',
           transform: dragY ? `translateY(${dragY}px)` : undefined,
           // 끄는 동안에는 전이를 끊어 손가락을 그대로 따라가고, 손을 떼 dragY가 0으로
           // 돌아갈 때만 전이를 켜서 제자리로 미끄러지게 한다.

@@ -7,6 +7,10 @@ import { SITE_NAME_EN } from '@/lib/seo/site'
  * 약관·방침으로 가는 통로는 법적으로도 "찾기 쉬운 곳"에 있어야 하고, 검색엔진에도
  * 전 페이지에서 걸리는 내부 링크가 된다. 링크는 가운데 한 줄로만 둔다 — 항목이
  * 셋뿐이라 열을 나누면 오히려 비어 보인다.
+ *
+ * 담는 내용은 그대로지만 줄 수를 줄였다. 링크·저작권·면책이 각각 제 줄을 차지하면
+ * 회색 글자 덩어리가 화면 하나를 더 만든다. 저작권과 면책을 한 줄로 합치고 여백을
+ * 절반으로 줄여, 끝났다는 신호만 남긴다.
  */
 const LINKS = [
   // 방침을 맨 앞에 두고 강조한다. 셋 중 법적으로 가장 중요하고 자주 찾는 문서다.
@@ -18,17 +22,21 @@ const LINKS = [
 export function SiteFooter() {
   return (
     <footer className="border-line mt-auto border-t">
-      <div className="mx-auto w-full max-w-2xl px-4 py-10">
+      {/*
+        아래 여백은 모바일 탭 바(h-14) 몫이다. 없으면 맨 끝까지 내렸을 때
+        저작권 줄이 탭 바 뒤에 깔려 영영 안 보인다. 탭 바가 없는 sm부터는 평범한 값.
+      */}
+      <div className="mx-auto w-full max-w-2xl px-4 pt-6 pb-24 sm:pb-8">
         <nav aria-label="약관 및 정책">
-          <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             {LINKS.map(({ href, label, ...rest }) => (
               <li key={href}>
                 <Link
                   href={href}
                   className={
                     'emphasized' in rest && rest.emphasized
-                      ? 'text-ink hover:text-ink text-sm font-semibold transition duration-200'
-                      : 'text-muted hover:text-ink text-sm transition duration-200'
+                      ? 'text-ink hover:text-ink text-xs font-semibold transition duration-200'
+                      : 'text-muted hover:text-ink text-xs transition duration-200'
                   }
                 >
                   {label}
@@ -38,12 +46,9 @@ export function SiteFooter() {
           </ul>
         </nav>
 
-        <p className="text-muted mt-6 text-center font-mono text-xs tracking-widest">
-          © {new Date().getFullYear()} {SITE_NAME_EN}. ALL RIGHTS RESERVED.
-        </p>
-        <p className="text-muted mt-2 text-center text-xs leading-relaxed">
-          국내여행 계획·정산 서비스. 여행 성향 분석과 궁합 결과는 재미를 위한
-          것이며 전문적인 진단이 아닙니다.
+        <p className="text-muted mt-3 text-center text-[11px] leading-relaxed text-balance">
+          © {new Date().getFullYear()} {SITE_NAME_EN} · 국내여행 계획·정산
+          서비스. 성향·궁합 결과는 재미를 위한 것이며 전문적인 진단이 아닙니다.
         </p>
       </div>
     </footer>
