@@ -117,7 +117,7 @@ export default async function StylePage() {
         <div className="w-full">
           <ShareButton
             title="투고트립 여행 성향 분석"
-            text={`MBTI보다 중요한 게 바로 여행 궁합! ${questions.length}문제 풀고 나랑 찰떡인지 확인해 봐 ✈️`}
+            text={`MBTI보다 중요한 게 바로 여행 성향! ${questions.length}문제 풀고 나랑 찰떡인지 확인해 봐 ✈️`}
             label="친구의 성향 물어보기"
           />
         </div>

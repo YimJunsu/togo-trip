@@ -52,6 +52,18 @@ const nextConfig: NextConfig = {
         destination: 'https://togo-trip.com/:path*',
         permanent: true,
       },
+      /**
+       * 여행 궁합(/compat)은 걷어냈다. 답과 무관하게 seed 고정값(78%, seed 계정
+       * 두 명 이름)을 돌려주던 화면이라 실사용자에게는 남의 이름이 박힌 가짜
+       * 결과였고, 흐름상 답하는 사람이 한 명뿐이라 비교할 상대 자체가 없었다.
+       * 사이트맵에 올라가 색인된 주소라 404 대신 성향 분석으로 영구 이동시킨다 —
+       * «같이 갈 사람과 맞는지»의 답은 성향 결과의 «잘 맞는 유형»이 대신한다.
+       */
+      {
+        source: '/compat/:path*',
+        destination: '/style',
+        permanent: true,
+      },
     ]
   },
 }

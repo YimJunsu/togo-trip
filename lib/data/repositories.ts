@@ -1,6 +1,5 @@
 import type {
   Attraction,
-  CompatResult,
   Destination,
   DestinationFilter,
   Expense,
@@ -232,12 +231,6 @@ export interface FoodRepository {
 export interface PlaceRepository {
   listByTrip(tripId: string): Promise<Place[]>
   toggleSave(placeId: string, tripId: string): Promise<Place>
-}
-
-export interface CompatRepository {
-  questions(): Promise<QuizQuestion[]>
-  /** 점수 산출 로직은 아직 없다. answers는 받되 결과는 seed 고정값이다. */
-  result(answers: number[]): Promise<CompatResult>
 }
 
 /** 여행 성향 테스트. 비회원도 쓰는 콘텐츠라 userId를 받지 않는다. */

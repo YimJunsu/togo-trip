@@ -48,7 +48,7 @@ export function SiteFooter() {
 
         <p className="text-muted mt-3 text-center text-[11px] leading-relaxed text-balance">
           © {new Date().getFullYear()} {SITE_NAME_EN} · 국내여행 계획·정산
-          서비스. 성향·궁합 결과는 재미를 위한 것이며 전문적인 진단이 아닙니다.
+          서비스. 성향 결과는 재미를 위한 것이며 전문적인 진단이 아닙니다.
         </p>
       </div>
     </footer>

@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import {
   CompassIcon,
   ForkKnifeIcon,
-  HeartIcon,
   HouseIcon,
   TargetIcon,
   TicketIcon,
@@ -28,7 +27,6 @@ const PUBLIC_NAV: NavItem[] = [
   { href: '/random', label: '뽑기', icon: TargetIcon },
   { href: '/food', label: '음식', icon: ForkKnifeIcon },
   { href: '/style', label: '성향', icon: CompassIcon },
-  { href: '/compat', label: '궁합', icon: HeartIcon },
 ]
 
 /**
@@ -67,7 +65,7 @@ function NavLink({
           : 'rounded-btn gap-1.5 px-2.5 py-1.5',
         current
           ? // 탭 바에서는 알약을 두지 않는다. 칸이 이미 나뉘어 있어 배경까지
-            // 칠하면 버튼 여섯 개가 늘어선 것처럼 보인다.
+            // 칠하면 버튼 다섯 개가 늘어선 것처럼 보인다.
             variant === 'bar'
             ? 'text-accent'
             : 'text-accent bg-accent-soft'
@@ -95,7 +93,7 @@ function NavLink({
  * 사이트 내비게이션. 모바일에서는 화면 아래 탭 바, 데스크톱에서는 헤더 안의 한 줄.
  *
  * 아이콘+라벨 묶음은 원래 화면 아래에 사는 물건이다. 그걸 헤더에 올려 뒀더니
- * 툴바도 탭 바도 아닌 것이 되어 어색했고, 로그인하면 로고·6항목·이름·로그아웃이
+ * 툴바도 탭 바도 아닌 것이 되어 어색했고, 로그인하면 로고·항목들·이름·로그아웃이
  * 한 줄을 다퉈 375px에서 「참여」가 이름 뒤로 숨었다. 아래로 내리면 폭을 통째로
  * 쓰고, 엄지도 닿고, 홈 화면에 추가했을 때 진짜 앱처럼 보인다.
  *
@@ -107,7 +105,7 @@ function NavLink({
  * 않는 쪽은 `display:none`이라 접근성 트리에도 들어가지 않는다 — 스크린리더에
  * 내비가 두 번 읽히지 않는다. **헤더의 블러를 지우기 전에는 한 벌로 합치지 말 것.**
  *
- * 클라이언트 컴포넌트지만 서버에서도 렌더된다 — 공개 링크 다섯은 첫 HTML에
+ * 클라이언트 컴포넌트지만 서버에서도 렌더된다 — 공개 링크 넷은 첫 HTML에
  * 그대로 들어가므로 크롤러가 사이트 구조를 읽는 데 문제가 없다. 클라이언트로
  * 만든 이유는 두 가지뿐이다: 지금 어느 화면인지(usePathname)와, 로그인해야
  * 의미가 있는 항목을 가리는 것(useSession).

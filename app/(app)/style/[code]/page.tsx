@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { StyleAxisNotes } from '@/components/dashboard/StyleAxisNotes'
 import { StyleMatchGrid } from '@/components/dashboard/StyleMatchGrid'
 import { StyleResultActions } from '@/components/dashboard/StyleResultActions'
 import {
@@ -75,7 +76,8 @@ export default async function StyleResultPage({ params }: PageProps<Params>) {
       />
 
       <StyleAxisGrid style={style} />
-      <StyleNotes style={style} />
+      <StyleNotes style={style} match={matches[0] ?? null} />
+      <StyleAxisNotes style={style} />
       <StyleMatchGrid styles={matches} />
 
       <JsonLd

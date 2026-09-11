@@ -72,11 +72,6 @@ export default async function AboutPage() {
             body={`12문항으로 내 여행 성향을 ${styles.length}가지 중 하나로 찾습니다. 결과는 링크 하나로 친구에게 넘길 수 있습니다.`}
           />
           <Feature
-            title="여행 궁합"
-            href="/compat"
-            body="같이 갈 사람과 취향이 얼마나 맞는지, 어디가 어긋나는지 축별로 확인합니다."
-          />
-          <Feature
             title="여행방과 엔빵 정산"
             href="/trips/new"
             body="방을 만들면 6자리 초대코드가 나옵니다. 친구가 코드를 넣으면 같은 방에 들어오고, 여행 중 쓴 돈을 적으면 송금 횟수가 가장 적게 나오도록 정산해 줍니다. 이 기능만 로그인이 필요합니다."
@@ -90,7 +85,7 @@ export default async function AboutPage() {
         </h2>
         <div className="mt-2 flex flex-col gap-2 text-sm leading-relaxed">
           <p className="text-muted">
-            모든 기능은 무료입니다. 여행지 뽑기와 성향 분석, 궁합은 가입하지 않아도
+            모든 기능은 무료입니다. 여행지 뽑기와 성향 분석은 가입하지 않아도
             쓸 수 있고, 여행방과 정산만 로그인이 필요합니다.
           </p>
           <p className="text-muted">
@@ -98,7 +93,7 @@ export default async function AboutPage() {
           </p>
           <p className="text-muted">
             정산 기능은 계산만 해 주는 도구이고 실제 송금을 대행하지 않습니다. 성향
-            분석과 궁합은 재미를 위한 것이라 전문적인 진단이 아닙니다.
+            분석은 재미를 위한 것이라 전문적인 진단이 아닙니다.
           </p>
         </div>
       </section>
