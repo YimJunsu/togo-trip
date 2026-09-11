@@ -21,8 +21,7 @@ import type { Account, Profile } from '../types'
 type SeedAccount = Omit<Account, 'passwordHash'> & { password: string }
 
 /**
- * 동기로 채운다. 비동기로 채우면 findProfile()이 첫 호출에서 빈 배열을 보게 된다.
- * 5건이라 로드 시 한 번 드는 비용이 무시할 만하다.
+ * 동기로 채운다. 5건이라 로드 시 한 번 드는 비용이 무시할 만하다.
  */
 const accounts: Account[] = (seed as SeedAccount[]).map(
   ({ password, ...rest }) => ({
@@ -141,10 +140,4 @@ export function createPendingAccount(input: {
   }
   accounts.push(account)
   return toProfile(account)
-}
-
-/** 궁합 결과가 두 사람의 프로필을 동기적으로 필요로 한다. */
-export function findProfile(id: string): Profile | undefined {
-  const found = accounts.find((a) => a.id === id)
-  return found ? toProfile(found) : undefined
 }

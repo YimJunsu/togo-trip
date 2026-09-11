@@ -111,8 +111,18 @@ export function StyleAxisGrid({ style }: { style: TravelStyle }) {
   )
 }
 
-/** 읽는 부분. 결과 설명과 성격 분석, 동행 궁합을 나눠 담는다. */
-export function StyleNotes({ style }: { style: TravelStyle }) {
+/**
+ * 읽는 부분. 결과 설명과 성격 분석, 잘 맞는 동행을 나눠 담는다.
+ * match는 seed가 지정한 동행 유형이다. 이름을 글로도 적어 두는 이유는 아래
+ * 그리드가 이미지 카드라 크롤러에게는 alt 한 줄뿐이기 때문이다.
+ */
+export function StyleNotes({
+  style,
+  match,
+}: {
+  style: TravelStyle
+  match: TravelStyle | null
+}) {
   return (
     <section className="flex flex-col gap-3">
       <Panel title="이 결과가 나온 이유">
@@ -133,7 +143,12 @@ export function StyleNotes({ style }: { style: TravelStyle }) {
       </Panel>
 
       <Panel title="함께 여행가기 좋은 유형">
-        <p className="text-sm leading-relaxed">{style.matchReason}</p>
+        {match && (
+          <p className="text-ink text-sm font-semibold">
+            {match.name} 여행 ({match.code})
+          </p>
+        )}
+        <p className="mt-1 text-sm leading-relaxed">{style.matchReason}</p>
       </Panel>
     </section>
   )

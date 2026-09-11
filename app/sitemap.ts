@@ -15,7 +15,6 @@ const STATIC_ROUTES: {
   { path: '/random', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/food', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/style', priority: 0.9, changeFrequency: 'weekly' },
-  { path: '/compat', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/about', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/login', priority: 0.3, changeFrequency: 'yearly' },
   { path: '/signup', priority: 0.3, changeFrequency: 'yearly' },

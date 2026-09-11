@@ -1,6 +1,6 @@
 /**
  * 도메인 타입의 단일 출처. PROJECT_SPEC.md §3이 원본이다.
- * Destination / QuizQuestion / CompatResult는 SPEC에 타입 정의가 없어 화면 요구에 맞춰 여기서 정의한다.
+ * Destination / QuizQuestion은 SPEC에 타입 정의가 없어 화면 요구에 맞춰 여기서 정의한다.
  */
 
 export type DestinationTheme =
@@ -250,27 +250,6 @@ export type TravelStyle = {
   matchReason: string
   /** 결과 이미지 생성용 장면 묘사. 화면에는 쓰지 않는다. (scripts/generate-style-assets.mjs) */
   scene: string
-}
-
-export type CompatAxisBreakdown = {
-  axis: QuizAxis
-  label: string
-  leftLabel: string
-  rightLabel: string
-  /** 0~100. 두 사람의 위치. */
-  left: number
-  right: number
-}
-
-/** 궁합 카드는 이름만 쓴다. Profile 전체를 실어 보내면 이메일·전화번호가 브라우저로 나간다. */
-export type CompatMember = { id: string; name: string }
-
-export type CompatResult = {
-  percent: number
-  headline: string
-  description: string
-  members: [CompatMember, CompatMember]
-  breakdown: CompatAxisBreakdown[]
 }
 
 /** TourAPI에서 온 개별 스팟. Destination(큐레이션된 시도 단위 목적지)과 층위가 다르다. */
