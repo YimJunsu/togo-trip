@@ -122,6 +122,22 @@ export const supabaseAuthRepo: AuthRepository = {
     return profile
   },
 
+  async updateName(userId: string, name: string): Promise<Profile> {
+    const supabase = await createSupabaseServerClient()
+    // name은 profiles에서 사용자가 직접 쓸 수 있는 두 컬럼 중 하나다
+    // (grant update (name, phone) — supabase/schema.sql). RPC가 필요 없다.
+    // 온보딩 전에도 된다: 수정 정책은 auth.uid() = id뿐이라 동의 여부를 보지 않는다.
+    const { error } = await supabase
+      .from('profiles')
+      .update({ name: name.trim() })
+      .eq('id', userId)
+    if (error) throw new Error(`닉네임 저장 실패: ${error.message}`)
+
+    const profile = await fetchProfile(supabase, userId)
+    if (!profile) throw new Error('그런 사용자가 없습니다.')
+    return profile
+  },
+
   async isEmailTaken(email: string): Promise<boolean> {
     // RLS가 남의 profiles 행 조회를 막으므로 직접 select할 수 없다.
     // boolean 하나만 돌려주는 security definer 함수를 거친다. (supabase/schema.sql)

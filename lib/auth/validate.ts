@@ -22,6 +22,12 @@ export type FieldErrors = Partial<Record<keyof SignUpFields, string>>
 export const MIN_PASSWORD_LENGTH = 8
 
 /**
+ * 닉네임 최대 길이. 여행방 멤버 목록·헤더·아바타 옆에 놓이는 값이라 길면 잘린다.
+ * 하한은 1자다 — 한 글자 별명을 막을 이유가 없다.
+ */
+export const NICKNAME_MAX_LENGTH = 20
+
+/**
  * 가입 하한 연령. 만 14세 미만은 법정대리인 동의가 있어야 개인정보를 수집할 수 있어,
  * 그 절차를 갖출 때까지 가입 자체를 막는다.
  *
@@ -38,6 +44,23 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 /** 형식만 본다. 중복 조회를 걸기 전에 호출부가 이걸로 거른다. */
 export function isEmailShape(value: string): boolean {
   return EMAIL.test(value.trim())
+}
+
+/**
+ * 닉네임 검증. 가입·온보딩·설정 세 화면이 같은 규칙을 본다.
+ *
+ * profiles.name은 실명이 아니라 닉네임이다. 결제도 본인확인도 없는 서비스라 실명을
+ * 받을 이유가 없고, 구글 로그인은 구글 표시명이 그대로 들어와 사람마다 "실명인지
+ * 별명인지"가 제각각이었다. 그래서 이름을 닉네임으로 정의하고 바꿀 수 있게 열었다.
+ * 앞뒤 공백은 저장 전에 호출부가 trim한다.
+ */
+export function validateNickname(value: string): string | undefined {
+  const trimmed = value.trim()
+  if (!trimmed) return '닉네임을 입력하세요.'
+  if (trimmed.length > NICKNAME_MAX_LENGTH) {
+    return `닉네임은 ${NICKNAME_MAX_LENGTH}자 이내로 입력하세요.`
+  }
+  return undefined
 }
 
 /** 하이픈·공백을 걷어내고 숫자만 남긴다. 저장 형식은 숫자열이다. */
@@ -75,7 +98,8 @@ export function validateSignUp(
 ): FieldErrors {
   const errors: FieldErrors = {}
 
-  if (!fields.name.trim()) errors.name = '이름을 입력하세요.'
+  const nameError = validateNickname(fields.name)
+  if (nameError) errors.name = nameError
 
   if (!EMAIL.test(fields.email.trim())) {
     errors.email = '이메일 형식이 아닙니다.'
@@ -117,9 +141,12 @@ export function validateSignUp(
 
 /**
  * OAuth로 들어온 사람에게 받는 항목. 구글은 생년월일도 동의도 주지 않으므로
- * 인증 직후 이 둘만 따로 받는다. 이름·이메일은 구글이 준 값을 그대로 쓴다.
+ * 인증 직후 따로 받는다. 이메일은 구글이 준 값을 그대로 쓰고, 닉네임은 구글
+ * 표시명을 기본값으로 보여 주되 여기서 고칠 수 있다 — 구글 계정 이름이 실명인
+ * 사람은 그걸 여행방에 그대로 내걸고 싶지 않을 수 있다.
  */
 export type OnboardingFields = {
+  name: string
   birthDate: string
   agreeTerms: boolean
   agreePrivacy: boolean
@@ -136,6 +163,9 @@ export function validateOnboarding(
   today: Date,
 ): OnboardingErrors {
   const errors: OnboardingErrors = {}
+
+  const nameError = validateNickname(fields.name)
+  if (nameError) errors.name = nameError
 
   if (!isRealDate(fields.birthDate)) {
     errors.birthDate = '생년월일을 정확히 입력하세요.'

@@ -128,6 +128,8 @@ export interface AuthRepository {
    * 덮어쓰면 "언제 동의했나"의 답이 바뀐다.
    */
   completeOnboarding(userId: string, birthDate: string): Promise<Profile>
+  /** 닉네임(profiles.name) 변경. 검증은 호출부가 validateNickname으로 끝내고 온다. */
+  updateName(userId: string, name: string): Promise<Profile>
   /**
    * 현재 비밀번호가 맞을 때만 바꾼다. 틀리면 InvalidCredentialsError를 던진다.
    * 세션만으로 바꾸게 두면 자리를 비운 사이 남이 비밀번호를 갈아 계정을 통째로

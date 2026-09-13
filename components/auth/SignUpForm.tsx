@@ -148,10 +148,11 @@ export function SignUpForm() {
           <div className="px-5 py-3.5">
             <TextField
               variant="row"
-              label="이름"
+              label="닉네임"
               name="name"
-              autoComplete="name"
-              placeholder="실명을 입력하세요"
+              autoComplete="nickname"
+              placeholder="여행방에서 보일 이름"
+              maxLength={20}
               required
               error={errors.name}
             />

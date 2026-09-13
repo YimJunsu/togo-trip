@@ -26,6 +26,7 @@ export async function submitOnboarding(
   if (!user) redirect('/login')
 
   const fields = {
+    name: field(formData, 'name'),
     birthDate: field(formData, 'birthDate'),
     agreeTerms: formData.get('agreeTerms') === 'on',
     agreePrivacy: formData.get('agreePrivacy') === 'on',
@@ -36,6 +37,9 @@ export async function submitOnboarding(
   if (Object.keys(errors).length > 0) return { errors }
 
   try {
+    // 닉네임을 먼저 쓴다. 뒤의 동의 저장이 실패해도 닉네임만 바뀐 상태는 해롭지
+    // 않고, 다시 제출하면 같은 값이 다시 들어간다.
+    await authRepo.updateName(user.id, fields.name)
     await authRepo.completeOnboarding(user.id, fields.birthDate)
   } catch (error) {
     // 사유를 화면에 그대로 내보내지 않는다. 저장소 오류가 드러날 수 있다.

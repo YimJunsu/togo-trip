@@ -31,12 +31,12 @@ export default async function OnboardingPage() {
           거의 다 됐어요
         </h1>
         <p className="text-muted mt-2 text-sm leading-relaxed">
-          {user.name ? `${user.name}님, ` : ''}시작하기 전에 두 가지만 확인할게요.
+          {user.name ? `${user.name}님, ` : ''}시작하기 전에 몇 가지만 확인할게요.
           생년월일은 만 14세 이상인지 보는 데만 쓰고, 다른 곳에 쓰지 않습니다.
         </p>
       </header>
 
-      <OnboardingForm />
+      <OnboardingForm initialName={user.name} />
 
       {/*
         나가는 문. 이게 없으면 이 화면은 막다른 골목이 된다 — 헤더는 이 사람을

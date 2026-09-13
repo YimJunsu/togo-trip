@@ -13,7 +13,10 @@ export type AuthProvider = 'email' | 'kakao' | 'google'
 
 export type Profile = {
   id: string
-  /** 실명. 가입 시 1회 입력한다. 여행방 안의 표시 이름은 Member.displayName이다. */
+  /**
+   * 닉네임. 실명이 아니다 — 결제도 본인확인도 없어 실명이 필요한 자리가 없다.
+   * 가입·온보딩에서 받고 설정에서 바꾼다. 여행방 안의 표시 이름은 Member.displayName이다.
+   */
   name: string
   email: string
   /** 숫자만. 하이픈은 저장하지 않는다. */

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { SignOutIcon } from '@phosphor-icons/react/dist/ssr'
+import { NicknameForm } from '@/components/auth/NicknameForm'
 import { PasswordForm } from '@/components/auth/PasswordForm'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 import { actionButtonClass } from '@/components/dashboard/ActionButton'
@@ -64,6 +65,10 @@ export default async function SettingsPage() {
             ))}
           </ul>
         )}
+      </Section>
+
+      <Section title="닉네임">
+        <NicknameForm currentName={me.name} />
       </Section>
 
       <Section title="비밀번호 변경">

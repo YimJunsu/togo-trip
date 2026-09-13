@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --import ./scripts/test-alias-hook.mjs --test \"lib/**/*.test.ts\"",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "backup": "node --env-file=.env.local scripts/backup-db.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

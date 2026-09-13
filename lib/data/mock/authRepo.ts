@@ -90,6 +90,13 @@ export const mockAuthRepo: AuthRepository = {
     return toProfile(account)
   },
 
+  async updateName(userId, name) {
+    const account = accounts.find((a) => a.id === userId)
+    if (!account) throw new Error('그런 사용자가 없습니다.')
+    account.name = name.trim()
+    return toProfile(account)
+  },
+
   async isEmailTaken(email) {
     const target = normalizeEmail(email)
     return accounts.some((a) => normalizeEmail(a.email) === target)

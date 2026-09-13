@@ -10,7 +10,7 @@
  * 방침 변경 시 이 날짜를 올린다. 내용을 고치고 날짜를 그대로 두면
  * 이용자가 무엇이 언제 바뀌었는지 알 수 없다.
  */
-export const POLICY_EFFECTIVE_DATE = '2026.09.04'
+export const POLICY_EFFECTIVE_DATE = '2026.09.13'
 
 /**
  * 운영자 정보. 개인정보 보호법은 개인정보처리자와 보호책임자를 밝히도록 한다.
@@ -29,8 +29,10 @@ export const OPERATOR = {
 /** 가입 시 이용자가 직접 입력하는 항목. SignUpFields와 1:1이다. */
 export const COLLECTED_FIELDS = [
   {
-    item: '이름',
-    purpose: '회원 식별, 여행방 안에서의 표시 이름 기본값',
+    // profiles.name이다. 실명을 요구하지 않는다 — 결제도 본인확인도 없는 서비스라
+    // 실명이 필요한 자리가 없고, 받아 두면 보호할 의무만 생긴다.
+    item: '닉네임',
+    purpose: '회원 식별, 여행방과 화면에 표시되는 이름 (실명일 필요 없음)',
     required: true,
   },
   {

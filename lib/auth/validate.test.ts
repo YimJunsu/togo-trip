@@ -1,8 +1,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  NICKNAME_MAX_LENGTH,
   ageOn,
   normalizePhone,
+  validateNickname,
   validateOnboarding,
   validateSignUp,
 } from './validate.ts'
@@ -24,10 +26,10 @@ test('올바른 입력에는 에러가 없다', () => {
   assert.deepEqual(validateSignUp(VALID, TODAY), {})
 })
 
-test('이름은 공백만으로 채울 수 없다', () => {
+test('닉네임은 공백만으로 채울 수 없다', () => {
   assert.equal(
     validateSignUp({ ...VALID, name: '   ' }, TODAY).name,
-    '이름을 입력하세요.',
+    '닉네임을 입력하세요.',
   )
 })
 
@@ -130,6 +132,7 @@ test('normalizePhone은 숫자만 남긴다', () => {
 })
 
 const ONBOARDING_OK = {
+  name: '준수',
   birthDate: '1995-03-14',
   agreeTerms: true,
   agreePrivacy: true,
@@ -137,6 +140,22 @@ const ONBOARDING_OK = {
 
 test('온보딩: 제대로 채우면 오류가 없다', () => {
   assert.deepEqual(validateOnboarding(ONBOARDING_OK, TODAY), {})
+})
+
+test('온보딩: 닉네임이 비면 막는다', () => {
+  const errors = validateOnboarding({ ...ONBOARDING_OK, name: '   ' }, TODAY)
+  assert.match(errors.name ?? '', /닉네임/)
+})
+
+test('닉네임: 공백만이면 안 되고, 상한을 넘으면 안 된다', () => {
+  assert.equal(validateNickname('준수'), undefined)
+  assert.equal(validateNickname('  한  '), undefined)
+  assert.match(validateNickname('') ?? '', /입력/)
+  assert.equal(validateNickname('가'.repeat(NICKNAME_MAX_LENGTH)), undefined)
+  assert.match(
+    validateNickname('가'.repeat(NICKNAME_MAX_LENGTH + 1)) ?? '',
+    /이내/,
+  )
 })
 
 test('온보딩: 만 14세 미만은 막는다', () => {

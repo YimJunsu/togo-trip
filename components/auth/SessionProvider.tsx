@@ -1,6 +1,12 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { usePathname } from 'next/navigation'
 
 type Session = {
@@ -13,12 +19,15 @@ type Session = {
 type SessionValue = Session & {
   /** 서버에 다시 묻기 전에 화면을 먼저 비로그인으로 되돌린다. 아래 clear 주석 참고. */
   clear: () => void
+  /** 경로가 바뀌지 않은 채 세션 내용이 바뀌었을 때(닉네임 변경) 다시 묻는다. */
+  reload: () => void
 }
 
 const SessionContext = createContext<SessionValue>({
   name: null,
   isLoaded: false,
   clear: () => {},
+  reload: () => {},
 })
 
 export function useSession(): SessionValue {
@@ -47,6 +56,13 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     name: null,
     isLoaded: false,
   })
+  // 설정 화면에서 닉네임을 바꾸면 경로는 그대로다. 이 값을 올려 아래 effect를 다시 돌린다.
+  const [version, setVersion] = useState(0)
+  // 함수 정체성을 고정한다. 인라인으로 두면 version이 바뀔 때마다 새 함수가 되고,
+  // 그걸 의존성으로 가진 호출부 effect(NicknameForm)가 다시 돌아 reload → 재렌더 →
+  // 새 reload → 다시 effect… 로 /api/session 요청이 무한히 나갔다. 실제로 그랬다.
+  const reload = useCallback(() => setVersion((v) => v + 1), [])
+  const clear = useCallback(() => setSession({ name: null, isLoaded: true }), [])
 
   useEffect(() => {
     // 응답이 늦게 도착했을 때 이미 사라진 트리를 건드리지 않게 한다.
@@ -65,7 +81,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     return () => {
       isMounted = false
     }
-  }, [pathname])
+  }, [pathname, version])
 
   return (
     <SessionContext.Provider
@@ -74,7 +90,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         // 로그아웃은 지금 보고 있는 경로로 redirect될 수 있어(예: 홈에서 로그아웃)
         // 위 재조회가 돌지 않을 수 있다. 눌린 즉시 비로그인으로 되돌린다.
         // 틀리는 방향도 안전한 쪽이다 — 실패하면 다음 이동에서 다시 로그인 상태가 된다.
-        clear: () => setSession({ name: null, isLoaded: true }),
+        clear,
+        reload,
       }}
     >
       {children}

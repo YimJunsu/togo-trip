@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import {
   authRepo,
@@ -10,6 +11,7 @@ import { createSession, destroySession, requireUser } from './session'
 import {
   isEmailShape,
   normalizePhone,
+  validateNickname,
   validateSignUp,
   MIN_PASSWORD_LENGTH,
   type FieldErrors,
@@ -133,6 +135,24 @@ export async function changePasswordAction(
     throw error
   }
 
+  return { done: true }
+}
+
+export type NicknameFormState = AuthFormState & { done?: boolean }
+
+export async function updateNicknameAction(
+  _prev: NicknameFormState,
+  formData: FormData,
+): Promise<NicknameFormState> {
+  const user = await requireUser()
+
+  const name = field(formData, 'name')
+  const error = validateNickname(name)
+  if (error) return { errors: { name: error } }
+
+  await authRepo.updateName(user.id, name)
+  // 설정 화면 머리글의 이름은 서버에서 그린다. 무효화해야 같은 화면에서 새 값이 보인다.
+  revalidatePath('/settings')
   return { done: true }
 }
 
