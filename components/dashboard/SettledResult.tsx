@@ -53,8 +53,7 @@ export function SettledResult({
   const isDriver = (id: string) =>
     members.find((m) => m.userId === id)?.isDriver ?? false
 
-  const allPaid =
-    settlements.length > 0 && settlements.every((s) => s.isPaid)
+  const allPaid = settlements.length > 0 && settlements.every((s) => s.isPaid)
 
   function cancel() {
     startTransition(async () => {
@@ -71,9 +70,9 @@ export function SettledResult({
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="rounded-card bg-accent text-surface shadow-soft p-7">
+      <section className="rounded-card border-line bg-surface shadow-soft border p-6 sm:p-7">
         <div className="flex items-start justify-between gap-4">
-          <p className="flex items-center gap-1.5 font-mono text-xs tracking-widest opacity-75">
+          <p className="text-accent flex items-center gap-1.5 text-sm font-semibold">
             <LockIcon size={13} weight="bold" aria-hidden />
             정산 확정됨
           </p>
@@ -84,18 +83,21 @@ export function SettledResult({
         <p className="font-display mt-2 text-2xl font-semibold tracking-tight">
           {formatSettledDate(settledAt)}
         </p>
-        <p className="mt-1 text-sm opacity-80">
+        <p className="text-muted mt-2 text-sm leading-relaxed">
           지출은 더 고칠 수 없습니다. 고치려면 방장이 정산을 취소해야 합니다.
         </p>
       </section>
 
       <section>
         <h2 className="font-display mb-3 text-lg font-semibold tracking-tight">
-          누가 얼마
+          각자 부담할 금액
         </h2>
         <ul className="divide-line border-line bg-surface rounded-card divide-y border px-5">
           {shares.map((share) => (
-            <li key={share.userId} className="flex items-center gap-3 py-4">
+            <li
+              key={share.userId}
+              className="flex flex-wrap items-center gap-3 py-4"
+            >
               <Avatar name={nameOf(share.userId)} size="lg" />
               <div className="min-w-0 flex-1">
                 <p className="font-display flex items-center gap-1.5 font-medium">
@@ -109,8 +111,7 @@ export function SettledResult({
                   ) : null}
                 </p>
                 <p className="text-muted mt-0.5 text-xs">
-                  낸 돈 {formatWon(share.paid)} · 부담{' '}
-                  {formatWon(share.owed)}
+                  낸 돈 {formatWon(share.paid)} · 부담 {formatWon(share.owed)}
                 </p>
                 {Math.round(share.adjustment) !== 0 ? (
                   <p className="text-muted mt-0.5 text-xs">
@@ -123,8 +124,8 @@ export function SettledResult({
               <p
                 className={
                   share.net >= 0
-                    ? 'font-mono font-semibold'
-                    : 'text-muted font-mono font-semibold'
+                    ? 'text-accent ml-auto font-mono text-sm font-semibold tabular-nums'
+                    : 'text-muted ml-auto font-mono text-sm font-semibold tabular-nums'
                 }
               >
                 {share.net >= 0 ? '받을 ' : '보낼 '}
@@ -137,7 +138,7 @@ export function SettledResult({
 
       <section>
         <h2 className="font-display mb-3 text-lg font-semibold tracking-tight">
-          누가 누구에게
+          주고받을 돈
         </h2>
         <SettlementList
           settlements={settlements}

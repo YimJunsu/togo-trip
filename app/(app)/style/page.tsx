@@ -30,51 +30,56 @@ export default async function StylePage() {
 
   return (
     <div className="flex flex-col gap-10 pb-8">
-      <div className="flex flex-col gap-7">
-        {/* 기존 H1과 타이틀 영역 완벽 유지 */}
+      <div className="rounded-card border-line bg-surface flex flex-col gap-6 border p-6 sm:p-8">
+        <p className="text-accent text-xs font-semibold">여행 성향 테스트</p>
         <header className="flex items-center gap-4">
           <Image
             src="/images/mascot.webp"
             alt=""
-            width={72}
-            height={72}
-            className="shrink-0 drop-shadow-sm"
-            priority
+            width={96}
+            height={96}
+            className="order-last size-20 shrink-0 sm:size-24"
+            preload
           />
           <div>
             <h1 className="font-display text-3xl font-semibold tracking-tight">
-              여행 성향 분석
-            </h1>
-            <p className="text-muted mt-1 text-sm leading-relaxed">
-              당신의 여행 성향을 분석해보세요!
+              같은 여행,
               <br />
-              분석이 끝나면 친구들과 공유해 볼 수도 있어요!
+              다른 우리 취향
+            </h1>
+            <p className="text-muted mt-3 text-sm leading-relaxed">
+              빼곡한 일정이 좋아요, 발길 닿는 대로가 좋아요? 나다운 여행 방식을
+              찾아보세요.
             </p>
           </div>
         </header>
 
-        {/* 기존 텍스트 감성을 유지하되, 박스와 볼드 처리로 가독성(스캐닝) 향상 */}
-        <div className="rounded-card border-line bg-surface border p-5">
-          <p className="text-muted text-sm leading-relaxed">
-            <strong className="text-ink">{QUIZ_LENGTH}문항</strong>이면 네 축이
-            엇갈려 <strong className="text-ink">{styles.length}가지</strong> 중
-            하나의 결과가 나옵니다. <br className="hidden sm:block" />
-            가입도 로그인도 필요 없고, 결과는 링크 하나로 친구에게 바로 넘길 수
-            있어요.
-          </p>
-        </div>
+        <dl className="border-line grid grid-cols-3 border-y py-4 text-center">
+          <div>
+            <dt className="text-muted text-xs">가벼운 질문</dt>
+            <dd className="mt-1 text-lg font-semibold">{QUIZ_LENGTH}문항</dd>
+          </div>
+          <div className="border-line border-x">
+            <dt className="text-muted text-xs">여행 취향</dt>
+            <dd className="mt-1 text-lg font-semibold">{styles.length}유형</dd>
+          </div>
+          <div>
+            <dt className="text-muted text-xs">회원가입</dt>
+            <dd className="mt-1 text-lg font-semibold">없이 바로</dd>
+          </div>
+        </dl>
 
         <div>
           {canStart ? (
             <Link
               href="/style/quiz"
               className={actionButtonClass({
-                tone: 'ink',
+                tone: 'accent',
                 size: 'lg',
-                className: 'w-full shadow-sm',
+                className: 'w-full',
               })}
             >
-              여행 성향 분석하기
+              내 여행 성향 알아보기
             </Link>
           ) : (
             <span
@@ -92,15 +97,11 @@ export default async function StylePage() {
             </span>
           )}
 
-          {/* 면책 조항을 조금 더 부드럽고 긍정적인 UX 라이팅으로 수정 */}
           <p className="text-muted mt-4 text-center text-xs leading-relaxed">
-            투고트립에서 가벼운 마음으로 즐길 수 있게 만든 테스트입니다!
+            정답은 없어요. 가볍게 즐기고, 결과를 친구와 나눠보세요.
           </p>
         </div>
       </div>
-
-      {/* 섹션 구분을 위한 은은한 가로선 */}
-      <hr className="border-line" />
 
       <div className="flex flex-col gap-10">
         <StyleAxisIntro />
@@ -109,7 +110,6 @@ export default async function StylePage() {
 
       <hr className="border-line" />
 
-      {/* 공유하기 영역: 목적성을 부여하여 클릭률을 높이는 배치 */}
       <div className="flex flex-col items-center justify-center gap-4 pt-2">
         <h2 className="text-lg font-semibold tracking-tight">
           같이 여행 갈 친구가 있나요?
@@ -117,12 +117,12 @@ export default async function StylePage() {
         <div className="w-full">
           <ShareButton
             title="투고트립 여행 성향 분석"
-            text={`MBTI보다 중요한 게 바로 여행 성향! ${questions.length}문제 풀고 나랑 찰떡인지 확인해 봐 ✈️`}
+            text={`${QUIZ_LENGTH}문항으로 알아보는 우리 여행 취향. 같이 떠나기 전에 해볼래?`}
             label="친구의 성향 물어보기"
           />
         </div>
         <p className="text-muted mt-1 text-center text-xs leading-relaxed">
-          미리 성향을 맞춰보면 여행 중의 갈등을 줄일 수 있어요!
+          서로의 취향을 알고 떠나면, 함께 정하기가 더 쉬워져요.
         </p>
       </div>
     </div>

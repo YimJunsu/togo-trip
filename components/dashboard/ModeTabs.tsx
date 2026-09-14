@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
+import { TabList } from '@/components/ui/TabList'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils/cn'
 
@@ -19,30 +20,44 @@ export type Mode = {
  */
 export function ModeTabs({ modes }: { modes: Mode[] }) {
   const [current, setCurrent] = useState(modes[0]?.id ?? '')
+  const id = useId()
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="bg-ink/5 flex rounded-full p-1" role="tablist">
+      <TabList
+        aria-label="여행지 뽑는 방법"
+        className="bg-ink/5 flex rounded-full p-1"
+      >
         {modes.map((mode) => (
           <Button
             key={mode.id}
             role="tab"
+            id={`${id}-tab-${mode.id}`}
+            aria-controls={`${id}-panel-${mode.id}`}
+            tabIndex={current === mode.id ? 0 : -1}
             aria-selected={current === mode.id}
             onClick={() => setCurrent(mode.id)}
             className={cn(
-              'font-display flex-1 rounded-full py-2 text-sm font-semibold transition duration-200 ease-out',
+              'font-display min-h-11 flex-1 rounded-full py-2 text-sm font-semibold transition duration-200 ease-out',
               current === mode.id
-                ? 'bg-surface shadow-soft'
+                ? 'bg-surface text-accent shadow-soft'
                 : 'text-muted hover:text-ink',
             )}
           >
             {mode.label}
           </Button>
         ))}
-      </div>
+      </TabList>
 
       {modes.map((mode) => (
-        <div key={mode.id} hidden={current !== mode.id}>
+        <div
+          key={mode.id}
+          role="tabpanel"
+          id={`${id}-panel-${mode.id}`}
+          aria-labelledby={`${id}-tab-${mode.id}`}
+          tabIndex={0}
+          hidden={current !== mode.id}
+        >
           {mode.panel}
         </div>
       ))}

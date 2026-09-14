@@ -77,24 +77,32 @@ export function SettlePanel({
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="rounded-card bg-accent text-surface shadow-soft p-7">
+      <ol
+        aria-label="정산 순서"
+        className="text-muted flex flex-wrap items-center gap-x-4 gap-y-2 text-xs"
+      >
+        <li className="text-accent font-semibold">1. 지출 기록</li>
+        <li>2. 송금액 미리보기</li>
+        <li>3. 방장이 정산 확정</li>
+      </ol>
+      <section className="rounded-card border-line bg-surface shadow-soft border p-6 sm:p-7">
         <div className="flex items-start justify-between gap-4">
-          <p className="font-mono text-xs tracking-widest opacity-75">
-            총 지출
-          </p>
+          <p className="text-muted text-sm">이번 여행, 함께 쓴 돈</p>
           <AvatarStack
             people={members.map((m) => ({ id: m.userId, name: m.displayName }))}
             label="함께 쓴 사람"
           />
         </div>
-        <p className="font-display mt-2 text-4xl font-semibold tracking-tight">
+        <p className="font-display text-accent mt-3 text-3xl font-bold tracking-tight break-words tabular-nums sm:text-4xl">
           {formatWon(total)}
         </p>
         <div className="mt-4 flex flex-wrap gap-1.5">
-          <Badge className="bg-surface/20 text-surface">{expenses.length}건</Badge>
-          <Badge className="bg-surface/20 text-surface">{members.length}명</Badge>
+          <Badge className="bg-paper text-muted">
+            지출 {expenses.length}건
+          </Badge>
+          <Badge className="bg-paper text-muted">함께 {members.length}명</Badge>
           {driverNames.length > 0 ? (
-            <Badge className="bg-ink text-paper">
+            <Badge className="bg-accent-soft text-accent">
               운전자 {driverNames.join('·')}{' '}
               {Math.round(trip.driverDiscountRate * 100)}% 할인
             </Badge>
@@ -105,12 +113,12 @@ export function SettlePanel({
       <section>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-display text-lg font-semibold tracking-tight">
-            지출
+            지출 내역
           </h2>
           {!isAdding && !isPreviewOpen ? (
             <ActionButton size="sm" onClick={() => setIsAdding(true)}>
               <PlusIcon size={14} weight="bold" aria-hidden />
-              지출 넣기
+              지출 추가
             </ActionButton>
           ) : null}
         </div>
@@ -142,7 +150,16 @@ export function SettlePanel({
       </section>
 
       {isHost ? (
-        <section className="flex flex-col gap-6">
+        <section className="border-line flex flex-col gap-6 border-t pt-6">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">
+              다 적었다면, 정산 준비
+            </h2>
+            <p className="text-muted mt-1 text-sm leading-relaxed">
+              운전자 할인을 확인한 뒤 예상 송금액을 먼저 살펴보세요. 확정 전까지
+              지출을 수정할 수 있어요.
+            </p>
+          </div>
           <DiscountRateField
             tripId={trip.id}
             initialRate={trip.driverDiscountRate}

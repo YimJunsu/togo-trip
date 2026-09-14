@@ -1,123 +1,156 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { ShuffleIcon } from '@phosphor-icons/react/dist/ssr'
 import { BoardButton } from '@/components/menu-board/BoardControls'
 import { BoardShareButton } from '@/components/menu-board/BoardShareButton'
-import { LeaderLine } from '@/components/menu-board/LeaderLine'
+import { DishNutrition } from '@/components/menu-board/DishNutrition'
+import { DishPreview } from '@/components/menu-board/DishPreview'
+import { DishShuffle } from '@/components/menu-board/DishShuffle'
 import { PickedDish } from '@/components/menu-board/PickedDish'
-import { pickRandom } from '@/lib/foods/filter'
+import { RecentDishes } from '@/components/menu-board/RecentDishes'
+import { pickNextFood } from '@/lib/foods/draw'
 import type { Food } from '@/lib/data/types'
 
 type Phase = 'idle' | 'spinning' | 'done'
-
-/** 이름이 이만큼은 굴러야 "뽑았다"는 느낌이 난다. */
 const MIN_SPIN_MS = 1200
 const TICK_MS = 80
-/** 뽑기 전 차림표에 미리 걸어 두는 후보 줄 수. */
-const PREVIEW_ROWS = 7
+const HISTORY_LIMIT = 3
 
-/**
- * 뽑기 버튼과 결과 자리. 필터는 갖지 않는다 —
- * 아무거나 탭은 이것만 쓰고, 골라서 탭은 BoardFilters가 자기 후보를 여기로 넘긴다.
- *
- * 추첨은 브라우저에서 끝낸다. 후보 전체가 이미 prop으로 내려와 있어 서버에 물어볼
- * 것이 없고, 서버 액션을 부르면 왕복 한 번이 그냥 지연으로 남는다. 데이터를 가져오는
- * 일(foodRepo.list)은 여전히 서버 컴포넌트가 하고, 여기서는 받아 둔 배열에 순수
- * 함수를 돌릴 뿐이다. (CONVENTIONS §4)
- *
- * 빈 상태에 점선 박스를 두지 않는다. 대신 차림표답게 후보 몇 줄을 흐리게 걸어 둔다 —
- * 화면이 비어 있지 않으면서 "아직 안 정했다"가 그대로 읽힌다.
- */
-export function BoardDraw({ candidates }: { candidates: Food[] }) {
+/** repository에서 받은 후보로 브라우저에서 추첨한다. 조건 변경 시 key로 기록도 초기화한다. */
+export function BoardDraw({
+  candidates,
+  onDraw,
+}: {
+  candidates: Food[]
+  onDraw?: () => void
+}) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [result, setResult] = useState<Food | null>(null)
+  const [history, setHistory] = useState<Food[]>([])
   const [tick, setTick] = useState(0)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
+  const spinRef = useRef<ReturnType<typeof setInterval>>(undefined)
+  const finishRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const isDrawingRef = useRef(false)
+
+  useEffect(
+    () => () => {
+      clearInterval(spinRef.current)
+      clearTimeout(finishRef.current)
+    },
+    [],
+  )
+
+  useEffect(() => {
+    // 탭을 옮기거나 다른 곳을 조작한 사용자의 초점을 빼앗지 않는다.
+    if (
+      phase === 'done' &&
+      !rootRef.current?.closest('[hidden]') &&
+      rootRef.current?.contains(document.activeElement)
+    ) {
+      resultRef.current?.focus({ preventScroll: true })
+      resultRef.current?.scrollIntoView({
+        block: 'nearest',
+        behavior: 'instant',
+      })
+    }
+  }, [phase, result])
 
   function draw() {
-    // 추첨은 즉시 끝난다. 이름이 구르는 1.2초는 결과를 기다리는 시간이 아니라
-    // "뽑는 중"이라는 연출이라 그대로 둔다.
-    const picked = pickRandom(candidates)
-    setPhase('spinning')
-    setResult(null)
-
-    const spin = setInterval(() => setTick((t) => t + 1), TICK_MS)
-    setTimeout(() => {
-      clearInterval(spin)
-      setResult(picked)
+    if (
+      isDrawingRef.current ||
+      candidates.length === 0 ||
+      (result && candidates.length === 1)
+    )
+      return
+    const picked = pickNextFood(candidates, result?.id)
+    if (!picked) return
+    const nextFood = picked
+    isDrawingRef.current = true
+    onDraw?.()
+    function finish() {
+      clearInterval(spinRef.current)
+      isDrawingRef.current = false
+      setResult(nextFood)
+      setHistory((previous) =>
+        [nextFood, ...previous.filter((food) => food.id !== nextFood.id)].slice(
+          0,
+          HISTORY_LIMIT,
+        ),
+      )
       setPhase('done')
-    }, MIN_SPIN_MS)
+    }
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finish()
+      return
+    }
+    setPhase('spinning')
+    spinRef.current = setInterval(() => setTick((value) => value + 1), TICK_MS)
+    finishRef.current = setTimeout(finish, MIN_SPIN_MS)
   }
 
-  const preview = candidates.slice(0, PREVIEW_ROWS)
+  const isDone = phase === 'done' && result
+  const hasNoAlternative = Boolean(isDone && candidates.length === 1)
 
   return (
-    <div>
-      <div className="min-h-[17rem]">
-        {phase === 'spinning' ? (
-          <div
-            className="flex min-h-[17rem] flex-col items-center justify-center"
-            role="status"
-            aria-live="polite"
-          >
-            <span className="sr-only">뽑는 중</span>
-            <p
-              className="font-display text-4xl font-bold tracking-tight opacity-45"
-              aria-hidden
-            >
-              {candidates[tick % Math.max(candidates.length, 1)]?.name ?? '…'}
-            </p>
-          </div>
-        ) : phase === 'done' && result ? (
-          <PickedDish food={result} />
-        ) : phase === 'done' ? (
-          <div className="flex min-h-[17rem] flex-col justify-center text-center">
-            <p className="font-display text-2xl font-bold tracking-tight">
-              오늘은 내어 드릴 게 없습니다
-            </p>
-            <p className="mt-2 text-sm opacity-70">
-              태그를 하나 더 고르거나 종류를 풀어 주세요. 고를수록 후보가
-              늘어납니다.
-            </p>
-          </div>
-        ) : (
-          <div>
-            <p className="text-food-amber mb-1 font-mono text-[10px] tracking-[0.2em]">
-              오늘 걸린 것 중에서
-            </p>
-            {preview.map((food) => (
-              <LeaderLine
-                key={food.id}
-                label={`${food.emoji} ${food.name}`}
-                value={`${food.nutrition.kcal.toLocaleString('ko-KR')}kcal`}
-                isDim
-              />
-            ))}
-            {candidates.length > PREVIEW_ROWS ? (
-              <p className="mt-2 font-mono text-[11px] opacity-45">
-                … 그 밖에도 여럿
-              </p>
-            ) : null}
-            {candidates.length === 0 ? (
-              <p className="text-sm opacity-60">
-                조건에 맞는 메뉴가 없습니다. 태그를 하나 풀어 주세요.
-              </p>
-            ) : null}
-          </div>
-        )}
-      </div>
+    <div ref={rootRef}>
+      <p className="sr-only" role="status">
+        {phase === 'spinning'
+          ? '오늘의 메뉴를 고르고 있어요'
+          : isDone
+            ? `오늘의 메뉴는 ${result.name}입니다`
+            : ''}
+      </p>
+      {phase === 'spinning' ? (
+        <DishShuffle candidates={candidates} tick={tick} />
+      ) : isDone ? (
+        <div
+          ref={resultRef}
+          tabIndex={-1}
+          className="scroll-mt-24 focus:outline-none"
+          aria-label={`추천 메뉴: ${result.name}`}
+        >
+          <PickedDish key={result.id} food={result} />
+        </div>
+      ) : (
+        <DishPreview candidates={candidates} />
+      )}
 
-      <div className="mt-6 flex flex-col gap-3">
-        {phase === 'done' && result ? (
-          <BoardShareButton name={result.name} />
-        ) : null}
-        <BoardButton disabled={phase === 'spinning'} onClick={draw}>
+      <div className="mt-5 flex flex-col gap-3">
+        <BoardButton
+          disabled={
+            phase === 'spinning' || candidates.length === 0 || hasNoAlternative
+          }
+          onClick={draw}
+        >
+          <ShuffleIcon size={20} aria-hidden />
           {phase === 'spinning'
             ? '고르는 중…'
-            : phase === 'done'
-              ? '다시 정해 주세요'
-              : '한 그릇 정해 주세요'}
+            : hasNoAlternative
+              ? '다른 후보가 없어요'
+              : isDone
+                ? '다른 메뉴 뽑기'
+                : '오늘의 메뉴 뽑기'}
         </BoardButton>
+        {hasNoAlternative && (
+          <p className="text-food-amber text-center text-sm">
+            조건을 바꾸면 더 많은 메뉴를 만날 수 있어요.
+          </p>
+        )}
+        {isDone && <BoardShareButton key={result.id} name={result.name} />}
       </div>
+      {isDone && <DishNutrition key={result.id} food={result} />}
+      <RecentDishes
+        foods={history}
+        currentId={result?.id}
+        disabled={phase === 'spinning'}
+        onSelect={(food) => {
+          setResult(food)
+          setPhase('done')
+        }}
+      />
     </div>
   )
 }

@@ -1,10 +1,16 @@
 import Link from 'next/link'
-import { ArrowCounterClockwiseIcon, MapPinIcon } from '@phosphor-icons/react'
+import {
+  ArrowCounterClockwiseIcon,
+  ArrowRightIcon,
+  MapPinIcon,
+  UsersIcon,
+} from '@phosphor-icons/react'
 import {
   ActionButton,
   actionButtonClass,
 } from '@/components/dashboard/ActionButton'
 import { AttractionList } from '@/components/dashboard/AttractionList'
+import { DartLocationMark } from '@/components/dashboard/DartLocationMark'
 import type { Attraction } from '@/lib/data/types'
 import type { SigunguRegion } from '@/lib/geo/koreaMap'
 
@@ -23,49 +29,75 @@ export function DartResultCard({
 }) {
   const [lat, lng] = coords
   return (
-    <div className="bg-surface rounded-card border-line shadow-soft animate-rise border p-6 text-center">
-      <span className="bg-accent-soft font-display inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
-        <MapPinIcon size={14} weight="fill" aria-hidden />
-        여행지 당첨
-      </span>
-      <h2 className="font-display mt-3 text-4xl font-semibold tracking-tight">
-        {region.name}
-      </h2>
-      <p className="text-muted mt-1 text-sm">{region.province}</p>
-      <p className="text-muted mt-3 font-mono text-xs tracking-widest">
-        북위 {lat.toFixed(3)}° · 동경 {lng.toFixed(3)}°
-      </p>
-
-      <div className="mt-5">
-        {attractions === 'pending' ? (
-          <p role="status" aria-live="polite" className="text-muted text-sm">
-            <span className="sr-only">관광지를 불러오는 중입니다.</span>
-            가볼 만한 곳을 찾는 중…
+    <article className="bg-surface rounded-card border-line shadow-soft animate-rise overflow-hidden border">
+      <div className="bg-accent-soft/50 flex items-center justify-between gap-4 px-5 py-6 sm:px-7">
+        <div className="min-w-0">
+          <span className="text-accent inline-flex items-center gap-1.5 text-xs font-semibold">
+            <MapPinIcon size={14} weight="fill" aria-hidden />
+            다트가 고른 다음 여행
+          </span>
+          <p className="text-muted mt-5 text-sm">{region.province}</p>
+          <h2 className="font-display mt-1 text-4xl font-bold tracking-tight sm:text-5xl">
+            {region.name}
+          </h2>
+          <p className="text-muted mt-4 font-mono text-xs leading-relaxed">
+            북위 {lat.toFixed(3)}° · 동경 {lng.toFixed(3)}°
           </p>
-        ) : (
-          <AttractionList
-            items={attractions}
-            emptyText="이 지역은 아직 준비된 관광지 정보가 없습니다."
-          />
-        )}
+        </div>
+        <DartLocationMark region={region} />
       </div>
 
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
-        <ActionButton tone="accent" onClick={onRetry}>
-          <ArrowCounterClockwiseIcon size={18} weight="bold" aria-hidden />
-          다시 던지기
-        </ActionButton>
+      <div className="p-5 sm:p-7">
         <Link
           href={`/region/${region.code}`}
-          className={actionButtonClass({ tone: 'quiet' })}
+          className={actionButtonClass({
+            tone: 'accent',
+            className: 'min-h-12 w-full',
+          })}
         >
-          {region.name} 가볼만한 곳
+          {region.name} 둘러보기
+          <ArrowRightIcon size={18} aria-hidden />
         </Link>
-        <Link href="/trips/new" className={actionButtonClass({ tone: 'quiet' })}>
-          이 지역으로 여행방 만들기
-        </Link>
+        <p className="text-muted mt-2 text-center text-xs">
+          관광지와 맛집을 보고 여행의 첫 코스를 정해요.
+        </p>
+        <div className="mt-6">
+          <h3 className="mb-3 text-sm font-semibold">여기서 시작해 볼까요?</h3>
+          {attractions === 'pending' ? (
+            <p role="status" aria-live="polite" className="text-muted text-sm">
+              <span className="sr-only">관광지를 불러오는 중입니다.</span>
+              가볼 만한 곳을 찾는 중…
+            </p>
+          ) : (
+            <AttractionList
+              items={attractions}
+              emptyText="이 지역은 아직 준비된 관광지 정보가 없습니다."
+            />
+          )}
+        </div>
+
+        <div className="border-line mt-5 flex flex-col gap-2 border-t pt-5 sm:flex-row">
+          <Link
+            href="/trips/new"
+            className={actionButtonClass({
+              tone: 'quiet',
+              className: 'min-h-12 flex-1 text-sm',
+            })}
+          >
+            <UsersIcon size={18} aria-hidden />
+            친구들과 여행방 만들기
+          </Link>
+          <ActionButton
+            tone="quiet"
+            className="min-h-12 text-sm"
+            onClick={onRetry}
+          >
+            <ArrowCounterClockwiseIcon size={18} weight="bold" aria-hidden />
+            다시 던지기
+          </ActionButton>
+        </div>
       </div>
-    </div>
+    </article>
   )
 }
 

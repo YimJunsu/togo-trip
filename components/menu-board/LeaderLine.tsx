@@ -23,18 +23,18 @@ export function LeaderLine({
   return (
     <div
       className={cn(
-        'flex items-baseline gap-2 py-1.5 text-sm',
-        isDim && 'opacity-45',
+        'flex items-baseline gap-2 py-2 text-sm',
+        isDim && 'text-food-roast',
       )}
     >
-      <span className="shrink-0">{label}</span>
+      <span className="min-w-0 break-words">{label}</span>
       <span
-        className="border-food-roast/40 min-w-6 flex-1 -translate-y-[3px] border-b border-dotted"
+        className="border-food-roast/30 min-w-2 flex-1 -translate-y-0.5 border-b border-dotted"
         aria-hidden
       />
       <span className="shrink-0 font-mono text-xs">{value}</span>
       {note ? (
-        <span className="text-food-amber shrink-0 font-mono text-[10px]">
+        <span className="text-food-amber shrink-0 font-mono text-xs">
           {note}
         </span>
       ) : null}

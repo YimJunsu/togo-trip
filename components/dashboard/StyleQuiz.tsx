@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CaretLeftIcon } from '@phosphor-icons/react'
 import type { QuizQuestion } from '@/lib/data/types'
@@ -15,11 +15,24 @@ export function StyleQuiz({ questions }: { questions: QuizQuestion[] }) {
   const router = useRouter()
   const [answers, setAnswers] = useState<number[]>([])
   const [isDone, setIsDone] = useState(false)
+  const questionRef = useRef<HTMLHeadingElement>(null)
+  const moveFocusRef = useRef(false)
 
   const step = answers.length
   const question = questions[step]
 
+  useEffect(() => {
+    if (!moveFocusRef.current || isDone) return
+    moveFocusRef.current = false
+    questionRef.current?.focus({ preventScroll: true })
+    questionRef.current?.scrollIntoView({
+      block: 'nearest',
+      behavior: 'instant',
+    })
+  }, [step, isDone])
+
   function answer(score: number) {
+    moveFocusRef.current = true
     const next = [...answers, score]
     setAnswers(next)
 
@@ -47,7 +60,7 @@ export function StyleQuiz({ questions }: { questions: QuizQuestion[] }) {
   }
 
   return (
-    <div className="rounded-card border-line bg-surface shadow-soft border p-6">
+    <div className="rounded-card border-line bg-surface shadow-soft border p-5 sm:p-8">
       <div className="flex items-center justify-between gap-4">
         <span className="text-muted font-mono text-xs tracking-widest">
           {step + 1} / {questions.length}
@@ -55,8 +68,11 @@ export function StyleQuiz({ questions }: { questions: QuizQuestion[] }) {
         {step > 0 && (
           <button
             type="button"
-            onClick={() => setAnswers(answers.slice(0, -1))}
-            className="text-muted hover:text-ink flex items-center gap-1 text-sm font-medium transition duration-200"
+            onClick={() => {
+              moveFocusRef.current = true
+              setAnswers(answers.slice(0, -1))
+            }}
+            className="text-muted hover:text-ink flex min-h-11 items-center gap-1 text-sm font-medium transition duration-200"
           >
             <CaretLeftIcon size={14} weight="bold" aria-hidden />
             이전
@@ -67,6 +83,7 @@ export function StyleQuiz({ questions }: { questions: QuizQuestion[] }) {
       <div
         className="bg-paper mt-3 h-1.5 overflow-hidden rounded-full"
         role="progressbar"
+        aria-label="여행 성향 테스트 진행"
         aria-valuenow={step + 1}
         aria-valuemin={1}
         aria-valuemax={questions.length}
@@ -79,19 +96,32 @@ export function StyleQuiz({ questions }: { questions: QuizQuestion[] }) {
 
       {/* key로 문항이 바뀔 때마다 다시 올라오게 한다. */}
       <div key={question.id} className="animate-rise">
-        <h2 className="font-display mt-6 text-2xl leading-snug font-semibold tracking-tight">
+        <p className="text-muted mt-6 text-xs">
+          더 나다운 쪽을 골라 주세요. 정답은 없어요.
+        </p>
+        <h2
+          ref={questionRef}
+          tabIndex={-1}
+          className="font-display mt-3 scroll-mt-24 text-2xl leading-snug font-semibold tracking-tight focus:outline-none"
+        >
           {question.text}
         </h2>
 
         <div className="mt-5 flex flex-col gap-3">
-          {question.options.map((option) => (
+          {question.options.map((option, index) => (
             <button
               key={option.label}
               type="button"
               onClick={() => answer(option.score)}
-              className="rounded-inner border-line hover:border-ink hover:bg-paper border p-4 text-left text-base font-medium transition duration-200 ease-out active:scale-[0.99]"
+              className="rounded-inner border-line hover:border-accent hover:bg-accent-soft flex items-start gap-3 border p-4 text-left text-base leading-relaxed font-medium transition duration-200 ease-out active:scale-[0.99]"
             >
-              {option.label}
+              <span
+                className="text-accent bg-accent-soft flex size-7 shrink-0 items-center justify-center rounded-full font-mono text-xs"
+                aria-hidden
+              >
+                {index === 0 ? 'A' : 'B'}
+              </span>
+              <span>{option.label}</span>
             </button>
           ))}
         </div>

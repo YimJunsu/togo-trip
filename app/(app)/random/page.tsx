@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { DartGame } from '@/components/dashboard/DartGame'
 import { ModeTabs } from '@/components/dashboard/ModeTabs'
 import { RandomDrawer } from '@/components/dashboard/RandomDrawer'
+import { RandomIntro } from '@/components/dashboard/RandomIntro'
 import { destinationRepo } from '@/lib/data'
 import { rollWind } from '@/lib/geo/dart'
 import { pageMetadata } from '@/lib/seo/metadata'
@@ -19,14 +20,7 @@ export default async function RandomPage() {
   return (
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-6">
-        <header>
-          <h1 className="font-display text-3xl font-semibold tracking-tight">
-            여행지 뽑기
-          </h1>
-          <p className="text-muted mt-1 text-sm">
-            다트를 던지거나, 조건 걸고 운에 맡기세요. 국내 한정입니다.
-          </p>
-        </header>
+        <RandomIntro />
 
         <ModeTabs
           modes={[
@@ -84,7 +78,7 @@ export default async function RandomPage() {
           <p>
             <strong className="text-ink">조건으로 뽑기</strong>는 태그를 걸고 그
             안에서만 뽑습니다. 테마는 {'바다·산·도시·힐링·액티비티'} 다섯
-            가지이고, 여기에 {'예산대(가볍게·보통·넉넉하게)'}와{' '}
+            가지이고, 여기에 {'예산대(알뜰·보통·플렉스)'}와{' '}
             {'계절(봄·여름·가을·겨울)'}을 더해 좁힐 수 있습니다. 아무것도 고르지
             않으면 후보 전체에서 하나가 나옵니다. 조건을 좁혔는데 남는 곳이
             없으면 그렇다고 알려 주니, 하나씩 풀어 가며 다시 뽑으면 됩니다.
@@ -96,6 +90,21 @@ export default async function RandomPage() {
             있습니다. 갈 곳이 정해졌다면 여행방을 만들어 친구를 부르고, 여행이
             끝난 뒤 쓴 돈을 넣으면 누가 누구에게 얼마를 보낼지까지 계산해
             줍니다.
+          </p>
+          <p>
+            다트 결과의 큰 지명은 실제로 꽂힌 시군구입니다. 옆의 작은 지도에서
+            국내 어느 쪽인지 확인하고, 지역 둘러보기로 이동하면 관광지와 맛집을
+            살펴볼 수 있습니다. 같은 시도의 다른 여행지는 별도 추천으로 구분해
+            보여 주므로, 당첨 지역 밖으로 여행 범위를 넓힐 때 참고해 보세요.
+            다시 던지기를 누르면 지도로 돌아가 바로 다음 다트를 준비할 수
+            있습니다.
+          </p>
+          <p>
+            조건을 바꾸면 이전 추천 결과는 비우고 새로운 후보를 확인합니다.
+            후보를 불러오는 중에는 잠시 기다려 주세요. 조회에 실패하면 후보 다시
+            불러오기로 재시도할 수 있고, 초기화를 누르면 전체 여행지로
+            돌아갑니다. 테마를 여러 개 고를 때는 하나라도 맞는 곳이 포함되며,
+            선택한 예산과 계절은 모두 맞아야 후보가 됩니다.
           </p>
         </div>
       </section>

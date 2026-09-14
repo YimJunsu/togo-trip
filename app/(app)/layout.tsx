@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { HeaderAuth } from '@/components/auth/HeaderAuth'
 import { SessionProvider } from '@/components/auth/SessionProvider'
 import { InstallPrompt } from '@/components/layout/InstallPrompt'
@@ -12,12 +13,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     // children은 서버에서 렌더된 그대로 통과하므로 본문은 계속 정적이다.
     <SessionProvider>
       <NoticeProvider>
+        <a
+          href="#main-content"
+          className="bg-ink text-paper rounded-btn fixed top-2 left-4 z-50 -translate-y-24 px-4 py-3 focus:translate-y-0"
+        >
+          본문으로 건너뛰기
+        </a>
         <header className="border-line bg-paper/80 sticky top-0 z-30 border-b backdrop-blur-md">
-          <div className="mx-auto flex max-w-2xl items-center justify-between gap-3 px-4 py-3">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
             <Link
               href="/"
-              className="font-display shrink-0 text-lg font-semibold tracking-tight"
+              className="font-display flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight"
             >
+              <Image
+                src="/icons/icon-192.png"
+                alt=""
+                width={28}
+                height={28}
+                className="rounded-inner"
+              />
               투고트립
             </Link>
             {/* 데스크톱용 한 줄. 모바일에서는 display:none이고 아래 탭 바가 대신 선다. */}
@@ -26,7 +40,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-8 pb-16">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="mobile-nav-space mx-auto w-full max-w-2xl flex-1 px-4 pt-6 pb-16 sm:pt-8"
+        >
           {children}
         </main>
 

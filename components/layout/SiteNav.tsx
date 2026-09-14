@@ -7,10 +7,9 @@ import {
   ForkKnifeIcon,
   HouseIcon,
   TargetIcon,
-  TicketIcon,
+  ReceiptIcon,
 } from '@phosphor-icons/react/dist/ssr'
 import type { Icon } from '@phosphor-icons/react'
-import { useSession } from '@/components/auth/SessionProvider'
 import { cn } from '@/lib/utils/cn'
 
 type NavItem = { href: string; label: string; icon: Icon }
@@ -24,22 +23,18 @@ const NAV_BAR_HEIGHT = 'h-14'
 /** 로그인 여부와 무관하게 보이는 항목. */
 const PUBLIC_NAV: NavItem[] = [
   { href: '/', label: '홈', icon: HouseIcon },
-  { href: '/random', label: '뽑기', icon: TargetIcon },
+  { href: '/random', label: '여행지', icon: TargetIcon },
   { href: '/food', label: '음식', icon: ForkKnifeIcon },
   { href: '/style', label: '성향', icon: CompassIcon },
+  { href: '/#travel-together', label: '정산', icon: ReceiptIcon },
 ]
-
-/**
- * 초대코드 참여는 로그인해야 쓸 수 있다. 비로그인에게 보여 주면 눌러도 로그인
- * 화면으로 튕기기만 한다. /join은 색인 대상도 아니라 서버 HTML에서 빠져도
- * 잃을 것이 없다. (docs/SEO.md §4)
- */
-const JOIN: NavItem = { href: '/join', label: '참여', icon: TicketIcon }
 
 /** 화면 아래 탭 바(모바일)인지, 헤더 안의 한 줄(데스크톱)인지. */
 type Variant = 'bar' | 'inline'
 
 function isCurrent(pathname: string, href: string): boolean {
+  if (href === '/#travel-together')
+    return pathname.startsWith('/trips') || pathname === '/join'
   // 홈은 접두사로 보면 모든 경로에 걸린다.
   return href === '/' ? pathname === '/' : pathname.startsWith(href)
 }
@@ -62,7 +57,7 @@ function NavLink({
         'flex items-center justify-center whitespace-nowrap transition duration-200',
         variant === 'bar'
           ? `${NAV_BAR_HEIGHT} flex-col gap-1`
-          : 'rounded-btn gap-1.5 px-2.5 py-1.5',
+          : 'rounded-btn min-h-11 gap-1.5 px-3 py-2',
         current
           ? // 탭 바에서는 알약을 두지 않는다. 칸이 이미 나뉘어 있어 배경까지
             // 칠하면 버튼 다섯 개가 늘어선 것처럼 보인다.
@@ -80,7 +75,7 @@ function NavLink({
       <span
         className={cn(
           'leading-none font-medium',
-          variant === 'bar' ? 'text-[11px]' : 'text-sm',
+          variant === 'bar' ? 'text-xs' : 'text-sm',
         )}
       >
         {item.label}
@@ -105,19 +100,12 @@ function NavLink({
  * 않는 쪽은 `display:none`이라 접근성 트리에도 들어가지 않는다 — 스크린리더에
  * 내비가 두 번 읽히지 않는다. **헤더의 블러를 지우기 전에는 한 벌로 합치지 말 것.**
  *
- * 클라이언트 컴포넌트지만 서버에서도 렌더된다 — 공개 링크 넷은 첫 HTML에
- * 그대로 들어가므로 크롤러가 사이트 구조를 읽는 데 문제가 없다. 클라이언트로
- * 만든 이유는 두 가지뿐이다: 지금 어느 화면인지(usePathname)와, 로그인해야
- * 의미가 있는 항목을 가리는 것(useSession).
- *
- * 세션 확인이 끝나기 전에는 «참여»를 그리지 않는다. 먼저 보여 놓고 지우면 항목이
- * 한 번 깜빡였다가 사라져, 눌러 보려던 사람의 손가락 아래에서 내비가 움직인다.
+ * 로그인 여부와 무관하게 다섯 항목을 유지해 세션 확인 뒤 메뉴가 움직이지 않는다.
+ * 정산은 홈의 여행방 안내로 연결하고, 초대코드 참여도 그곳에서 제공한다.
  */
 export function SiteNav({ variant }: { variant: Variant }) {
   const pathname = usePathname()
-  const { name, isLoaded } = useSession()
-
-  const items = isLoaded && name ? [...PUBLIC_NAV, JOIN] : PUBLIC_NAV
+  const items = PUBLIC_NAV
   const isBar = variant === 'bar'
 
   return (
@@ -125,8 +113,8 @@ export function SiteNav({ variant }: { variant: Variant }) {
       aria-label="주요 메뉴"
       className={
         isBar
-          ? 'border-line bg-paper/95 fixed inset-x-0 bottom-0 z-20 border-t backdrop-blur-md sm:hidden'
-          : 'hidden min-w-0 sm:block'
+          ? 'border-line bg-surface/95 fixed inset-x-0 bottom-0 z-20 border-t backdrop-blur-md md:hidden'
+          : 'hidden min-w-0 md:block'
       }
       // iOS의 홈 인디케이터에 탭이 가리지 않게 안전 영역만큼 아래를 띄운다.
       // 토큰으로 표현할 수 없는 값이라 여기서만 env()를 쓴다.

@@ -22,7 +22,8 @@ export default function AppError({
         불러오지 못했습니다
       </h2>
       <p className="text-muted mt-2 text-sm">
-        잠시 후 다시 시도해 주세요. 계속 이러면 방장에게 물어보세요.
+        잠시 후 다시 시도해 주세요. 계속 연결되지 않으면 홈으로 돌아가 다시
+        이용해 주세요.
       </p>
       {/* 다시 시도해도 안 되는 경우가 있어 빠져나갈 길을 함께 둔다. */}
       <div className="mt-6 flex flex-col items-center justify-center gap-2 sm:flex-row">

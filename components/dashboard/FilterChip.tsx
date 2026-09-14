@@ -18,7 +18,7 @@ export function FilterChip({
       aria-pressed={isSelected}
       onClick={onToggle}
       className={cn(
-        'font-display rounded-full px-3.5 py-1.5 text-sm font-medium',
+        'font-display min-h-10 rounded-full px-3.5 py-2 text-sm font-medium',
         'transition duration-200 ease-out active:scale-[0.96]',
         isSelected
           ? 'bg-ink text-paper'

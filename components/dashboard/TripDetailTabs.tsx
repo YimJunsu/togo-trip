@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import Link from 'next/link'
 import { actionButtonClass } from '@/components/dashboard/ActionButton'
 import { DayPlanList } from '@/components/dashboard/DayPlanList'
@@ -39,12 +39,18 @@ export function TripDetailTabs({
   canLeave: boolean
 }) {
   const [tab, setTab] = useState<Tab>('members')
+  const id = useId()
 
   return (
     <div className="flex flex-col gap-4">
-      <TabBar tabs={TABS} current={tab} onSelect={setTab} />
+      <TabBar idPrefix={id} tabs={TABS} current={tab} onSelect={setTab} />
 
-      <div role="tabpanel">
+      <div
+        role="tabpanel"
+        id={`${id}-panel`}
+        aria-labelledby={`${id}-tab-${tab}`}
+        tabIndex={0}
+      >
         {tab === 'members' ? (
           <MemberList
             members={members}

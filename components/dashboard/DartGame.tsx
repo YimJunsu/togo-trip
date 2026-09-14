@@ -120,6 +120,8 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
   useEffect(() => {
     if (!hasResult) return
     const timer = setTimeout(() => {
+      if (resultRef.current?.closest('[hidden]')) return
+      resultRef.current?.focus({ preventScroll: true })
       resultRef.current?.scrollIntoView({
         behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
           ? 'auto'
@@ -142,6 +144,12 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
     setDestination({ status: 'idle' })
     // 다음 판의 바람. 조준하는 동안은 고정이라 보고 보정할 수 있다.
     setWind(rollWind())
+  }
+
+  function retry() {
+    reset()
+    svgRef.current?.focus({ preventScroll: true })
+    svgRef.current?.scrollIntoView({ block: 'center', behavior: 'instant' })
   }
 
   function toSvg(e: React.PointerEvent): Vec {
@@ -299,6 +307,10 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
       x: p.x - grabRef.current.x,
       y: p.y - grabRef.current.y,
     })
+    launch(finalPull)
+  }
+
+  function launch(finalPull: Vec) {
     const power = throwPower(finalPull)
     if (power < MIN_POWER) {
       setPhase('ready')
@@ -325,6 +337,51 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
     fly(target, chosen, bowWind)
   }
 
+  function onKeyDown(e: React.KeyboardEvent<SVGSVGElement>) {
+    if (
+      ![
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowUp',
+        'ArrowDown',
+        'Enter',
+        ' ',
+        'Escape',
+      ].includes(e.key)
+    )
+      return
+    e.preventDefault()
+    if (phase === 'flying') return
+    if (e.key === 'Escape') {
+      reset()
+      return
+    }
+    // 포인터와 같은 pull·물리·착지 함수를 사용한다. 별도 추첨으로 난이도를 바꾸지 않는다.
+    const currentPull = phase === 'aiming' ? pull : { x: 0, y: 140 }
+    throwIdRef.current += 1
+    clearTimeout(revealRef.current)
+    setOutcome(null)
+    setIsRevealed(false)
+    setDestination({ status: 'idle' })
+    if (e.key === 'Enter' || e.key === ' ') {
+      launch(currentPull)
+      return
+    }
+    setPhase('aiming')
+    setPull(
+      clampPull({
+        x:
+          currentPull.x +
+          (e.key === 'ArrowLeft' ? 12 : e.key === 'ArrowRight' ? -12 : 0),
+        y: Math.max(
+          30,
+          currentPull.y +
+            (e.key === 'ArrowUp' ? 12 : e.key === 'ArrowDown' ? -12 : 0),
+        ),
+      }),
+    )
+  }
+
   const power = throwPower(pull)
   const isAiming = phase === 'aiming'
   /** 착지점이 아니라 조준 방향의 짧은 끝점. 어디 꽂힐지는 알려주지 않는다. */
@@ -341,149 +398,200 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2">
-          <FilterChip
-            label="조준"
-            isSelected={mode === 'aim'}
-            onToggle={() => reset('aim')}
-          />
-          <FilterChip
-            label="눈 가리고"
-            isSelected={mode === 'blind'}
-            onToggle={() => reset('blind')}
-          />
-        </div>
-        {mode === 'aim' ? (
-          <WindGauge wind={wind} />
-        ) : (
-          <p className="text-muted font-mono text-xs tracking-widest">
-            시·군·구 {koreaMap.regions.length}곳
+      <div className="grid gap-4 sm:grid-cols-2 sm:items-start sm:gap-6">
+        <div className="sm:pt-4">
+          <p className="font-display mb-4 hidden text-xl font-semibold tracking-tight whitespace-pre-line sm:block">
+            {mode === 'aim'
+              ? '운 반, 감각 반.\n어디에 꽂힐까요?'
+              : '다음 여행은\n운에 맡겨요.'}
           </p>
-        )}
-      </div>
-
-      <div className="bg-surface rounded-card border-line shadow-soft relative mx-auto w-full max-w-md overflow-hidden border">
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${W} ${H}`}
-          className="block w-full touch-none select-none"
-          role="application"
-          aria-label="대한민국 지도에 다트 던지기"
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={() => phase === 'aiming' && setPhase('ready')}
-        >
-          <KoreaMapLayer
-            highlightCode={showResult ? outcome?.region?.code : null}
-          />
-
-          {/* 파워 링: 당길수록 라임 게이지가 찬다 */}
-          {isAiming && (
-            <g>
-              <circle
-                cx={HOME.x}
-                cy={HOME.y}
-                r={RING_R}
-                strokeWidth={7}
-                className="stroke-ink/10 fill-none"
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+              <FilterChip
+                label="조준"
+                isSelected={mode === 'aim'}
+                onToggle={() => reset('aim')}
               />
-              <circle
-                cx={HOME.x}
-                cy={HOME.y}
-                r={RING_R}
-                strokeWidth={7}
-                strokeLinecap="round"
-                strokeDasharray={`${power * ringC} ${ringC}`}
-                transform={`rotate(-90 ${HOME.x} ${HOME.y})`}
-                className="stroke-accent fill-none"
+              <FilterChip
+                label="눈 가리고"
+                isSelected={mode === 'blind'}
+                onToggle={() => reset('blind')}
               />
-            </g>
-          )}
-
-          {/* 조준선: 방향만 짧게. 눈 가리고 모드에서는 아예 보여주지 않는다 */}
-          {isAiming && mode === 'aim' && power >= MIN_POWER && (
-            <line
-              x1={HOME.x}
-              y1={HOME.y}
-              x2={aimTip.x}
-              y2={aimTip.y}
-              strokeWidth={3}
-              strokeDasharray="10 12"
-              strokeLinecap="round"
-              className="stroke-ink/30"
-            />
-          )}
-
-          {/* 착지 핀 */}
-          {showResult && outcome && (
-            <g
-              transform={`translate(${outcome.landing.x} ${outcome.landing.y})`}
-              className="animate-stamp"
-            >
-              <circle r={22} className="fill-accent/40" />
-              <circle r={9} className="fill-ink" />
-            </g>
-          )}
-
-          {/* 다트. 비행 중엔 rAF가 transform을 직접 만진다 */}
-          {!isLanded && (
-            <g
-              ref={dartRef}
-              transform={`translate(${dartPos.x} ${dartPos.y}) rotate(${dartAngle})`}
-              className="pointer-events-none"
-            >
-              <path d="M0 -36 L8 -8 L-8 -8 Z" className="fill-ink" />
-              <rect
-                x={-3.5}
-                y={-10}
-                width={7}
-                height={28}
-                rx={3.5}
-                className="fill-ink"
-              />
-              <path d="M0 10 L12 30 L0 23 L-12 30 Z" className="fill-accent" />
-            </g>
-          )}
-        </svg>
-
-        {/* 눈 가리고: 지도만 가리고 다트 독은 남긴다 */}
-        {mode === 'blind' && (
-          <div
-            aria-hidden={isRevealed}
-            style={{ height: `${((H - DOCK) / H) * 100}%` }}
-            className={`bg-ink absolute inset-x-0 top-0 flex flex-col items-center justify-center gap-2 transition-opacity duration-500 ${
-              isRevealed ? 'pointer-events-none opacity-0' : 'opacity-95'
-            }`}
-          >
-            <EyeSlashIcon size={28} className="text-paper/80" aria-hidden />
-            <p className="text-paper/70 font-mono text-xs tracking-widest">
-              어딘지 모르고 던지는 중
-            </p>
+            </div>
+            {mode === 'aim' ? (
+              <WindGauge wind={wind} />
+            ) : (
+              <p className="text-muted font-mono text-xs tracking-widest">
+                시·군·구 {koreaMap.regions.length}곳
+              </p>
+            )}
           </div>
-        )}
 
-        {phase === 'ready' && (
-          <p className="text-muted pointer-events-none absolute inset-x-0 bottom-2 text-center font-mono text-xs tracking-widest">
-            다트를 잡고 당겼다 놓기
-          </p>
-        )}
+          <div className="border-line mt-3 border-b pb-3 sm:mt-5 sm:border-b-0">
+            <p
+              id="dart-instructions"
+              className="text-ink text-sm leading-relaxed"
+            >
+              지도 아래 다트를 잡고 <strong>뒤로 당겼다 놓으세요.</strong>
+            </p>
+            <details className="text-muted mt-2 text-xs leading-relaxed">
+              <summary className="min-h-8 cursor-pointer py-1">
+                던지는 요령 · 키보드 조작
+              </summary>
+              <p>
+                멀리 당길수록 멀리 날아가요. 조준 모드에서는 바람 방향도 확인해
+                주세요.
+              </p>
+              <p id="dart-keyboard" className="mt-2">
+                키보드: 지도에 Tab으로 이동 → 방향키로 조준·세기 조절 → Enter로
+                던지기
+              </p>
+            </details>
+          </div>
+        </div>
+
+        <div className="bg-surface rounded-card border-line shadow-soft relative mx-auto w-full max-w-sm overflow-hidden border">
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${W} ${H}`}
+            className="block w-full touch-none select-none"
+            role="application"
+            aria-label="대한민국 지도에 다트 던지기"
+            aria-describedby="dart-instructions dart-keyboard"
+            tabIndex={0}
+            onKeyDown={onKeyDown}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={() => phase === 'aiming' && setPhase('ready')}
+          >
+            <KoreaMapLayer
+              highlightCode={showResult ? outcome?.region?.code : null}
+            />
+
+            {/* 파워 링: 당길수록 라임 게이지가 찬다 */}
+            {isAiming && (
+              <g>
+                <circle
+                  cx={HOME.x}
+                  cy={HOME.y}
+                  r={RING_R}
+                  strokeWidth={7}
+                  className="stroke-ink/10 fill-none"
+                />
+                <circle
+                  cx={HOME.x}
+                  cy={HOME.y}
+                  r={RING_R}
+                  strokeWidth={7}
+                  strokeLinecap="round"
+                  strokeDasharray={`${power * ringC} ${ringC}`}
+                  transform={`rotate(-90 ${HOME.x} ${HOME.y})`}
+                  className="stroke-accent fill-none"
+                />
+              </g>
+            )}
+
+            {/* 조준선: 방향만 짧게. 눈 가리고 모드에서는 아예 보여주지 않는다 */}
+            {isAiming && mode === 'aim' && power >= MIN_POWER && (
+              <line
+                x1={HOME.x}
+                y1={HOME.y}
+                x2={aimTip.x}
+                y2={aimTip.y}
+                strokeWidth={3}
+                strokeDasharray="10 12"
+                strokeLinecap="round"
+                className="stroke-ink/30"
+              />
+            )}
+
+            {/* 착지 핀 */}
+            {showResult && outcome && (
+              <g
+                transform={`translate(${outcome.landing.x} ${outcome.landing.y})`}
+                className="animate-stamp"
+              >
+                <circle r={22} className="fill-accent/40" />
+                <circle r={9} className="fill-ink" />
+              </g>
+            )}
+
+            {/* 다트. 비행 중엔 rAF가 transform을 직접 만진다 */}
+            {!isLanded && (
+              <g
+                ref={dartRef}
+                transform={`translate(${dartPos.x} ${dartPos.y}) rotate(${dartAngle})`}
+                className="pointer-events-none"
+              >
+                <path d="M0 -36 L8 -8 L-8 -8 Z" className="fill-ink" />
+                <rect
+                  x={-3.5}
+                  y={-10}
+                  width={7}
+                  height={28}
+                  rx={3.5}
+                  className="fill-ink"
+                />
+                <path
+                  d="M0 10 L12 30 L0 23 L-12 30 Z"
+                  className="fill-accent"
+                />
+              </g>
+            )}
+          </svg>
+
+          {/* 눈 가리고: 지도만 가리고 다트 독은 남긴다 */}
+          {mode === 'blind' && (
+            <div
+              aria-hidden={isRevealed}
+              style={{ height: `${((H - DOCK) / H) * 100}%` }}
+              className={`bg-ink absolute inset-x-0 top-0 flex flex-col items-center justify-center gap-2 transition-opacity duration-500 ${
+                isRevealed ? 'pointer-events-none opacity-0' : 'opacity-95'
+              }`}
+            >
+              <EyeSlashIcon size={28} className="text-paper/80" aria-hidden />
+              <p className="text-paper/70 font-mono text-xs tracking-widest">
+                어딘지 모르고 던지는 중
+              </p>
+            </div>
+          )}
+
+          {phase === 'ready' && (
+            <p className="text-muted pointer-events-none absolute inset-x-0 bottom-2 text-center text-xs">
+              다트를 잡고 당겼다 놓기
+            </p>
+          )}
+        </div>
       </div>
+      <p role="status" className="text-muted text-center text-xs">
+        {phase === 'aiming'
+          ? `던지는 세기 ${Math.round(power * 100)}%`
+          : phase === 'flying'
+            ? '다트가 여행지를 향해 날아가고 있어요'
+            : hasResult
+              ? '결과가 나왔어요. 아래에서 확인해 주세요.'
+              : '조준해서 던지거나, 눈 가리고 운에 맡겨 보세요.'}
+      </p>
 
       {/*
         scroll-mt는 sticky 헤더 몫이다. 없으면 결과 카드의 제목이 헤더 밑으로
         들어가 「여행지 당첨」 배지부터 잘린 채 멈춘다.
       */}
       {hasResult && (
-        <div ref={resultRef} className="flex scroll-mt-28 flex-col gap-4">
+        <div
+          ref={resultRef}
+          tabIndex={-1}
+          aria-label="다트 결과"
+          className="flex scroll-mt-28 flex-col gap-4 focus:outline-none"
+        >
           {showResult && outcome?.region && outcome.coords && (
             <>
               <DartResultCard
                 region={outcome.region}
                 coords={outcome.coords}
                 attractions={attractions}
-                onRetry={() => reset()}
+                onRetry={retry}
               />
               <DestinationSlot
                 state={destination}
@@ -491,8 +599,8 @@ export function DartGame({ initialWind }: { initialWind: Wind }) {
               />
             </>
           )}
-          {phase === 'miss' && <DartMissCard onRetry={() => reset()} />}
-          {phase === 'north' && <DartNorthCard onRetry={() => reset()} />}
+          {phase === 'miss' && <DartMissCard onRetry={retry} />}
+          {phase === 'north' && <DartNorthCard onRetry={retry} />}
         </div>
       )}
     </div>
@@ -579,5 +687,10 @@ function DestinationSlot({
     )
   }
 
-  return <DestinationCard destination={state.destination} />
+  return (
+    <DestinationCard
+      destination={state.destination}
+      eyebrow={`${province}에서 함께 고려할 여행지`}
+    />
+  )
 }

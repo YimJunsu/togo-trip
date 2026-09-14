@@ -26,7 +26,7 @@ export function SiteFooter() {
         아래 여백은 모바일 탭 바(h-14) 몫이다. 없으면 맨 끝까지 내렸을 때
         저작권 줄이 탭 바 뒤에 깔려 영영 안 보인다. 탭 바가 없는 sm부터는 평범한 값.
       */}
-      <div className="mx-auto w-full max-w-2xl px-4 pt-6 pb-24 sm:pb-8">
+      <div className="mobile-nav-space mx-auto w-full max-w-2xl px-4 pt-6 pb-24 md:pb-8">
         <nav aria-label="약관 및 정책">
           <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             {LINKS.map(({ href, label, ...rest }) => (

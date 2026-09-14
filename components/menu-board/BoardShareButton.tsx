@@ -1,10 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import {
-  BoardButton,
-  BoardTagAction,
-} from '@/components/menu-board/BoardControls'
+import { useEffect, useId, useRef, useState } from 'react'
+import { BoardButton } from '@/components/menu-board/BoardControls'
 import {
   shareMessage,
   SHARE_TONE_LABEL,
@@ -28,8 +25,15 @@ const COPIED_MS = 1800
 export function BoardShareButton({ name }: { name: string }) {
   const [isChoosing, setIsChoosing] = useState(false)
   const [state, setState] = useState<ShareResult | 'idle'>('idle')
+  const [isSharing, setIsSharing] = useState(false)
+  const resetRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const controlsId = useId()
+
+  useEffect(() => () => clearTimeout(resetRef.current), [])
 
   async function share(tone: ShareTone) {
+    clearTimeout(resetRef.current)
+    setIsSharing(true)
     setIsChoosing(false)
     const result = await shareOrCopy({
       title: `${SITE_NAME} 음식 뽑기`,
@@ -37,10 +41,12 @@ export function BoardShareButton({ name }: { name: string }) {
       path: '/food',
       copiesText: true,
     })
+    setIsSharing(false)
     // 공유 시트로 넘어갔으면 이 화면이 알릴 건 없다.
     if (result === 'shared') return
     setState(result)
-    if (result === 'copied') setTimeout(() => setState('idle'), COPIED_MS)
+    if (result === 'copied')
+      resetRef.current = setTimeout(() => setState('idle'), COPIED_MS)
   }
 
   return (
@@ -48,31 +54,42 @@ export function BoardShareButton({ name }: { name: string }) {
       <BoardButton
         tone="outline"
         aria-expanded={isChoosing}
+        aria-controls={controlsId}
+        disabled={isSharing}
         onClick={() => {
           setIsChoosing((open) => !open)
           setState('idle')
         }}
       >
-        {state === 'copied' ? '문구 복사됨' : '공유하기'}
+        {state === 'copied'
+          ? '문구 복사됨'
+          : isSharing
+            ? '공유 준비 중…'
+            : '이 메뉴 같이 먹자 · 공유하기'}
       </BoardButton>
 
-      {isChoosing ? (
-        <div className="animate-rise mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-food-amber font-mono text-[10px] tracking-[0.2em]">
-            말투
-          </span>
+      <div id={controlsId} hidden={!isChoosing} className="mt-3">
+        <p className="text-food-amber mb-2 text-sm">
+          함께 먹을 사람에게, 어떤 말투로 보낼까요?
+        </p>
+        <div className="border-food-roast/25 divide-food-roast/15 divide-y border-y">
           {SHARE_TONE_ORDER.map((tone) => (
-            <BoardTagAction
+            <button
+              type="button"
               key={tone}
-              label={SHARE_TONE_LABEL[tone]}
-              onSelect={() => share(tone)}
-            />
+              onClick={() => share(tone)}
+              className="hover:bg-food-roast/5 flex min-h-12 w-full items-start gap-3 py-3 text-left text-sm transition-colors"
+            >
+              <span className="text-food-amber shrink-0">
+                {SHARE_TONE_LABEL[tone]}
+              </span>
+              <span className="min-w-0 leading-relaxed">
+                {shareMessage(name, tone)}
+              </span>
+            </button>
           ))}
-          <p className="w-full text-xs leading-relaxed opacity-60">
-            {shareMessage(name, 'casual')} / {shareMessage(name, 'polite')}
-          </p>
         </div>
-      ) : null}
+      </div>
 
       <p aria-live="polite" className="sr-only">
         {state === 'copied' ? '공유 문구와 링크를 복사했습니다' : ''}

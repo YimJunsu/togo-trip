@@ -1,10 +1,6 @@
 import Link from 'next/link'
 import { BoardPanel } from '@/components/menu-board/BoardPanel'
-import {
-  BoardHeading,
-  BoardRule,
-  MenuBoard,
-} from '@/components/menu-board/MenuBoard'
+import { BoardHeading, MenuBoard } from '@/components/menu-board/MenuBoard'
 import { foodRepo } from '@/lib/data'
 import { pageMetadata } from '@/lib/seo/metadata'
 
@@ -37,8 +33,7 @@ export default async function FoodPage() {
   return (
     <div className="flex flex-col gap-10">
       <MenuBoard>
-        <BoardHeading lines={['오늘의', '차림표']} caption="TODAY'S MENU" />
-        <BoardRule />
+        <BoardHeading />
         <BoardPanel foods={foods} />
       </MenuBoard>
 
@@ -82,9 +77,16 @@ export default async function FoodPage() {
             함께 눌러 두면 됩니다.
           </p>
           <p>
-            메뉴가 정해지면 한 그릇 기준 열량·탄수화물·단백질·지방·나트륨이 함께
-            나옵니다. 오른쪽의 백분율은 식품의약품안전처가 정한 1일 영양성분
-            기준치{' '}
+            메뉴가 정해지면 이름과 열량을 먼저 보여 줍니다. 다른 후보가 있다면
+            다시 뽑을 때 방금 본 메뉴는 제외합니다. 최근에 뽑은 메뉴 3개는
+            아래에서 다시 열어 비교할 수 있고, 새로고침하거나 조건을 바꾸면
+            기록이 사라집니다. 마음에 드는 메뉴는 반말 또는 존댓말 문구를 골라
+            공유할 수 있습니다.
+          </p>
+          <p>
+            영양정보 자세히 보기를 열면 한 그릇 기준
+            열량·탄수화물·단백질·지방·나트륨이 나옵니다. 오른쪽의 백분율은
+            식품의약품안전처가 정한 1일 영양성분 기준치{' '}
             {
               '(에너지 2,000kcal · 탄수화물 324g · 단백질 55g · 지방 54g · 나트륨 2,000mg)'
             }{' '}

@@ -46,8 +46,13 @@ export default async function SettlePage({
           {trip.name}
         </Link>
         <h1 className="font-display mt-1 text-3xl font-semibold tracking-tight">
-          정산
+          여행 정산
         </h1>
+        <p className="text-muted mt-2 text-sm leading-relaxed">
+          {trip.settledAt
+            ? '확정된 금액을 확인하고 송금 여부를 표시해 주세요.'
+            : '함께 쓴 돈을 모으면, 주고받을 금액이 정리돼요.'}
+        </p>
       </header>
 
       {/*

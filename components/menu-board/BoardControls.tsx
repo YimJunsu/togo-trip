@@ -1,20 +1,25 @@
 'use client'
 
 import type { ButtonHTMLAttributes } from 'react'
+import {
+  ShuffleIcon,
+  SlidersHorizontalIcon,
+} from '@phosphor-icons/react/dist/ssr'
 import { Button } from '@/components/ui/Button'
+import { TabList } from '@/components/ui/TabList'
 import { cn } from '@/lib/utils/cn'
 
 /**
- * 메뉴판 갈래의 주 버튼. 각진 모서리에 roast 바탕이다. (DESIGN_SYSTEM §3)
+ * 메뉴판 갈래의 주 버튼. 작게 둥근 모서리에 chili 바탕이다. (DESIGN_SYSTEM §3)
  * 알약도 초록도 아니다 — 보딩패스가 navy 버튼을 갖는 것과 같은 이유로,
  * 갈래 안에서는 그 갈래의 색이 이긴다.
  */
 const BOARD_BUTTON_TONE = {
   /** 주 동작. 한 화면에 하나만 둔다. */
-  solid: 'bg-food-roast text-food-cream',
+  solid: 'bg-food-chili text-surface hover:bg-food-chili/90',
   /** 곁들이는 동작. 선만 얹어 주 버튼과 위계를 만든다. */
   outline:
-    'border-food-roast text-food-roast border bg-transparent hover:bg-white/50',
+    'border-food-roast/20 text-food-roast border bg-transparent hover:bg-food-soft/50',
 } as const
 
 export function BoardButton({
@@ -27,7 +32,7 @@ export function BoardButton({
   return (
     <Button
       className={cn(
-        'w-full px-5 py-4 font-mono text-xs font-bold tracking-[0.2em]',
+        'rounded-inner flex min-h-13 w-full items-center justify-center gap-2 px-5 py-3.5 text-base font-semibold',
         'transition duration-200 ease-out active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100',
         BOARD_BUTTON_TONE[tone],
         className,
@@ -39,10 +44,10 @@ export function BoardButton({
 
 /** 종이 태그의 생김새. 토글(BoardTag)과 동작 버튼(BoardTagAction)이 나눠 쓴다. */
 const TAG_BASE =
-  'px-2.5 py-1 font-mono text-[11px] tracking-wide transition duration-200 ease-out active:scale-[0.96]'
+  'rounded-sm min-h-10 px-3 py-2 text-sm transition duration-200 ease-out active:scale-[0.96]'
 const TAG_OFF =
-  'border-food-roast/45 text-food-roast border bg-white/35 hover:bg-white/70'
-const TAG_ON = 'bg-food-roast text-food-cream border-food-roast border'
+  'border-food-roast/20 text-food-roast border bg-surface/40 hover:bg-food-soft/50'
+const TAG_ON = 'bg-food-soft text-food-chili border-food-chili border'
 
 /**
  * 벽에 붙은 종이 태그. 알약(FilterChip)을 쓰지 않는 이유는 그게 소프트 미니멀의
@@ -92,32 +97,45 @@ export function BoardTagAction({
  * 대시보드에서 떨어져 나온 것처럼 보인다.
  */
 export function BoardTabs({
+  idPrefix,
   tabs,
   current,
   onSelect,
 }: {
+  idPrefix: string
   tabs: { id: string; label: string }[]
   current: string
   onSelect: (id: string) => void
 }) {
   return (
-    <div className="flex gap-5" role="tablist">
+    <TabList
+      aria-label="메뉴 뽑는 방법"
+      className="border-food-roast/15 grid grid-cols-2 border-b"
+    >
       {tabs.map((tab) => (
         <Button
           key={tab.id}
           role="tab"
+          id={`${idPrefix}-tab-${tab.id}`}
+          aria-controls={`${idPrefix}-panel-${tab.id}`}
+          tabIndex={current === tab.id ? 0 : -1}
           aria-selected={current === tab.id}
           onClick={() => onSelect(tab.id)}
           className={cn(
-            'font-display border-b-2 pb-1 text-base font-semibold tracking-tight transition duration-200',
+            'font-display -mb-px flex min-h-12 items-center justify-center gap-2 border-b-2 pb-3 text-base font-semibold tracking-tight transition duration-200',
             current === tab.id
-              ? 'border-food-roast text-food-roast'
-              : 'text-food-roast/45 hover:text-food-roast/75 border-transparent',
+              ? 'border-food-chili text-food-chili'
+              : 'text-food-amber hover:text-food-roast border-transparent',
           )}
         >
+          {tab.id === 'any' ? (
+            <ShuffleIcon size={19} aria-hidden />
+          ) : (
+            <SlidersHorizontalIcon size={19} aria-hidden />
+          )}
           {tab.label}
         </Button>
       ))}
-    </div>
+    </TabList>
   )
 }

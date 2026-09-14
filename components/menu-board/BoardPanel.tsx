@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { BoardTabs } from '@/components/menu-board/BoardControls'
 import { BoardDraw } from '@/components/menu-board/BoardDraw'
 import { BoardFilters } from '@/components/menu-board/BoardFilters'
-import { BoardRule } from '@/components/menu-board/MenuBoard'
 import type { Food } from '@/lib/data/types'
 
 const TABS = [
@@ -21,16 +20,35 @@ const TABS = [
  */
 export function BoardPanel({ foods }: { foods: Food[] }) {
   const [current, setCurrent] = useState('any')
+  const id = useId()
 
   return (
-    <div>
-      <BoardTabs tabs={TABS} current={current} onSelect={setCurrent} />
-      <BoardRule isThin />
+    <div className="px-6 pt-5 pb-7 sm:px-8 sm:pb-8">
+      <BoardTabs
+        idPrefix={id}
+        tabs={TABS}
+        current={current}
+        onSelect={setCurrent}
+      />
 
-      <div hidden={current !== 'any'}>
+      <div
+        role="tabpanel"
+        className="mt-5"
+        id={`${id}-panel-any`}
+        aria-labelledby={`${id}-tab-any`}
+        tabIndex={0}
+        hidden={current !== 'any'}
+      >
         <BoardDraw candidates={foods} />
       </div>
-      <div hidden={current !== 'pick'}>
+      <div
+        role="tabpanel"
+        className="mt-5"
+        id={`${id}-panel-pick`}
+        aria-labelledby={`${id}-tab-pick`}
+        tabIndex={0}
+        hidden={current !== 'pick'}
+      >
         <BoardFilters foods={foods} />
       </div>
     </div>

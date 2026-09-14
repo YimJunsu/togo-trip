@@ -2,7 +2,7 @@ import { KoreaMapLayer } from '@/components/dashboard/KoreaMapLayer'
 import { koreaMap } from '@/lib/geo/koreaMap'
 
 /**
- * 홈의 주인공. 대한민국 지도를 통째로 세우고 시군구 250곳을 각자의 지역 페이지로 건다.
+ * 지역 탐색 지도. 다트 추천 뒤에 배치하고 시군구 250곳의 지역 링크를 유지한다.
  *
  * 홈이 메뉴 목록처럼 읽히던 것이 이 화면의 문제였다. 여행 서비스인데 화면에
  * "여행"이 하나도 없고 글자만 쌓여 있었다. 지도는 그 자체로 어디를 갈지 고르는
@@ -23,9 +23,12 @@ export function HomeMapCard() {
   return (
     <section className="rounded-card border-line bg-surface shadow-soft overflow-hidden border">
       <header className="px-5 pt-5 pb-4">
-        <h1 className="font-display text-2xl font-semibold tracking-tight">
-          어디로 갈까
-        </h1>
+        <p className="text-accent mb-2 text-xs font-semibold">
+          가고 싶은 곳이 있다면
+        </p>
+        <h2 className="font-display text-xl font-semibold tracking-tight">
+          지도로 먼저 둘러보기
+        </h2>
         <p className="text-muted mt-1 text-sm leading-relaxed">
           지도에서 지역을 누르면 그곳의 관광지와 맛집이 나옵니다. 전국 250개
           시군구가 모두 열려 있어요.
@@ -34,7 +37,7 @@ export function HomeMapCard() {
 
       <svg
         viewBox={`0 0 ${koreaMap.width} ${height}`}
-        className="block w-full"
+        className="mx-auto block w-full max-w-sm"
         role="group"
         aria-label="대한민국 시군구 지도. 지역을 누르면 그 지역의 가볼만한 곳으로 갑니다."
       >
