@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Onest, Space_Mono } from 'next/font/google'
+import { GoogleAnalytics } from '@/components/layout/GoogleAnalytics'
 import { ServiceWorkerRegistrar } from '@/components/layout/ServiceWorkerRegistrar'
 import { JsonLd, siteGraph } from '@/lib/seo/JsonLd'
 import {
@@ -129,6 +130,7 @@ export default function RootLayout({
         </span>
         {children}
         <ServiceWorkerRegistrar />
+        <GoogleAnalytics />
       </body>
     </html>
   )

@@ -44,6 +44,14 @@ export const GOOGLE_SITE_VERIFICATION =
 export const NAVER_SITE_VERIFICATION =
   '1a1d3ad10a8151f7e9dbdf764e642ffdfb33a8cc'
 
+/**
+ * Google Analytics(GA4) 측정 ID. 소유확인 토큰과 같은 이유로 코드에 둔다 —
+ * 스크립트 src에 그대로 노출되는 공개 값이고, 환경변수로 두면 빠뜨렸을 때
+ * 수집이 조용히 끊긴다. 속성을 다시 만들면 여기만 고친다.
+ * 붙이는 자리는 components/layout/GoogleAnalytics.tsx.
+ */
+export const GA_MEASUREMENT_ID = 'G-HBZN997X8G'
+
 export const SITE_NAME = '투고트립'
 export const SITE_NAME_EN = 'Togo Trip'
 export const SITE_TAGLINE = '친구들과 떠나는 국내여행'

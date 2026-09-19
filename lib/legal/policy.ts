@@ -10,7 +10,7 @@
  * 방침 변경 시 이 날짜를 올린다. 내용을 고치고 날짜를 그대로 두면
  * 이용자가 무엇이 언제 바뀌었는지 알 수 없다.
  */
-export const POLICY_EFFECTIVE_DATE = '2026.09.13'
+export const POLICY_EFFECTIVE_DATE = '2026.09.19'
 
 /**
  * 운영자 정보. 개인정보 보호법은 개인정보처리자와 보호책임자를 밝히도록 한다.
@@ -62,6 +62,8 @@ export const AUTO_COLLECTED = [
   '가입 경로(이메일·소셜) 및 가입 일시',
   '서비스 이용 기록, 접속 로그, 접속 IP',
   '로그인 상태 유지를 위한 쿠키',
+  // components/layout/GoogleAnalytics.tsx가 붙이는 GA4 태그. 떼면 이 줄도 지운다.
+  '방문 통계 측정을 위한 쿠키와 이용 기록 (Google Analytics, 브라우저·기기 정보 포함)',
   '광고 식별자 및 광고 노출·클릭 기록 (광고 도입 시)',
 ] as const
 
@@ -84,8 +86,8 @@ export const PROCESSORS = [
   },
   {
     name: 'Google LLC',
-    task: '광고 게재 및 성과 측정',
-    note: '광고 도입 시. 쿠키 기반 맞춤형 광고 포함',
+    task: '방문 통계 측정(Google Analytics), 광고 게재 및 성과 측정',
+    note: '통계는 쿠키 기반이며 해외 서버에서 처리됨. 광고는 도입 시 쿠키 기반 맞춤형 광고 포함',
   },
 ] as const
 

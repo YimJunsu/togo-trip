@@ -94,6 +94,14 @@ export default function PrivacyPage() {
           로그인이 필요한 기능을 쓸 수 없습니다.
         </p>
         <p className="text-muted">
+          서비스 개선을 위해 Google Analytics로 방문 통계를 측정합니다. 이
+          도구는 쿠키를 이용해 방문한 페이지, 브라우저·기기 정보, 대략적인
+          접속 지역을 수집하며, 이름·이메일 같은 회원 정보와 연결하지 않습니다.
+          브라우저의 쿠키 차단 설정이나 Google이 제공하는 차단 부가기능
+          (Google Analytics Opt-out)으로 거부할 수 있고, 거부해도 서비스
+          이용에는 제한이 없습니다.
+        </p>
+        <p className="text-muted">
           {/*
             TODO(운영): 애드센스를 실제로 붙이는 시점에 이 문단을 확인한다.
             광고를 달지 않은 채로 "게재합니다"라고 적어 두면 그것도 사실과 다르다.
