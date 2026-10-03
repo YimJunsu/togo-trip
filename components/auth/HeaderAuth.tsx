@@ -19,7 +19,7 @@ const LINK_CLASS =
  * 비로그인이라 눈에 띄는 변화가 없다. 로그인한 사람만 이름이 한 박자 늦게 붙는다.
  */
 export function HeaderAuth() {
-  const { name } = useSession()
+  const { name, isAdmin } = useSession()
 
   if (!name) {
     return (
@@ -33,6 +33,12 @@ export function HeaderAuth() {
   // 자주 쓰는 동작을 한 단계 안으로 숨기지 않는다.
   return (
     <span className="flex shrink-0 items-center gap-1">
+      {/* 관리자에게만 보이는 문. 링크가 있다고 열리진 않는다 — 서버가 다시 판정한다. */}
+      {isAdmin && (
+        <Link href="/admin/requests" className={LINK_CLASS}>
+          관리
+        </Link>
+      )}
       <Link href="/settings" className={LINK_CLASS}>
         {name}
       </Link>

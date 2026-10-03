@@ -12,6 +12,8 @@ import { usePathname } from 'next/navigation'
 type Session = {
   /** 비로그인이거나 아직 확인 전이면 null. */
   name: string | null
+  /** 헤더의 «관리» 링크만 본다. 접근 판정은 서버가 따로 한다. */
+  isAdmin: boolean
   /** 확인이 끝났는지. "아직 모름"과 "비로그인"을 구분해야 하는 화면이 있다. */
   isLoaded: boolean
 }
@@ -25,6 +27,7 @@ type SessionValue = Session & {
 
 const SessionContext = createContext<SessionValue>({
   name: null,
+  isAdmin: false,
   isLoaded: false,
   clear: () => {},
   reload: () => {},
@@ -54,6 +57,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [session, setSession] = useState<Session>({
     name: null,
+    isAdmin: false,
     isLoaded: false,
   })
   // 설정 화면에서 닉네임을 바꾸면 경로는 그대로다. 이 값을 올려 아래 effect를 다시 돌린다.
@@ -62,19 +66,24 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   // 그걸 의존성으로 가진 호출부 effect(NicknameForm)가 다시 돌아 reload → 재렌더 →
   // 새 reload → 다시 effect… 로 /api/session 요청이 무한히 나갔다. 실제로 그랬다.
   const reload = useCallback(() => setVersion((v) => v + 1), [])
-  const clear = useCallback(() => setSession({ name: null, isLoaded: true }), [])
+  const clear = useCallback(
+    () => setSession({ name: null, isAdmin: false, isLoaded: true }),
+    [],
+  )
 
   useEffect(() => {
     // 응답이 늦게 도착했을 때 이미 사라진 트리를 건드리지 않게 한다.
     let isMounted = true
 
-    function settle(name: string | null) {
-      if (isMounted) setSession({ name, isLoaded: true })
+    function settle(name: string | null, isAdmin = false) {
+      if (isMounted) setSession({ name, isAdmin, isLoaded: true })
     }
 
     fetch('/api/session', { cache: 'no-store' })
-      .then((res) => (res.ok ? res.json() : { name: null }))
-      .then((data: { name: string | null }) => settle(data.name))
+      .then((res) => (res.ok ? res.json() : { name: null, isAdmin: false }))
+      .then((data: { name: string | null; isAdmin?: boolean }) =>
+        settle(data.name, data.isAdmin === true),
+      )
       // 조회가 실패해도 화면을 막지 않는다. 비로그인으로 보고 넘어간다.
       .catch(() => settle(null))
 

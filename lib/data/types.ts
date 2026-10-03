@@ -43,6 +43,11 @@ export type Profile = {
    * 않는 값이라 지금은 두 구현이 갈려도 눈에 띄지 않는다는 걸 알려 둔다.
    */
   completedTripCount: number
+  /**
+   * 관리자. /admin/** 페이지와 헤더의 «관리» 링크가 본다. 원본은 profiles.is_admin이고
+   * 사용자가 스스로 켤 수 없다(컬럼 grant에서 제외). mock은 seed의 값을 그대로 쓴다.
+   */
+  isAdmin: boolean
   createdAt: string
   travelStyle?: QuizResult
 }
@@ -291,4 +296,27 @@ export type IngestRun = {
   trigger: 'cron' | 'read_through'
   status: 'running' | 'ok' | 'failed'
   error: string | null
+}
+
+/** 요청 종류. 라벨은 lib/requests/limits.ts에 있다. DB CHECK와 같은 집합이다. */
+export type RequestKind = 'feature' | 'bug' | 'other'
+
+/** open ↔ done. 되돌리기도 허용한다 — 잘못 누른 것을 고칠 길은 있어야 한다. */
+export type RequestStatus = 'open' | 'done'
+
+/**
+ * 회원이 홈에서 보내는 요청사항. 관리자만 목록을 본다.
+ * authorName·authorEmail은 보낸 시점의 스냅샷이다 — 닉네임을 바꿔도 따라가지 않는다.
+ * 관리자가 남의 profiles를 읽지 않게 하려고 필요한 둘만 행에 복사한다.
+ */
+export type UserRequest = {
+  id: string
+  userId: string
+  authorName: string
+  authorEmail: string
+  kind: RequestKind
+  content: string
+  status: RequestStatus
+  createdAt: string
+  resolvedAt: string | null
 }

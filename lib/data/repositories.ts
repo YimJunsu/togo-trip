@@ -15,6 +15,9 @@ import type {
   StyleCode,
   TravelStyle,
   Trip,
+  UserRequest,
+  RequestKind,
+  RequestStatus,
 } from './types'
 import type { SettleTransfer } from '@/lib/settle/settle'
 
@@ -201,6 +204,26 @@ export interface ItineraryRepository {
   listByTrip(tripId: string): Promise<ItineraryItem[]>
   add(input: AddItineraryItemInput): Promise<ItineraryItem>
   remove(itemId: string): Promise<void>
+}
+
+export type CreateRequestInput = {
+  /**
+   * 보내는 사람. Supabase 구현은 이 값을 믿지 않고 세션(auth.uid())에서 다시 꺼낸다 —
+   * RPC가 스냅샷을 채운다. mock은 이 값으로 스냅샷을 만든다. 두 구현이 같은 결과를
+   * 내려면 호출부(lib/requests/actions.ts)가 requireUser()의 프로필을 그대로 넘겨야 한다.
+   */
+  author: Pick<Profile, 'id' | 'name' | 'email'>
+  kind: RequestKind
+  content: string
+}
+
+/** 회원이 보내는 요청사항. 읽기는 관리자 화면뿐이다. */
+export interface RequestRepository {
+  create(input: CreateRequestInput): Promise<UserRequest>
+  /** 최신순 전체. 관리자만 — Supabase는 RLS가, mock은 호출부의 requireAdmin()이 막는다. */
+  listAll(): Promise<UserRequest[]>
+  /** 없는 id는 조용히 무동작. 두 구현이 같다. */
+  setStatus(id: string, status: RequestStatus): Promise<void>
 }
 
 export interface SettlementRepository {

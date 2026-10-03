@@ -85,6 +85,17 @@ export async function requireUser(): Promise<Profile> {
   return user
 }
 
+/**
+ * 관리자 화면·액션 첫 줄에 둔다. 관리자가 아니면 403이 아니라 404로 떨어뜨린다 —
+ * 403은 "여기 무언가 있다"를 알려준다. 비로그인도 같은 이유로 /login으로 보내지 않는다.
+ * Supabase에서는 RLS가 같은 판정을 한 번 더 한다(is_admin()).
+ */
+export async function requireAdmin(): Promise<Profile> {
+  const user = await getUser()
+  if (!user?.isAdmin) notFound()
+  return user
+}
+
 /** requireMember/requireMemberPage가 공유하는 멤버십 조회. 실패 시 반응은 호출부가 정한다. */
 async function checkMembership(
   tripId: string,

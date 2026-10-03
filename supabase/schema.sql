@@ -103,6 +103,22 @@ $$;
 
 grant execute on function public.is_onboarded() to authenticated, anon;
 
+-- 관리자 판정. /admin/** 페이지와 requests 정책이 본다. security definer인 이유는
+-- is_onboarded()와 같다 — profiles 읽기 정책이 본인 행뿐이라 정책 안에서 남의
+-- 플래그를 못 본다. (ingest_runs 정책은 이 함수보다 먼저 만들어져 exists()를
+-- 인라인으로 쓴다. 동작은 같다.)
+create or replace function public.is_admin()
+returns boolean
+language sql security definer stable set search_path = ''
+as $$
+  select exists (
+    select 1 from public.profiles
+     where id = auth.uid() and is_admin
+  );
+$$;
+
+grant execute on function public.is_admin() to authenticated, anon;
+
 -- 온보딩 저장. birth_date·onboarded_at이 컬럼 grant에서 빠져 있으므로 이 함수로만
 -- 쓴다. 만 14세 검증을 여기서 한 번 더 하는 이유는, 이 함수가 화면을 거치지 않고
 -- 네트워크에서 직접 불릴 수 있기 때문이다.
@@ -331,6 +347,32 @@ create index if not exists settlements_trip_idx  on public.settlements(trip_id);
 create index if not exists itinerary_items_trip_day_idx
   on public.itinerary_items(trip_id, day);
 
+-- 9-2) requests -------------------------------------------------------------
+-- 홈 아래 «요청 넣기»가 넣고 관리자가 /admin/requests 에서 본다 (2026-09-20).
+--
+-- 작성자 닉네임·이메일을 행에 복사해 둔다. 관리자가 남의 profiles 행을 읽는 정책을
+-- 열면 전화번호·생년월일까지 딸려 나가므로, 관리 화면에 필요한 둘만 스냅샷으로
+-- 가져온다. 닉네임을 나중에 바꿔도 여기는 그대로다 — 보낸 시점의 이름이면 충분하다.
+--
+-- on delete cascade: 계정이 지워지면 요청도 같이 지운다. 요청은 회원 서비스 기록이고
+-- 남겨 둘 이유가 없다. profiles를 가리키는 restrict FK를 하나 더 늘리지 않는다.
+create table if not exists public.requests (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references public.profiles(id) on delete cascade,
+  author_name  text not null,
+  author_email text not null,
+  kind         text not null check (kind in ('feature', 'bug', 'other')),
+  -- 최소 10자. "ㅇㅇ" 같은 한 글자 요청은 관리자가 아무것도 할 수 없다.
+  -- lib/requests/limits.ts와 같은 값이다. 한쪽을 바꾸면 같이 바꾼다.
+  content      text not null check (char_length(btrim(content)) between 10 and 1000),
+  status       text not null default 'open' check (status in ('open', 'done')),
+  created_at   timestamptz not null default now(),
+  resolved_at  timestamptz
+);
+
+-- 관리 화면은 항상 전체를 최신순으로 읽는다.
+create index if not exists requests_created_idx on public.requests(created_at desc);
+
 -- expense_participants의 PK는 (expense_id, user_id)라 (trip_id, user_id) →
 -- trip_members FK를 못 커버한다. trip_members를 지울 때마다 이 표를 seq-scan하게 되어
 -- 인덱스를 따로 둔다.
@@ -417,6 +459,7 @@ alter table public.expenses             enable row level security;
 alter table public.expense_participants enable row level security;
 alter table public.settlements          enable row level security;
 alter table public.itinerary_items      enable row level security;
+alter table public.requests             enable row level security;
 
 -- trips ---------------------------------------------------------------------
 -- created_by 를 함께 보는 조건은 create_trip이 trips insert와 host 멤버 insert를
@@ -564,6 +607,25 @@ create policy "멤버만 일정 추가" on public.itinerary_items
 drop   policy if exists "멤버만 일정 삭제" on public.itinerary_items;
 create policy "멤버만 일정 삭제" on public.itinerary_items
   for delete using (public.is_trip_member(trip_id) and public.is_onboarded());
+
+-- requests ------------------------------------------------------------------
+-- 본인 것은 읽을 수 있게 열어 둔다. 지금 화면은 안 쓰지만, «내가 보낸 요청»을 붙일 때
+-- 정책을 다시 만지지 않기 위해서다. 관리자는 전부.
+drop   policy if exists "본인 또는 관리자만 요청 읽기" on public.requests;
+create policy "본인 또는 관리자만 요청 읽기" on public.requests
+  for select using (user_id = auth.uid() or public.is_admin());
+
+-- insert 정책이 없다 = create_request RPC(§12)로만 넣는다. 스냅샷 컬럼을 클라이언트가
+-- 채우게 두면 남의 이름으로 보낼 수 있다.
+
+drop   policy if exists "관리자만 요청 상태 변경" on public.requests;
+create policy "관리자만 요청 상태 변경" on public.requests
+  for update using (public.is_admin()) with check (public.is_admin());
+
+-- RLS는 어느 행인지만 제한한다. 관리자라도 내용·작성자를 고쳐 쓰면 안 되므로
+-- 컬럼 권한으로 상태 둘만 연다.
+revoke update on public.requests from authenticated, anon;
+grant  update (status, resolved_at) on public.requests to authenticated;
 
 -- 12) RPC -------------------------------------------------------------------
 
@@ -977,6 +1039,40 @@ grant execute on function public.create_trip(text, text, date, date, text, text,
 grant execute on function public.settle_trip(uuid, jsonb)     to authenticated;
 grant execute on function public.unsettle_trip(uuid)          to authenticated;
 grant execute on function public.leave_trip(uuid, uuid)       to authenticated;
+
+-- create_request ------------------------------------------------------------
+-- 작성자 스냅샷(author_name·author_email)을 서버가 채우기 위한 RPC. insert 정책이
+-- 없어 이 길뿐이다.
+create or replace function public.create_request(kind_input text, content_input text)
+returns public.requests
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  me      public.profiles%rowtype;
+  created public.requests%rowtype;
+begin
+  if auth.uid() is null then
+    raise exception 'NOT_AUTHENTICATED';
+  end if;
+
+  select * into me from public.profiles where id = auth.uid();
+  -- 온보딩을 마치지 않은 계정은 앱 전체가 로그아웃으로 본다. 여기도 같은 판정.
+  if not found or me.onboarded_at is null then
+    raise exception 'NOT_ONBOARDED';
+  end if;
+
+  -- 길이·종류는 표의 CHECK가 막는다. 앱(lib/requests/actions.ts)이 먼저 거르지만
+  -- 액션을 우회한 직접 호출은 여기서 23514로 떨어진다.
+  insert into public.requests (user_id, author_name, author_email, kind, content)
+  values (me.id, me.name, me.email, kind_input, btrim(content_input))
+  returning * into created;
+
+  return created;
+end;
+$$;
+
+revoke execute on function public.create_request(text, text) from public, anon;
+grant  execute on function public.create_request(text, text) to authenticated;
 
 -- 13) 공공데이터 지역 콘텐츠 ---------------------------------------------------
 --

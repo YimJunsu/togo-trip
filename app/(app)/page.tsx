@@ -1,6 +1,7 @@
 import { HomeHero } from '@/components/dashboard/HomeHero'
 import { HomeMapCard } from '@/components/dashboard/HomeMapCard'
 import { HomeMine } from '@/components/dashboard/HomeMine'
+import { HomeRequest } from '@/components/dashboard/HomeRequest'
 import { HomeTiles } from '@/components/dashboard/HomeTiles'
 import { HomeTogether } from '@/components/dashboard/HomeTogether'
 import { FAQ_ITEMS, SiteFaq } from '@/components/seo/SiteFaq'
@@ -17,6 +18,7 @@ export default function HomePage() {
       </div>
       <HomeTogether />
       <HomeMapCard />
+      <HomeRequest />
       <SiteFaq />
       <JsonLd data={faqGraph([...FAQ_ITEMS])} />
     </div>

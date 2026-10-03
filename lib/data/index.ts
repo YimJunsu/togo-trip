@@ -9,6 +9,8 @@ import { supabaseExpenseRepo } from './supabase/expenseRepo'
 import { mockItineraryRepo } from './mock/itineraryRepo'
 import { supabaseItineraryRepo } from './supabase/itineraryRepo'
 import { mockPlaceRepo } from './mock/placeRepo'
+import { mockRequestRepo } from './mock/requestRepo'
+import { supabaseRequestRepo } from './supabase/requestRepo'
 import { mockSettlementRepo } from './mock/settlementRepo'
 import { supabaseSettlementRepo } from './supabase/settlementRepo'
 import { mockTravelStyleRepo } from './mock/travelStyleRepo'
@@ -22,6 +24,7 @@ import type {
   FoodRepository,
   ItineraryRepository,
   PlaceRepository,
+  RequestRepository,
   SettlementRepository,
   TravelStyleRepository,
   TripRepository,
@@ -60,6 +63,9 @@ export const destinationRepo: DestinationRepository = mockDestinationRepo
 export const foodRepo: FoodRepository = mockFoodRepo
 export const placeRepo: PlaceRepository = mockPlaceRepo
 export const travelStyleRepo: TravelStyleRepository = mockTravelStyleRepo
+export const requestRepo: RequestRepository = useSupabase
+  ? supabaseRequestRepo
+  : mockRequestRepo
 export const attractionRepo: AttractionRepository = useSupabase
   ? supabaseAttractionRepo
   : mockAttractionRepo

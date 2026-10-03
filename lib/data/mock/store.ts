@@ -8,6 +8,7 @@ import type {
   Member,
   Settlement,
   Trip,
+  UserRequest,
 } from '../types'
 
 /**
@@ -27,6 +28,8 @@ export const store = {
   settlements: [...(settlementSeed as Settlement[])],
   // seed가 없다. 일정은 방마다 다르고 빈 상태가 기본이라, 채워 둘 그럴듯한 값이 없다.
   itineraryItems: [] as ItineraryItem[],
+  // seed가 없다. 요청은 빈 상태가 기본이고 관리 화면의 빈 상태도 그대로 확인해야 한다.
+  requests: [] as UserRequest[],
 }
 
 export function findTrip(tripId: string): Trip | undefined {

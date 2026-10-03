@@ -25,6 +25,7 @@ type ProfileRow = {
   provider: string
   onboarded_at: string | null
   completed_trip_count: number
+  is_admin: boolean
   created_at: string
 }
 
@@ -38,6 +39,7 @@ function toProfile(row: ProfileRow): Profile {
     provider: row.provider as AuthProvider,
     onboardedAt: row.onboarded_at,
     completedTripCount: row.completed_trip_count,
+    isAdmin: row.is_admin,
     createdAt: row.created_at,
   }
 }

@@ -9,8 +9,9 @@ import { getUser } from '@/lib/auth/session'
  * 로그인과 무관한 화면까지 매 요청 함수가 돌았다. 세션 조회를 여기로 떼어 내면
  * 페이지들이 정적으로 만들어져 엣지 캐시에서 바로 나간다.
  *
- * 반환은 이름 하나뿐이다. 헤더에 필요한 건 그것뿐이고, Profile을 통째로 넘기면
- * 이메일·전화번호·생년월일이 브라우저까지 따라간다.
+ * 반환은 이름과 관리자 여부뿐이다. 헤더에 필요한 건 그것뿐이고, Profile을 통째로 넘기면
+ * 이메일·전화번호·생년월일이 브라우저까지 따라간다. isAdmin은 «관리» 링크를 그릴지만
+ * 정한다 — 접근 판정은 서버(requireAdmin)와 RLS가 따로 한다.
  */
 export const dynamic = 'force-dynamic'
 
@@ -18,7 +19,7 @@ export async function GET() {
   const user = await getUser()
 
   return NextResponse.json(
-    { name: user?.name ?? null },
+    { name: user?.name ?? null, isAdmin: user?.isAdmin ?? false },
     // 사용자마다 다른 값이다. 중간 캐시가 남의 응답을 물려주면 안 된다.
     { headers: { 'Cache-Control': 'private, no-store' } },
   )

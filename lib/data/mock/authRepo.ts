@@ -18,7 +18,11 @@ import type { Account, Profile } from '../types'
  * Supabase 전환 시 이 파일과 accounts.json은 함께 사라진다.
  */
 
-type SeedAccount = Omit<Account, 'passwordHash'> & { password: string }
+type SeedAccount = Omit<Account, 'passwordHash' | 'isAdmin'> & {
+  password: string
+  /** JSON에서 빠져 있으면 일반 회원. usr-1만 켜 두어 /admin 화면을 mock으로 확인한다. */
+  isAdmin?: boolean
+}
 
 /**
  * 동기로 채운다. 5건이라 로드 시 한 번 드는 비용이 무시할 만하다.
@@ -27,6 +31,7 @@ const accounts: Account[] = (seed as SeedAccount[]).map(
   ({ password, ...rest }) => ({
     ...rest,
     passwordHash: hashPasswordSync(password),
+    isAdmin: rest.isAdmin ?? false,
     // seed 계정은 가입 폼을 거친 것으로 본다. JSON에는 이 값이 없다.
     onboardedAt: rest.createdAt,
   }),
@@ -57,6 +62,7 @@ export const mockAuthRepo: AuthRepository = {
       // 가입 폼에서 약관·개인정보 동의를 이미 받았다.
       onboardedAt: new Date().toISOString(),
       completedTripCount: 0,
+      isAdmin: false,
       createdAt: new Date().toISOString(),
       passwordHash: await hashPassword(input.password),
     }
@@ -140,6 +146,7 @@ export function createPendingAccount(input: {
     // 동의를 아직 받지 않았다. 이 null이 이 기능의 전부다.
     onboardedAt: null,
     completedTripCount: 0,
+    isAdmin: false,
     createdAt: new Date().toISOString(),
     // 비밀번호가 없는 계정이다. verifyPassword는 망가진 저장값에 false를 돌려주므로
     // (던지지 않는다) 이 계정으로는 비밀번호 로그인이 성립하지 않는다.
