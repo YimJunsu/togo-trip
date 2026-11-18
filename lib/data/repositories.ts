@@ -222,6 +222,12 @@ export interface RequestRepository {
   create(input: CreateRequestInput): Promise<UserRequest>
   /** 최신순 전체. 관리자만 — Supabase는 RLS가, mock은 호출부의 requireAdmin()이 막는다. */
   listAll(): Promise<UserRequest[]>
+  /**
+   * 내가 보낸 요청, 최신순. 설정 화면의 «내가 보낸 요청»이 쓴다. Supabase는 RLS가
+   * 이미 본인 행을 열어 두었고(관리자는 전부 보이므로 user_id로도 거른다), mock은
+   * userId로 거른다.
+   */
+  listMine(userId: string): Promise<UserRequest[]>
   /** 없는 id는 조용히 무동작. 두 구현이 같다. */
   setStatus(id: string, status: RequestStatus): Promise<void>
 }

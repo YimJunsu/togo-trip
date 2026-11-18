@@ -4,24 +4,28 @@ import { NicknameForm } from '@/components/auth/NicknameForm'
 import { PasswordForm } from '@/components/auth/PasswordForm'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 import { actionButtonClass } from '@/components/dashboard/ActionButton'
+import { MyRequestList } from '@/components/dashboard/MyRequestList'
 import { Avatar } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
 import { requireUser } from '@/lib/auth/session'
-import { tripRepo } from '@/lib/data'
+import { requestRepo, tripRepo } from '@/lib/data'
 import { pageMetadata } from '@/lib/seo/metadata'
 import { formatDateRange } from '@/lib/utils/format'
 
 // 로그인해야 열리는 화면이라 크롤러에겐 로그인 리다이렉트만 보인다. 색인에서 뺀다.
 export const metadata = pageMetadata({
   title: '내 정보',
-  description: '비밀번호를 바꾸고 참여 중인 여행방을 봅니다.',
+  description: '비밀번호를 바꾸고 참여 중인 여행방과 보낸 요청을 봅니다.',
   path: '/settings',
   noIndex: true,
 })
 
 export default async function SettingsPage() {
   const me = await requireUser()
-  const trips = await tripRepo.list(me.id)
+  const [trips, requests] = await Promise.all([
+    tripRepo.list(me.id),
+    requestRepo.listMine(me.id),
+  ])
 
   return (
     <div className="flex flex-col gap-8">
@@ -65,6 +69,10 @@ export default async function SettingsPage() {
             ))}
           </ul>
         )}
+      </Section>
+
+      <Section title="내가 보낸 요청">
+        <MyRequestList requests={requests} />
       </Section>
 
       <Section title="닉네임">

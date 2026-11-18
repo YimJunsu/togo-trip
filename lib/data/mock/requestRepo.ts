@@ -26,6 +26,13 @@ export const mockRequestRepo: RequestRepository = {
     )
   },
 
+  async listMine(userId) {
+    return store.requests
+      .filter((r) => r.userId === userId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 20)
+  },
+
   async setStatus(id, status) {
     const found = store.requests.find((r) => r.id === id)
     if (!found) return

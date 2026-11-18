@@ -60,7 +60,7 @@ export function RequestForm() {
     try {
       await submitRequest({ kind, content: checked.content })
       setContent('')
-      notify('요청을 받았어요. 고마워요!')
+      notify('요청을 받았어요. 처리 상태는 내 정보에서 볼 수 있어요.')
     } catch {
       setError('보내지 못했어요. 잠시 후 다시 시도해 주세요.')
     } finally {

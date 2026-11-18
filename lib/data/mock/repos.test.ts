@@ -359,3 +359,18 @@ test('이 방에 없는 사람을 빼는 건 조용히 넘어간다', async () =
 
   assert.equal((await mockTripRepo.listMembers(TRIP)).length, before)
 })
+
+// ── 내가 보낸 요청 ───────────────────────────────────────────────────────────
+test('listMine은 본인이 보낸 요청만 최신순으로 준다', async () => {
+  const { mockRequestRepo } = await import('./requestRepo.ts')
+  const me = { id: 'req-test-me', name: '나', email: 'me@example.com' }
+  const other = { id: 'req-test-other', name: '남', email: 'other@example.com' }
+  const first = await mockRequestRepo.create({ author: me, kind: 'bug', content: '첫 번째 요청입니다.' })
+  await mockRequestRepo.create({ author: other, kind: 'other', content: '남이 보낸 요청입니다.' })
+  // createdAt은 밀리초 해상도다. 두 요청이 같은 밀리초에 찍히면 순서를 못 가른다.
+  await new Promise((resolve) => setTimeout(resolve, 5))
+  const second = await mockRequestRepo.create({ author: me, kind: 'feature', content: '두 번째 요청입니다.' })
+
+  const mine = await mockRequestRepo.listMine(me.id)
+  assert.deepEqual(mine.map((r) => r.id), [second.id, first.id])
+})

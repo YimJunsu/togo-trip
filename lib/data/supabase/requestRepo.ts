@@ -69,6 +69,20 @@ export const supabaseRequestRepo: RequestRepository = {
     return data.map(toUserRequest)
   },
 
+  async listMine(userId) {
+    const supabase = await createSupabaseServerClient()
+    // 관리자는 RLS로 전부 보이므로 정책에 맡기지 않고 user_id로 직접 거른다.
+    const { data, error } = await supabase
+      .from('requests')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20)
+      .returns<RequestRow[]>()
+    if (error) throw error
+    return data.map(toUserRequest)
+  },
+
   async setStatus(id, status) {
     const supabase = await createSupabaseServerClient()
     // 관리자가 아니면 정책이 0행을 고친다 — 오류가 아니라 조용한 무동작이다.
