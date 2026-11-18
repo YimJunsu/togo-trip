@@ -49,8 +49,12 @@ export function TripPass({
 
       <dl
         className={cn(
-          'grid gap-4 text-xs tracking-widest',
-          today ? 'grid-cols-3' : 'grid-cols-2',
+          // 칸 너비를 똑같이 나누면 375px에서 날짜(모노 10자 + tracking-widest)가 칸을
+          // 넘어 옆 칸 «2박 3일»에 붙어 버렸다. 칸을 내용 너비로 잡고 사이를 벌린다.
+          'grid justify-between gap-x-4 gap-y-4 text-xs tracking-widest',
+          today
+            ? 'grid-cols-[repeat(3,max-content)]'
+            : 'grid-cols-[repeat(2,max-content)]',
         )}
       >
         <div>

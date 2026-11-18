@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { XIcon } from '@phosphor-icons/react'
 import { InstallGuide } from '@/components/layout/InstallGuide'
 import { Sheet } from '@/components/ui/Sheet'
@@ -17,6 +18,17 @@ const APPEAR_DELAY_MS = 2000
 const SWIPE_CLOSE_PX = 56
 
 /**
+ * 입력·확정을 하는 화면에서는 배너를 띄우지 않는다. fixed 막대라 폼 맨 아래의 주 버튼
+ * («여행방 만들기», 지출 «넣기»)을 그대로 덮었다 — 375px에서 실측. 닫지 않은 사람은
+ * 버튼을 누르려다 배너를 누르게 된다. 둘러보는 화면에서만 안내한다.
+ */
+const QUIET_PREFIXES = ['/trips', '/join', '/login', '/signup', '/onboarding', '/settings', '/admin']
+
+function isQuietPath(pathname: string): boolean {
+  return QUIET_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+}
+
+/**
  * 홈 화면 추가 안내 배너.
  *
  * 화면 아래에 떠 있는 막대다. 푸터가 아니라 fixed라서 본문 스크롤과 무관하게 자리를
@@ -27,6 +39,7 @@ const SWIPE_CLOSE_PX = 56
  * 이미 추가한 사람에게 추가하라고 하는 것이 이 배너가 할 수 있는 최악의 일이다.
  */
 export function InstallPrompt() {
+  const pathname = usePathname()
   const [platform, setPlatform] = useState<MobilePlatform>('other')
   const [isVisible, setIsVisible] = useState(false)
   const [isGuideOpen, setIsGuideOpen] = useState(false)
@@ -68,7 +81,7 @@ export function InstallPrompt() {
     }
   }
 
-  if (!isVisible) return null
+  if (!isVisible || isQuietPath(pathname)) return null
 
   return (
     <>
@@ -140,7 +153,7 @@ export function InstallPrompt() {
             type="button"
             onClick={dismiss}
             aria-label="안내 닫기"
-            className="text-muted hover:text-ink hover:bg-paper shrink-0 rounded-full p-2 transition duration-200"
+            className="text-muted hover:text-ink hover:bg-paper flex size-11 shrink-0 items-center justify-center rounded-full transition duration-200"
           >
             <XIcon size={16} weight="bold" aria-hidden />
           </button>
