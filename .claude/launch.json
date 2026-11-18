@@ -11,13 +11,13 @@
       "port": 3000
     },
     {
-      "//": "pnpm build 결과를 확인용으로 띄운다. dev 서버가 이미 3000을 쓰고 있어도 겹치지 않도록 autoPort로 포트를 할당받는다(포트 플래그를 주지 않아야 PORT 환경변수가 먹는다).",
+      "//": "pnpm build 결과를 확인용으로 띄운다. dev 서버가 이미 3000을 쓰고 있어도 겹치지 않도록 autoPort로 포트를 할당받는다(포트 플래그를 주지 않아야 PORT 환경변수가 먹는다). 3100은 Paperclip 서버(Claude 플러그인 MCP가 localhost:3100을 본다)가 쓰므로 피한다.",
       "name": "togo-trip-prod",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": [
         "start"
       ],
-      "port": 3100,
+      "port": 3300,
       "autoPort": true
     },
     {
