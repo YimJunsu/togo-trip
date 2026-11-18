@@ -34,18 +34,13 @@ export async function generateMetadata({
   const style = await travelStyleRepo.get(code)
   if (!style) return { title: '없는 결과', robots: { index: false } }
 
-  // 공유 링크를 카카오톡·메시지에 붙였을 때 카드가 뜨도록 og·twitter를 함께 채운다.
+  // 공유 카드 이미지는 같은 폴더의 opengraph-image.tsx가 붙인다(1200×630, 유형 이름 포함).
+  // 여기서 image를 따로 주면 정사각형 일러스트와 두 장이 경합한다.
   return pageMetadata({
     title: `나는 ${style.name} 여행이다 (${style.code})`,
     description: `${style.tagline} — 투고트립 여행 성향 분석 16유형 중 ${style.code}. 12문항이면 내 유형도 나옵니다.`,
     path: `/style/${style.code}`,
     type: 'article',
-    image: {
-      url: `/images/style/${style.code}.webp`,
-      width: 768,
-      height: 768,
-      alt: style.name,
-    },
   })
 }
 
