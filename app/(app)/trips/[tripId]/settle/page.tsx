@@ -7,7 +7,7 @@ import { SettlePanel } from '@/components/dashboard/SettlePanel'
 import { expenseRepo, settlementRepo, tripRepo } from '@/lib/data'
 import { requireMemberPage } from '@/lib/auth/session'
 import { previewSettlement } from '@/lib/settlements/actions'
-import type { SettleShare } from '@/lib/settle/settle'
+import { transfersMatch, type SettleShare } from '@/lib/settle/settle'
 import type { PageProps } from '@/lib/types/page'
 
 export default async function SettlePage({
@@ -26,9 +26,15 @@ export default async function SettlePage({
   ])
 
   // 부담 내역은 저장하지 않는다. 확정된 방은 입력이 잠겨 있어 매번 같은 값이 나온다.
-  const shares: SettleShare[] = trip.settledAt
-    ? (await previewSettlement(tripId)).shares
-    : []
+  // 단, 계산 규칙이 바뀌면 예전에 확정한 방은 어긋날 수 있다 — 그때는 알린다.
+  const recomputed = trip.settledAt ? await previewSettlement(tripId) : null
+  const shares: SettleShare[] = recomputed?.shares ?? []
+  const hasRuleDrift =
+    recomputed !== null &&
+    !transfersMatch(
+      recomputed.transfers,
+      settlements.map(({ from, to, amount }) => ({ from, to, amount })),
+    )
 
   const isHost = members.some((m) => m.userId === me.id && m.role === 'host')
 
@@ -60,6 +66,17 @@ export default async function SettlePage({
         확정해도 진행 중 화면의 로컬 state(미리보기 잠금)가 살아남아,
         확정 뒤 취소했을 때 지출을 다시 넣을 수 없는 상태로 남는다.
       */}
+      {hasRuleDrift ? (
+        <p
+          role="note"
+          className="border-line bg-surface rounded-inner text-muted border p-4 text-sm leading-relaxed"
+        >
+          정산 계산 규칙이 바뀌어, 아래 «각자 부담할 금액»이 확정 당시와 조금 다를 수
+          있어요. <strong className="text-ink">주고받을 돈은 확정 당시 금액 그대로</strong>
+          입니다. 새 규칙으로 다시 맞추려면 방장이 정산을 취소한 뒤 다시 확정하면 돼요.
+        </p>
+      ) : null}
+
       {trip.settledAt ? (
         <SettledResult
           tripId={tripId}
@@ -76,6 +93,7 @@ export default async function SettlePage({
           members={members}
           expenses={expenses}
           isHost={isHost}
+          currentUserId={me.id}
         />
       )}
     </div>

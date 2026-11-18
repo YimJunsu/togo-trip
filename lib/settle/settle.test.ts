@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { settleTrip, type SettleInput, type SettleResult } from './settle.ts'
+import { settleTrip, transfersMatch, type SettleInput, type SettleResult } from './settle.ts'
 
 /** 짧게 쓰기 위한 헬퍼. isDriver 기본값은 false다. */
 const m = (userId: string, isDriver = false) => ({ userId, isDriver })
@@ -243,4 +243,90 @@ test('participantIds가 빈 지출은 던진다 — paid만 늘고 owed로 갈 �
       driverDiscountRate: 0.2,
     }),
   )
+})
+
+// ── 14. 지출에 참여하지 않은 비운전자는 운전자 감면분을 지지 않는다 ─────────────
+test('참여한 지출이 없는 멤버는 운전자 감면분을 떠안지 않는다', () => {
+  const result = settleTrip({
+    members: [m('A', true), m('B'), m('C'), m('D')],
+    // D는 방에만 있고 지출에는 하나도 참여하지 않았다
+    expenses: [e('A', 30_000, ['A', 'B', 'C'])],
+    driverDiscountRate: 0.2,
+  })
+  const by = (id: string) => result.shares.find((s) => s.userId === id)!
+  // A 부담 10,000 → 8,000. 감면 2,000을 B·C만 1,000씩.
+  assert.equal(by('A').owed, 8_000)
+  assert.equal(by('B').owed, 11_000)
+  assert.equal(by('C').owed, 11_000)
+  assert.equal(by('D').owed, 0)
+  assert.equal(by('D').net, 0)
+  assert.ok(result.transfers.every((t) => t.from !== 'D' && t.to !== 'D'))
+  assertConserved(result)
+})
+
+test('비운전자가 전부 지출에 참여하지 않았으면 할인하지 않는다', () => {
+  const { shares } = settleTrip({
+    members: [m('A', true), m('B')],
+    expenses: [e('A', 10_000, ['A'])],
+    driverDiscountRate: 0.2,
+  })
+  assert.equal(shares.find((s) => s.userId === 'A')!.owed, 10_000)
+  assert.equal(shares.find((s) => s.userId === 'B')!.owed, 0)
+})
+
+// ── 15. 돈이 새는 입력은 던진다 ──────────────────────────────────────────────
+test('members에 없는 참여자는 던진다 — 그 몫이 사라진다', () => {
+  assert.throws(() =>
+    settleTrip({
+      members: [m('A'), m('B')],
+      expenses: [e('A', 10_000, ['A', 'ghost'])],
+      driverDiscountRate: 0.2,
+    }),
+  )
+})
+
+test('같은 참여자가 두 번 들어 있으면 던진다', () => {
+  assert.throws(() =>
+    settleTrip({
+      members: [m('A'), m('B')],
+      expenses: [e('A', 10_000, ['A', 'B', 'B'])],
+      driverDiscountRate: 0.2,
+    }),
+  )
+})
+
+test('금액이 0 이하이거나 숫자가 아니면 던진다', () => {
+  for (const amount of [0, -1_000, Number.NaN, Number.POSITIVE_INFINITY]) {
+    assert.throws(() =>
+      settleTrip({
+        members: [m('A'), m('B')],
+        expenses: [e('A', amount, ['A', 'B'])],
+        driverDiscountRate: 0.2,
+      }),
+    )
+  }
+})
+
+test('할인율이 0 ~ 0.5를 벗어나면 던진다', () => {
+  for (const rate of [-0.1, 0.51, Number.NaN]) {
+    assert.throws(() =>
+      settleTrip({
+        members: [m('A', true), m('B')],
+        expenses: [e('A', 10_000, ['A', 'B'])],
+        driverDiscountRate: rate,
+      }),
+    )
+  }
+})
+
+// ── 16. 저장된 송금 리스트와 재계산 비교 ───────────────────────────────────────
+test('transfersMatch는 순서를 무시하고 내용만 비교한다', () => {
+  const a = [
+    { from: 'B', to: 'A', amount: 1_000 },
+    { from: 'C', to: 'A', amount: 2_000 },
+  ]
+  assert.equal(transfersMatch(a, [...a].reverse()), true)
+  assert.equal(transfersMatch(a, [a[0]!]), false)
+  assert.equal(transfersMatch(a, [a[0]!, { ...a[1]!, amount: 2_001 }]), false)
+  assert.equal(transfersMatch([], []), true)
 })
