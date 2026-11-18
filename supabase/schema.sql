@@ -278,6 +278,12 @@ create table if not exists public.expenses (
   unique (id, trip_id)
 );
 
+-- 한 건 상한. 앱의 MAX_EXPENSE_AMOUNT(lib/expenses/validate.ts)와 같은 값이다.
+-- "0을 하나 더 친" 입력이 정산 전체를 뒤집는 것을 막는다 (0011).
+alter table public.expenses drop constraint if exists expenses_amount_max;
+alter table public.expenses
+  add constraint expenses_amount_max check (amount <= 100000000);
+
 -- 8) expense_participants ---------------------------------------------------
 -- participantIds 배열 대신 조인 테이블을 쓰는 이유가 아래 FK 두 줄이다.
 -- 이게 걸리면 방 밖의 사람에게 빚을 지우는 일이 DB에서 불가능해진다.
@@ -752,9 +758,15 @@ language plpgsql security definer set search_path = ''
 as $$
 declare
   target_trip_id    uuid;
+  target_payer_id   uuid;
   locked_settled_at timestamptz;
 begin
-  select trip_id into target_trip_id
+  -- auth.uid()가 null이면 아래 payer 비교가 NULL로 떨어져 권한 검사를 통과한다.
+  if auth.uid() is null then
+    raise exception 'NOT_AUTHENTICATED';
+  end if;
+
+  select trip_id, payer_id into target_trip_id, target_payer_id
     from public.expenses where id = check_expense_id;
   -- 없는 지출은 조용히 넘어간다. mock(lib/data/mock/expenseRepo.ts)의 remove가
   -- 같은 입력에 같게 동작해야 NEXT_PUBLIC_DATA_SOURCE 스위치가 의미를 유지한다.
@@ -770,6 +782,13 @@ begin
   -- add_expense의 NOT_TRIP_MEMBER가 이미 같은 것을 알려주므로 새로 생기는 노출은 없다.
   if not public.is_trip_member(target_trip_id) then
     raise exception 'NOT_TRIP_MEMBER';
+  end if;
+
+  -- 결제자 본인과 방장만 지운다 (0011). 예전에는 멤버 누구나 남의 지출을 지울 수
+  -- 있어, 자기가 나눠 내야 하는 지출을 지워 송금액을 줄일 수 있었다.
+  -- 앱 규칙의 원본은 lib/expenses/validate.ts의 canRemoveExpense다.
+  if target_payer_id <> auth.uid() and not public.is_trip_host(target_trip_id) then
+    raise exception 'NOT_ALLOWED';
   end if;
 
   -- `for share`로 trips 행을 잠가 settle_trip의 `for update`와 순서를 강제한다.

@@ -12,6 +12,7 @@ import { AvatarStack } from '@/components/ui/Avatar'
 import { Badge } from '@/components/ui/Badge'
 import type { Expense, Member, Trip } from '@/lib/data/types'
 import { removeExpense } from '@/lib/expenses/actions'
+import { canRemoveExpense } from '@/lib/expenses/validate'
 import { formatWon } from '@/lib/utils/format'
 
 /**
@@ -26,6 +27,7 @@ export function SettlePanel({
   members,
   expenses,
   isHost,
+  currentUserId,
 }: {
   trip: Trip
   members: Member[]
@@ -37,6 +39,7 @@ export function SettlePanel({
    */
   expenses: Expense[]
   isHost: boolean
+  currentUserId: string
 }) {
   const router = useRouter()
   const [isAdding, setIsAdding] = useState(false)
@@ -128,6 +131,7 @@ export function SettlePanel({
             <AddExpenseForm
               tripId={trip.id}
               members={members}
+              currentUserId={currentUserId}
               onCancel={() => setIsAdding(false)}
               onAdded={() => {
                 setIsAdding(false)
@@ -141,6 +145,9 @@ export function SettlePanel({
           expenses={expenses}
           members={members}
           onRemove={isPreviewOpen ? undefined : remove}
+          canRemove={(expense) =>
+            canRemoveExpense(expense, currentUserId, isHost)
+          }
         />
         {removeError ? (
           <p role="alert" className="text-danger mt-2 text-sm">

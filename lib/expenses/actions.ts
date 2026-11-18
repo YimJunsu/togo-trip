@@ -7,6 +7,11 @@ import { requireMember } from '@/lib/auth/session'
 import { expenseRepo, tripRepo } from '@/lib/data'
 import type { AddExpenseInput } from '@/lib/data/repositories'
 import type { Expense } from '@/lib/data/types'
+import {
+  MAX_EXPENSE_DESCRIPTION,
+  canRemoveExpense,
+  isValidAmount,
+} from '@/lib/expenses/validate'
 
 export async function addExpense(input: AddExpenseInput): Promise<Expense> {
   await requireMember(input.tripId)
@@ -33,15 +38,20 @@ export async function addExpense(input: AddExpenseInput): Promise<Expense> {
   }
 
   // 통화는 원(₩) 정수다. 음수·소수는 정산액을 뒤집거나 어긋나게 만든다.
-  if (!Number.isInteger(input.amount) || input.amount <= 0) {
-    throw new Error('금액은 0보다 큰 정수(원)여야 합니다.')
+  // 상한은 화면과 같은 규칙이다 (lib/expenses/validate.ts).
+  if (!isValidAmount(input.amount)) {
+    throw new Error('금액은 1원 ~ 1억 원 사이의 정수여야 합니다.')
   }
 
-  if (!input.description.trim()) {
+  const description = input.description.trim()
+  if (!description) {
     throw new Error('뭘 샀는지 적어야 합니다.')
   }
+  if (description.length > MAX_EXPENSE_DESCRIPTION) {
+    throw new Error(`내용은 ${MAX_EXPENSE_DESCRIPTION}자까지 적을 수 있습니다.`)
+  }
 
-  return expenseRepo.add({ ...input, participantIds })
+  return expenseRepo.add({ ...input, description, participantIds })
 }
 
 /**
@@ -52,11 +62,19 @@ export async function removeExpense(
   tripId: string,
   expenseId: string,
 ): Promise<void> {
-  await requireMember(tripId)
+  const user = await requireMember(tripId)
 
-  const expenses = await expenseRepo.listByTrip(tripId)
-  if (!expenses.some((e) => e.id === expenseId)) {
+  const [expenses, members] = await Promise.all([
+    expenseRepo.listByTrip(tripId),
+    tripRepo.listMembers(tripId),
+  ])
+  const expense = expenses.find((e) => e.id === expenseId)
+  if (!expense) {
     throw new Error('이 여행방의 지출이 아닙니다.')
+  }
+  const isHost = members.some((m) => m.userId === user.id && m.role === 'host')
+  if (!canRemoveExpense(expense, user.id, isHost)) {
+    throw new Error('결제한 사람이나 방장만 지울 수 있습니다.')
   }
 
   await expenseRepo.remove(expenseId)
