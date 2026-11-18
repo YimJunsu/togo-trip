@@ -103,10 +103,9 @@ $$;
 
 grant execute on function public.is_onboarded() to authenticated, anon;
 
--- 관리자 판정. /admin/** 페이지와 requests 정책이 본다. security definer인 이유는
--- is_onboarded()와 같다 — profiles 읽기 정책이 본인 행뿐이라 정책 안에서 남의
--- 플래그를 못 본다. (ingest_runs 정책은 이 함수보다 먼저 만들어져 exists()를
--- 인라인으로 쓴다. 동작은 같다.)
+-- 관리자 판정. /admin/** 페이지와 requests·ingest_runs 정책이 본다. security definer인
+-- 이유는 is_onboarded()와 같다 — profiles 읽기 정책이 본인 행뿐이라 정책 안에서 남의
+-- 플래그를 못 본다.
 create or replace function public.is_admin()
 returns boolean
 language sql security definer stable set search_path = ''
@@ -348,7 +347,7 @@ create index if not exists itinerary_items_trip_day_idx
   on public.itinerary_items(trip_id, day);
 
 -- 9-2) requests -------------------------------------------------------------
--- 홈 아래 «요청 넣기»가 넣고 관리자가 /admin/requests 에서 본다 (2026-09-20).
+-- 홈 아래 «요청 넣기»가 넣고 관리자가 /admin/requests 에서 본다 (2026-10-03).
 --
 -- 작성자 닉네임·이메일을 행에 복사해 둔다. 관리자가 남의 profiles 행을 읽는 정책을
 -- 열면 전화번호·생년월일까지 딸려 나가므로, 관리 화면에 필요한 둘만 스냅샷으로
@@ -1187,12 +1186,13 @@ create policy "관광지 공개 읽기" on public.attractions
   for select using (true);
 
 -- 적재 이력은 관리자만. 권한 판정의 원본이 여기다 — 페이지의 notFound()는 두 번째 방어선.
+--
+-- 이 정책은 is_admin()(§2)보다 먼저 만들어져 exists()를 인라인으로 갖고 있었다.
+-- 판정이 두 군데 적혀 있으면 한쪽만 고쳐 갈라진다 — requests 정책과 같은 함수를 본다.
+-- 동작은 전과 똑같다.
 drop policy if exists "관리자만 적재 이력 읽기" on public.ingest_runs;
 create policy "관리자만 적재 이력 읽기" on public.ingest_runs
-  for select using (
-    exists (select 1 from public.profiles p
-            where p.id = auth.uid() and p.is_admin)
-  );
+  for select using (public.is_admin());
 
 -- heartbeats에는 읽기 정책도 두지 않는다 — 어느 화면도 쓰지 않는다.
 --
