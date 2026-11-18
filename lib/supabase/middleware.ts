@@ -13,6 +13,14 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   const enabled = process.env.NEXT_PUBLIC_DATA_SOURCE === 'supabase' && url && key
   if (!enabled) return NextResponse.next({ request })
 
+  // 세션 쿠키가 없으면 갱신할 세션도 없다. 처음 온 사람·크롤러가 전부 여기에 해당하는데,
+  // 예전에는 이들에게도 매 요청 Supabase 클라이언트를 만들고 getUser()를 불렀다.
+  // @supabase/ssr의 쿠키 이름은 storageKey 기본값 `sb-<ref>-auth-token`(분할되면 `.0`…)이다.
+  // storageKey를 바꾸면 이 검사도 같이 바꿔야 한다.
+  if (!request.cookies.getAll().some(({ name }) => name.startsWith('sb-'))) {
+    return NextResponse.next({ request })
+  }
+
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(url, key, {

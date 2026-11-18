@@ -8,6 +8,23 @@ import { PROVINCE_TO_REGION } from '@/lib/utils/labels'
 
 type Params = { params: Promise<{ code: string }> }
 
+/**
+ * ISR. 처음 열린 지역만 렌더해 캐시하고, 그 뒤 방문자는 CDN 응답을 받는다.
+ *
+ * 예전에는 요청마다 렌더하는 동적 라우트였다(`X-Vercel-Cache: MISS`). 검색에서
+ * 들어오는 첫 화면이 대개 지역 페이지인데, 그때마다 함수를 깨우고 DB를 조회했다.
+ * 내용은 하루 한 번 적재 cron이 바꾸고, cron이 갱신한 지역은 revalidatePath로
+ * 바로 다시 그린다. 여기 하루는 그 경로가 빠졌을 때의 안전망이다.
+ *
+ * 빌드 때 250개를 미리 그리지 않는다(빈 배열). 빌드가 DB에 250번 붙게 되고,
+ * 그사이 DB가 닫혀 있으면 배포가 실패한다.
+ */
+export const revalidate = 86400
+
+export function generateStaticParams() {
+  return []
+}
+
 export async function generateMetadata({ params }: Params) {
   const { code } = await params
   const region = await attractionRepo.getRegion(code)
@@ -21,8 +38,8 @@ export async function generateMetadata({ params }: Params) {
       `${region.province} ${region.name}의 관광지 ${region.attractionCount}곳과 ` +
       `맛집 ${region.restaurantCount}곳. 한국관광공사 공공데이터로 만든 목록입니다. 로그인 없이 바로 봅니다.`,
     path: `/region/${region.code}`,
-    // 미적재 지역은 목록이 비어 있어 색인 가치가 없다. 적재되면 다음 배포에서 자동으로 열린다.
-    // 내용이 없으면 색인에서 뺀다. ingestedAt은 "시도했다"만 알려줘서,
+    // 미적재 지역은 목록이 비어 있어 색인 가치가 없다. 적재되면 ISR 재생성(하루, 또는 cron의
+    // revalidatePath)에서 자동으로 열린다. 내용이 없으면 색인에서 뺀다. ingestedAt은 "시도했다"만 알려줘서,
     // TourAPI가 0건을 준 지역이 빈 페이지로 색인될 수 있다.
     noIndex: region.attractionCount === 0,
   })

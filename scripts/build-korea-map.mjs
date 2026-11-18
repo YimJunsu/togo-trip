@@ -140,13 +140,48 @@ function ringCentroid(ring) {
 
 const r1 = (n) => Math.round(n * 10) / 10
 
+/** 이보다 작은 링(작은 섬)은 0.1 단위로 남긴다. 정수로 깎으면 점 몇 개짜리 섬이 뭉개진다. */
+const SMALL_RING = 12
+
+const signed = (n) => (n < 0 ? `${n}` : ` ${n}`)
+
+/**
+ * 링 → SVG path. 첫 점만 절대좌표, 나머지는 상대좌표(`l`)이고 정수다.
+ *
+ * 예전에는 0.1 단위 절대좌표(`M415.2 231.1L406 233…`)였다. 이 path가 홈 지도 카드에
+ * 250개 그대로 들어가는데, 서버 컴포넌트라 HTML 본문과 RSC 페이로드에 **두 번** 실려
+ * 홈 HTML이 707KB였다. 지도는 855 너비를 384px 안팎으로 줄여 그리므로 1단위가 0.5px도
+ * 안 된다 — 0.1 정밀도는 아무도 못 보는 바이트였다.
+ *
+ * 델타는 반올림한 절대좌표끼리 뺀다. 델타를 따로 반올림하면 오차가 누적돼, 같은 경계를
+ * 공유하는 이웃 지역끼리 선이 어긋난다.
+ */
 function toPath(rings) {
   return rings
-    .map(
-      (ring) =>
-        `M${ring.map(([x, y]) => `${r1(x)} ${r1(y)}`).join('L')}Z`,
-    )
+    .map((ring) => {
+      const k = ringSpan(ring) < SMALL_RING ? 10 : 1
+      const pts = ring.map(([x, y]) => [Math.round(x * k), Math.round(y * k)])
+      // 닫힌 링의 마지막 점은 첫 점과 같다. z가 닫아 주므로 뺀다.
+      const last = pts.at(-1)
+      if (pts.length > 1 && last[0] === pts[0][0] && last[1] === pts[0][1]) pts.pop()
+      let [px, py] = pts[0]
+      let body = ''
+      for (const [x, y] of pts.slice(1)) {
+        if (x === px && y === py) continue
+        body += `${signed((x - px) / k)}${signed((y - py) / k)}`
+        px = x
+        py = y
+      }
+      // 반올림으로 점 하나로 접힌 링. 인자 없는 `l`은 path 전체를 무효로 만든다.
+      if (!body) return ''
+      return `M${pts[0][0] / k}${signed(pts[0][1] / k)}l${body.trimStart()}z`
+    })
     .join('')
+}
+
+function ringSpan(ring) {
+  const { minX, minY, maxX, maxY } = bounds([ring])
+  return Math.max(maxX - minX, maxY - minY)
 }
 
 function bounds(rings) {

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { pingIndexNow } from '@/lib/seo/indexnow'
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
 import { ingestRegions } from '@/lib/tour/ingest'
@@ -121,6 +122,9 @@ export async function GET(request: Request) {
      * 실패해도 흐름을 막지 않는다. 색인 힌트가 안 갔다고 적재를 실패로 기록하면
      * 진짜 실패를 못 알아본다.
      */
+    // 지역 페이지는 ISR로 캐시된다. 내용을 바꾼 지역은 캐시를 바로 버려 다음 방문에 새로 그린다.
+    for (const code of result.processed) revalidatePath(`/region/${code}`)
+
     const pinged = await pingIndexNow(
       result.processed.map((code) => `/region/${code}`),
     )

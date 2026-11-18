@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { createSupabasePublicClient } from '@/lib/supabase/public'
 import { ingestRegions } from '@/lib/tour/ingest'
 import { createIngestDeps } from '@/lib/tour/ingestDeps'
 import type { AttractionRepository } from '../repositories'
@@ -62,7 +62,7 @@ async function query(
   code: string,
   opts?: { type?: 12 | 39; limit?: number },
 ): Promise<Attraction[]> {
-  const supabase = await createSupabaseServerClient()
+  const supabase = createSupabasePublicClient()
   let q = supabase
     .from('attractions')
     .select('content_id, content_type_id, region_code, title, addr, lat, lng, image_url, overview')
@@ -171,7 +171,7 @@ async function ingestNow(region: RegionRow): Promise<void> {
 }
 
 async function fetchRegionRow(code: string): Promise<RegionRow | null> {
-  const supabase = await createSupabaseServerClient()
+  const supabase = createSupabasePublicClient()
   const { data, error } = await supabase
     .from('regions')
     .select(
@@ -213,7 +213,7 @@ export const supabaseAttractionRepo: AttractionRepository = {
   },
 
   async listIngestedRegions() {
-    const supabase = await createSupabaseServerClient()
+    const supabase = createSupabasePublicClient()
     const { data, error } = await supabase
       .from('regions')
       .select(

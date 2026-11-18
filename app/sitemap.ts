@@ -24,6 +24,14 @@ const STATIC_ROUTES: {
   { path: '/privacy', priority: 0.2, changeFrequency: 'yearly' },
 ]
 
+/**
+ * 지역 목록은 쿠키 없는 공개 클라이언트로 읽는다(`lib/supabase/public.ts`). 그러면 이
+ * 라우트는 빌드 때 한 번 그려지고 다음 배포까지 굳는다 — 예전에는 서버 클라이언트가
+ * cookies()를 불러 우연히 매 요청 새로 그려지고 있었다. 하루 단위로 다시 그려
+ * 적재 cron이 연 지역이 배포 없이도 사이트맵에 올라오게 한다.
+ */
+export const revalidate = 86400
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date()
 
